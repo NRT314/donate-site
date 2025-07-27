@@ -172,7 +172,7 @@
       for (const [addr, input] of inputMap.entries()) {
         const value = parseFloat(input.value) || 0;
         if (value > 0) {
-          recipients.push(addr);
+          recipients.push(ethers.getAddress(addr)); // ✅ исправление
           amounts.push(value);
           total += value;
         }
