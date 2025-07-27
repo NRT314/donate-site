@@ -3,42 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Donate — NewRussiaToken</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.ethers.io/lib/ethers-5.6.umd.min.js"></script>
+  <title>New Russia Token Donation</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <header>
+    <h1>New Russia Token (NRT) — Donation Interface</h1>
+  </header>
+
   <main>
-    <h1>О проекте</h1>
-    <p>
-      Этот сайт позволяет делать пожертвования организациям, которые помогают обществу и преследуются российскими властями.
-      За каждое пожертвование вы получаете <strong>токены NRT</strong> — это не просто благодарность, а участие в будущем DAO-сообществе.
-    </p>
-    <p>Пожертвования возможны только в <strong>USDT (ERC-20 в сети Polygon)</strong>. За 1 USDT вы получаете 1 NRT.</p>
-    <p><em>Рекомендуется использовать MetaMask или Rabby.</em></p>
+    <section>
+      <button id="connectWallet">🔌 Connect Wallet</button>
+      <p id="walletAddress">Not connected</p>
+    </section>
 
-    <hr />
+    <section>
+      <label for="amount">Donation Amount (in USDT):</label>
+      <input type="number" id="amount" min="0.01" step="0.01" />
+      <button id="donateButton">Donate</button>
+    </section>
 
-    <h2>Ваши пожертвования</h2>
-    <form id="donationForm">
-      <table>
-        <thead>
-          <tr>
-            <th>Организация</th>
-            <th>Адрес</th>
-            <th>Сумма (USDT)</th>
-          </tr>
-        </thead>
-        <tbody id="orgTable">
-          <!-- Организации вставляются скриптом -->
-        </tbody>
-      </table>
-      <p>💰 Общая сумма: <span id="total">0</span> USDT</p>
-      <p>🎁 Вы получите: <span id="nrt">0</span> NRT</p>
-      <button type="submit">Пожертвовать</button>
-    </form>
-
-    <button id="connectButton">🔗 Подключить кошелек</button>
     <p id="status"></p>
   </main>
 
