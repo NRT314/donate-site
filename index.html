@@ -108,7 +108,7 @@
         const val = parseFloat(input.value);
         if (val > 0) {
           const value = ethers.parseUnits(val.toString(), decimals);
-          recipients.push(ethers.getAddress(addr)); // ✅ исправлено
+          recipients.push(ethers.getAddress(addr)); // ✅ исправление: гарантируем правильный checksum
           amounts.push(value);
           total += value;
         }
