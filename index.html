@@ -1,31 +1,127 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>New Russia Token Donation</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Donate NRT</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 2rem auto; }
+    button { padding: 10px 20px; margin-top: 10px; }
+    input { padding: 5px; width: 100px; }
+    #status { margin-top: 1rem; color: green; }
+    #error { margin-top: 1rem; color: red; }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>New Russia Token (NRT) — Donation Interface</h1>
-  </header>
 
-  <main>
-    <section>
-      <button id="connectWallet">🔌 Connect Wallet</button>
-      <p id="walletAddress">Not connected</p>
-    </section>
+  <h1>Donate to NewRussiaToken (NRT)</h1>
 
-    <section>
-      <label for="amount">Donation Amount (in USDT):</label>
-      <input type="number" id="amount" min="0.01" step="0.01" />
-      <button id="donateButton">Donate</button>
-    </section>
+  <div id="info">
+    <p>Вы можете сделать пожертвование в USDT (Polygon), получить токены NRT.</p>
+  </div>
 
-    <p id="status"></p>
-  </main>
+  <button id="connectWallet">Подключить кошелек</button>
 
-  <script src="script.js"></script>
+  <div id="walletAddress" style="margin-top: 10px;"></div>
+
+  <div style="margin-top:20px;">
+    <label for="donateAmount">Сумма USDT для доната:</label>
+    <input type="number" id="donateAmount" value="10" min="0.01" step="0.01" />
+  </div>
+
+  <button id="donateButton" disabled>Пожертвовать</button>
+
+  <div id="status"></div>
+  <div id="error"></div>
+
+  <!-- ethers.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+
+  <script>
+    const connectButton = document.getElementById('connectWallet');
+    const donateButton = document.getElementById('donateButton');
+    const walletAddressDiv = document.getElementById('walletAddress');
+    const statusDiv = document.getElementById('status');
+    const errorDiv = document.getElementById('error');
+    const donateAmountInput = document.getElementById('donateAmount');
+
+    let provider;
+    let signer;
+    let userAddress;
+
+    // Адрес USDT (Polygon)
+    const USDT_ADDRESS = "0x3813e82e6f7098b9583FC0F33a962D02018B6803"; // официальный USDT Polygon
+
+    // Твой контракт с методом donate (пример адреса)
+    const DONATE_CONTRACT_ADDRESS = "0x875eB740603Cd0eAE03caa99Dd2d0f23BE9B6BF5";
+
+    // ABI - только функция donate(uint256 amount)
+    const DONATE_ABI = [
+      "function donate(uint256 amount) external"
+    ];
+
+    // ABI ERC20 (сокращённый для approve/transferFrom)
+    const ERC20_ABI = [
+      "function approve(address spender, uint256 amount) external returns (bool)",
+      "function allowance(address owner, address spender) external view returns (uint256)"
+    ];
+
+    connectButton.onclick = async () => {
+      errorDiv.textContent = '';
+      statusDiv.textContent = '';
+      if (!window.ethereum) {
+        errorDiv.textContent = "MetaMask или другой Web3 кошелек не обнаружен.";
+        return;
+      }
+      try {
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        signer = provider.getSigner();
+        userAddress = await signer.getAddress();
+        walletAddressDiv.textContent = "Подключено: " + userAddress;
+        donateButton.disabled = false;
+        statusDiv.textContent = "Кошелек подключён. Можно жертвовать.";
+      } catch (err) {
+        errorDiv.textContent = "Ошибка подключения: " + err.message;
+      }
+    };
+
+    donateButton.onclick = async () => {
+      errorDiv.textContent = '';
+      statusDiv.textContent = '';
+
+      const amountUsdt = parseFloat(donateAmountInput.value);
+      if (isNaN(amountUsdt) || amountUsdt <= 0) {
+        errorDiv.textContent = "Введите корректную сумму USDT.";
+        return;
+      }
+
+      try {
+        const usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, signer);
+        const donateContract = new ethers.Contract(DONATE_CONTRACT_ADDRESS, DONATE_ABI, signer);
+
+        // USDT имеет 6 знаков после запятой
+        const amountInWei = ethers.utils.parseUnits(amountUsdt.toString(), 6);
+
+        // Проверяем allowance
+        const allowance = await usdtContract.allowance(userAddress, DONATE_CONTRACT_ADDRESS);
+        if (allowance.lt(amountInWei)) {
+          statusDiv.textContent = "Подписываем разрешение (approve) на списание USDT...";
+          const txApprove = await usdtContract.approve(DONATE_CONTRACT_ADDRESS, amountInWei);
+          await txApprove.wait();
+          statusDiv.textContent = "Approve подтвержден.";
+        }
+
+        // Вызываем donate
+        statusDiv.textContent = "Отправляем донат...";
+        const txDonate = await donateContract.donate(amountInWei);
+        await txDonate.wait();
+
+        statusDiv.textContent = `Донат ${amountUsdt} USDT успешно отправлен! Спасибо!`;
+
+      } catch (err) {
+        errorDiv.textContent = "Ошибка при отправке: " + err.message;
+      }
+    };
+  </script>
 </body>
 </html>
