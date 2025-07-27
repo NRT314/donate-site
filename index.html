@@ -83,13 +83,13 @@
   <h2>Технические детали</h2>
   <ul>
     <li>Сеть: Polygon</li>
-    <li>Контракт NRT: <code>0x875eB740603Cd0eAE03caa99Dd2d0f23BE9B6BF5</code></li>
+    <li>Контракт NRT: <code>0x59b460bd54E869E0ade60dB62d445F6522099135</code></li>
     <li>Валюта: USDT (ERC-20) — <code>0xc2132D05D31c914a87C6611C10748AEb04B58e8F</code></li>
   </ul>
 
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
   <script>
-    const CONTRACT_ADDRESS = "0x875eB740603Cd0eAE03caa99Dd2d0f23BE9B6BF5";
+    const CONTRACT_ADDRESS = "0x59b460bd54E869E0ade60dB62d445F6522099135";
     const USDT_ADDRESS = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
 
     const ABI = [
@@ -97,8 +97,8 @@
     ];
 
     const ORGS = [
-      ["Проект (основной)", "0xc0F467567570AADa929fFA115E65bB39066e3E42"],
-      ["ovdinfo", "0xAc3A0a3a015Ad310F980dd84dD0B4fA167f94D83"],
+      ["thisproject", "0xc0F467567570AADa929fFA115E65bB39066e3E42"],
+      ["ovdinfo", "0x421896bb0Dcf271a294bC7019014EE90503656Fd"],
       ["mediazona", "0xE86D7D922DeF8a8FEB21f1702C9AaEEDBec32DDC"],
       ["zhuk", "0x1913A02BB3836AF224aEF136461F43189A0cEcd0"],
       ["breakfastshow", "0xdB4BB555a15bC8bB3b07E57452a8E6E24b358e7F"],
@@ -139,7 +139,7 @@
         total += parseFloat(input.value) || 0;
       }
       totalAmountEl.textContent = total.toFixed(2) + " USDT";
-      nrtAmountEl.textContent = (total).toFixed(2) + " NRT";
+      nrtAmountEl.textContent = total.toFixed(2) + " NRT";
     }
 
     recalc();
@@ -172,7 +172,7 @@
       for (const [addr, input] of inputMap.entries()) {
         const value = parseFloat(input.value) || 0;
         if (value > 0) {
-          recipients.push(ethers.getAddress(addr)); // ✅ исправление
+          recipients.push(ethers.getAddress(addr));
           amounts.push(value);
           total += value;
         }
