@@ -2,37 +2,90 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>NRT Donate</title>
+  <title>NRT Donate — Поддержите независимые организации</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body { font-family: sans-serif; max-width: 800px; margin: 2rem auto; }
-    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
-    input[type="number"] { width: 80px; padding: 4px; }
-    button { margin-top: 1rem; padding: 10px 20px; font-size: 16px; cursor: pointer; }
-    #status { margin-top: 1rem; font-weight: bold; }
+    body {
+      font-family: sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: #fdfdfd;
+      color: #222;
+    }
+    h1, h2 {
+      color: #111;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    input[type="number"] {
+      width: 100px;
+      padding: 5px;
+    }
+    button {
+      padding: 10px 15px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #status {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
 
-  <h2>О проекте</h2>
-  <p>Пожертвуйте в проверенные организации и получите токены <strong>NRT</strong> — цифровой актив, дающий участие в будущем DAO.</p>
+  <h1>Поддержите независимые организации</h1>
 
-  <h3>Подключение кошелька</h3>
+  <p>
+    Пожертвуйте в проверенные российские независимые проекты, получив токены <strong>NRT</strong> в ответ. NRT — цифровой актив, с помощью которого вы в будущем сможете участвовать в голосованиях DAO и управлении платформой.
+  </p>
+
+  <h2>Подключение кошелька</h2>
   <button id="connectBtn">🔗 Подключить кошелёк</button>
   <p id="walletAddress"></p>
 
-  <h3>Сделать пожертвование</h3>
-  <p>Сумма в USDT распределяется между организациями, которым вы укажете:</p>
+  <h2>Ваши пожертвования</h2>
+  <p>Сеть: <strong>Polygon</strong> | Валюта: <strong>USDT (ERC-20)</strong></p>
 
   <table>
     <thead>
-      <tr><th>Организация</th><th>Адрес</th><th>Сумма (USDT)</th></tr>
+      <tr>
+        <th>Организация</th>
+        <th>Кошелёк</th>
+        <th>Сумма (USDT)</th>
+      </tr>
     </thead>
-    <tbody id="donationRows"></tbody>
+    <tbody id="donationTable"></tbody>
+    <tfoot>
+      <tr>
+        <td colspan="2"><strong>Общая сумма</strong></td>
+        <td id="totalAmount">0.00 USDT</td>
+      </tr>
+      <tr>
+        <td colspan="2"><strong>Вы получите</strong></td>
+        <td id="nrtAmount">0.00 NRT</td>
+      </tr>
+    </tfoot>
   </table>
 
-  <button id="donateBtn">💸 Пожертвовать</button>
+  <button id="donateBtn">💸 Отправить пожертвование</button>
   <p id="status"></p>
+
+  <h2>Технические детали</h2>
+  <ul>
+    <li>Сеть: Polygon</li>
+    <li>Контракт NRT: <code>0x875eB740603Cd0eAE03caa99Dd2d0f23BE9B6BF5</code></li>
+    <li>Валюта: USDT (ERC-20) — <code>0xc2132D05D31c914a87C6611C10748AEb04B58e8F</code></li>
+  </ul>
 
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
   <script>
@@ -43,7 +96,7 @@
       "function donate(address token, address[] recipients, uint256[] amounts) external"
     ];
 
-    const orgs = [
+    const ORGS = [
       ["Проект (основной)", "0xc0F467567570AADa929fFA115E65bB39066e3E42"],
       ["ovdinfo", "0xAc3A0a3a015Ad310F980dd84dD0B4fA167f94D83"],
       ["mediazona", "0xE86D7D922DeF8a8FEB21f1702C9AaEEDBec32DDC"],
@@ -60,76 +113,98 @@
 
     let provider, signer;
 
-    const connectBtn = document.getElementById("connectBtn");
-    const donateBtn = document.getElementById("donateBtn");
-    const walletAddressElem = document.getElementById("walletAddress");
-    const statusElem = document.getElementById("status");
-    const donationRows = document.getElementById("donationRows");
+    const donationTable = document.getElementById("donationTable");
+    const totalAmountEl = document.getElementById("totalAmount");
+    const nrtAmountEl = document.getElementById("nrtAmount");
+    const statusEl = document.getElementById("status");
 
     const inputMap = new Map();
 
-    orgs.forEach(([name, address]) => {
-      const tr = document.createElement("tr");
-      const input = document.createElement("input");
-      input.type = "number";
-      input.step = "0.01";
-      input.min = "0";
-      input.value = "0";
-      inputMap.set(address, input);
-      tr.innerHTML = `<td>${name}</td><td>${address}</td><td></td>`;
-      tr.children[2].appendChild(input);
-      donationRows.appendChild(tr);
+    ORGS.forEach(([name, addr]) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${name}</td>
+        <td><code>${addr}</code></td>
+        <td><input type="number" min="0" step="0.01" value="0" /></td>
+      `;
+      const input = row.querySelector("input");
+      input.addEventListener("input", recalc);
+      inputMap.set(addr, input);
+      donationTable.appendChild(row);
     });
 
-    connectBtn.onclick = async () => {
-      if (!window.ethereum) return alert("Установите MetaMask или Rabby");
-      provider = new ethers.BrowserProvider(window.ethereum);
-      const accounts = await provider.send("eth_requestAccounts", []);
-      signer = await provider.getSigner();
-      walletAddressElem.innerText = "Кошелёк: " + accounts[0];
-      connectBtn.disabled = true;
+    function recalc() {
+      let total = 0;
+      for (const input of inputMap.values()) {
+        total += parseFloat(input.value) || 0;
+      }
+      totalAmountEl.textContent = total.toFixed(2) + " USDT";
+      nrtAmountEl.textContent = (total).toFixed(2) + " NRT";
+    }
+
+    recalc();
+
+    document.getElementById("connectBtn").onclick = async () => {
+      if (!window.ethereum) {
+        alert("Установите MetaMask или Rabby");
+        return;
+      }
+      try {
+        provider = new ethers.BrowserProvider(window.ethereum);
+        const accounts = await provider.send("eth_requestAccounts", []);
+        signer = await provider.getSigner();
+        document.getElementById("walletAddress").innerText = "Кошелёк: " + accounts[0];
+      } catch (e) {
+        alert("Ошибка подключения: " + e.message);
+      }
     };
 
-    donateBtn.onclick = async () => {
-      if (!signer) return alert("Сначала подключите кошелёк");
-
-      const tokenContract = new ethers.Contract(USDT_ADDRESS, [
-        "function approve(address spender, uint256 amount) public returns (bool)",
-        "function decimals() view returns (uint8)"
-      ], signer);
-
-      const decimals = await tokenContract.decimals();
+    document.getElementById("donateBtn").onclick = async () => {
+      if (!signer) {
+        alert("Сначала подключите кошелёк");
+        return;
+      }
 
       const recipients = [];
       const amounts = [];
-      let total = ethers.parseUnits("0", decimals);
+      let total = 0;
 
       for (const [addr, input] of inputMap.entries()) {
-        const val = parseFloat(input.value);
-        if (val > 0) {
-          const value = ethers.parseUnits(val.toString(), decimals);
-          recipients.push(ethers.getAddress(addr)); // ✅ исправление: гарантируем правильный checksum
+        const value = parseFloat(input.value) || 0;
+        if (value > 0) {
+          recipients.push(addr);
           amounts.push(value);
           total += value;
         }
       }
 
-      if (recipients.length === 0) return alert("Введите сумму хотя бы для одной организации");
+      if (recipients.length === 0) {
+        alert("Укажите хотя бы одну сумму для пожертвования");
+        return;
+      }
 
       try {
-        statusElem.innerText = "⏳ Подтвердите в кошельке (approve)...";
-        const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, total);
+        const usdt = new ethers.Contract(USDT_ADDRESS, [
+          "function approve(address spender, uint256 amount) public returns (bool)",
+          "function decimals() public view returns (uint8)"
+        ], signer);
+
+        const decimals = await usdt.decimals();
+        const totalAmount = ethers.parseUnits(total.toString(), decimals);
+        const amountBNs = amounts.map(a => ethers.parseUnits(a.toString(), decimals));
+
+        statusEl.textContent = "⏳ Подтвердите (approve)...";
+        const approveTx = await usdt.approve(CONTRACT_ADDRESS, totalAmount);
         await approveTx.wait();
 
         const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-        statusElem.innerText = "⏳ Подтвердите в кошельке (donate)...";
-        const tx = await contract.donate(USDT_ADDRESS, recipients, amounts);
-        await tx.wait();
+        statusEl.textContent = "⏳ Подтвердите (donate)...";
+        const donateTx = await contract.donate(USDT_ADDRESS, recipients, amountBNs);
+        await donateTx.wait();
 
-        statusElem.innerText = "✅ Спасибо за донат!";
+        statusEl.textContent = "✅ Спасибо за донат!";
       } catch (err) {
-        console.error(err);
-        statusElem.innerText = "❌ Ошибка: " + err.message;
+        statusEl.textContent = "❌ Ошибка: " + err.message;
       }
     };
   </script>
