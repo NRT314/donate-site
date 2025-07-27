@@ -1,30 +1,47 @@
-<!-- Упрощённый интерфейс с подключением кошелька и отправкой donate() -->
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>NRT Donate</title>
-  <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; }
-    button { padding: 10px; font-size: 16px; margin-top: 1rem; }
-    input { padding: 5px; width: 100px; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Donate — NewRussiaToken</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.ethers.io/lib/ethers-5.6.umd.min.js"></script>
 </head>
 <body>
-  <h2>О проекте</h2>
-  <p>Этот проект позволяет жертвовать в общественные организации, которым вы доверяете. За каждое пожертвование вы получаете токены <strong>NRT</strong>, которые в будущем дадут возможность участвовать в DAO-сообществе.</p>
+  <main>
+    <h1>О проекте</h1>
+    <p>
+      Этот сайт позволяет делать пожертвования организациям, которые помогают обществу и преследуются российскими властями.
+      За каждое пожертвование вы получаете <strong>токены NRT</strong> — это не просто благодарность, а участие в будущем DAO-сообществе.
+    </p>
+    <p>Пожертвования возможны только в <strong>USDT (ERC-20 в сети Polygon)</strong>. За 1 USDT вы получаете 1 NRT.</p>
+    <p><em>Рекомендуется использовать MetaMask или Rabby.</em></p>
 
-  <h3>Подключение кошелька</h3>
-  <button onclick="connectWallet()">🔗 Подключить кошелёк</button>
-  <p id="walletAddress"></p>
+    <hr />
 
-  <h3>Сделать пожертвование</h3>
-  <p>Сумма (в USDT): <input id="amount" type="number" value="0.03" step="0.01" /></p>
-  <button onclick="donate()">💸 Пожертвовать</button>
-  <p id="status"></p>
+    <h2>Ваши пожертвования</h2>
+    <form id="donationForm">
+      <table>
+        <thead>
+          <tr>
+            <th>Организация</th>
+            <th>Адрес</th>
+            <th>Сумма (USDT)</th>
+          </tr>
+        </thead>
+        <tbody id="orgTable">
+          <!-- Организации вставляются скриптом -->
+        </tbody>
+      </table>
+      <p>💰 Общая сумма: <span id="total">0</span> USDT</p>
+      <p>🎁 Вы получите: <span id="nrt">0</span> NRT</p>
+      <button type="submit">Пожертвовать</button>
+    </form>
 
-  <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
+    <button id="connectButton">🔗 Подключить кошелек</button>
+    <p id="status"></p>
+  </main>
+
   <script src="script.js"></script>
 </body>
 </html>
