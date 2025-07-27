@@ -1,0 +1,29 @@
+<!-- Упрощённый интерфейс с подключением кошелька и отправкой donate() -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>NRT Donate</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; }
+    button { padding: 10px; font-size: 16px; margin-top: 1rem; }
+    input { padding: 5px; width: 100px; }
+  </style>
+</head>
+<body>
+  <h2>О проекте</h2>
+  <p>Этот проект позволяет жертвовать в общественные организации, которым вы доверяете. За каждое пожертвование вы получаете токены <strong>NRT</strong>, которые в будущем дадут возможность участвовать в DAO-сообществе.</p>
+
+  <h3>Подключение кошелька</h3>
+  <button onclick="connectWallet()">🔗 Подключить кошелёк</button>
+  <p id="walletAddress"></p>
+
+  <h3>Сделать пожертвование</h3>
+  <p>Сумма (в USDT): <input id="amount" type="number" value="0.03" step="0.01" /></p>
+  <button onclick="donate()">💸 Пожертвовать</button>
+  <p id="status"></p>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
