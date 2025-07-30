@@ -83,13 +83,13 @@
   <h2>Технические детали</h2>
   <ul>
     <li>Сеть: Polygon</li>
-    <li>Контракт NRT: <code>0x1f055Cf4373E452E61cd883a0C0a076ab4aB0C0B</code></li>
+    <li>Контракт NRT: <code>0x1F055CF4373E452e61CD883a0c0a076ab4Ab0C0b</code></li>
     <li>Валюта: USDT (ERC-20) — <code>0xc2132D05D31c914a87C6611C10748AEb04B58e8F</code></li>
   </ul>
 
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
   <script>
-    const CONTRACT_ADDRESS = "0x1f055Cf4373E452E61cd883a0C0a076ab4aB0C0B";
+    const CONTRACT_ADDRESS = "0x1F055CF4373E452e61CD883a0c0a076ab4Ab0C0b";
     const USDT_ADDRESS = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
 
     const ABI = [
@@ -172,7 +172,7 @@
       for (const [addr, input] of inputMap.entries()) {
         const value = parseFloat(input.value) || 0;
         if (value > 0) {
-          recipients.push(ethers.getAddress(addr)); // checksummed
+          recipients.push(ethers.getAddress(addr)); // checksum
           amounts.push(value);
           total += value;
         }
