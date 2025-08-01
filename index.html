@@ -176,6 +176,7 @@
         const ABI = [
             "function donate(address token, address[] recipients, uint256[] amounts) external",
             "function tokenRates(address) public view returns (uint256)",
+            // The decimals() function for the NRT token is included here.
             "function decimals() public view returns (uint8)"
         ];
         
@@ -335,14 +336,15 @@
         // Recalculate totals based on inputs and selected token
         function recalc() {
             let totalInSelectedToken = 0;
-            const usdtPerToken = tokenRates[selectedToken] || 0;
+            // The total is now calculated based on the fetched token rates
+            const nrtPerToken = tokenRates[selectedToken] || 0;
             for (const input of inputMap.values()) {
                 totalInSelectedToken += parseFloat(input.value) || 0;
             }
-            const totalUsdt = totalInSelectedToken * usdtPerToken;
+            const totalNrt = totalInSelectedToken * nrtPerToken;
 
             totalAmountEl.textContent = `${totalInSelectedToken.toFixed(2)} ${TOKEN_METADATA[selectedToken].symbol}`;
-            nrtAmountEl.textContent = `${totalUsdt.toFixed(2)} NRT`;
+            nrtAmountEl.textContent = `${totalNrt.toFixed(2)} NRT`;
         }
         
         // Update the token details line
@@ -383,23 +385,33 @@
             try {
                 // Use a read-only provider for fetching rates
                 const readOnlyProvider = new ethers.JsonRpcProvider(POLYGON_RPC_URL);
-                const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, readOnlyProvider);
-                const rates = {};
+                const nrtContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, readOnlyProvider);
                 
                 ratesTableBody.innerHTML = ''; // Clear loading row
                 
+                // ABI for ERC-20 tokens to get decimals
+                const tokenAbi = ["function decimals() public view returns (uint8)"];
+
                 for (const token in TOKEN_METADATA) {
                     try {
-                        const rate = await contract.tokenRates(TOKEN_METADATA[token].address);
-                        // The rate is stored as rate * 1e6, so we divide to get the actual USDT value per token
-                        const usdtPerToken = parseFloat(ethers.formatUnits(rate, 6));
-                        rates[token] = usdtPerToken;
+                        const tokenAddress = TOKEN_METADATA[token].address;
+                        
+                        // Create a new contract instance for each token to get its decimals
+                        const tokenContract = new ethers.Contract(tokenAddress, tokenAbi, readOnlyProvider);
+                        const decimals = await tokenContract.decimals();
+
+                        // Fetch the rate from the NRT contract
+                        const rate = await nrtContract.tokenRates(tokenAddress);
+                        
+                        // Use the fetched decimals for the specific token to format the rate correctly
+                        const nrtPerToken = parseFloat(ethers.formatUnits(rate, decimals));
+                        tokenRates[token] = nrtPerToken;
                         
                         const row = document.createElement("tr");
                         row.className = "hover:bg-gray-50 transition-colors duration-200";
                         row.innerHTML = `
                             <td class="p-3 border border-gray-300 font-bold">${token}</td>
-                            <td class="p-3 border border-gray-300 text-right">${usdtPerToken.toFixed(4)} NRT</td>
+                            <td class="p-3 border border-gray-300 text-right">${nrtPerToken.toFixed(4)} NRT</td>
                         `;
                         ratesTableBody.appendChild(row);
                     } catch (e) {
@@ -409,7 +421,6 @@
                         ratesTableBody.appendChild(row);
                     }
                 }
-                tokenRates = rates;
                 recalc();
             } catch (e) {
                 console.error("Error fetching rates with read-only provider:", e);
