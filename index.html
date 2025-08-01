@@ -44,6 +44,13 @@
             text-decoration: none;
             cursor: pointer;
         }
+        /* Style for the active token radio button label */
+        input[name="token"]:checked + span {
+            font-weight: bold;
+        }
+        input[name="token"]:checked + span:after {
+            content: ' ✅';
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 p-4">
@@ -145,7 +152,7 @@
             <h2 data-lang-key="technical_details_title" class="text-xl font-semibold mb-2">Technical Details</h2>
             <ul>
                 <li data-lang-key="technical_details_network">Network: Polygon</li>
-                <li data-lang-key="technical_details_contract">NRT Contract: <code>0x0051DAA5650cF0dB0C1F9c42DCE1a66c8c3268Ff</code></li>
+                <li data-lang-key="technical_details_contract">NRT Contract: <code>0x39bA20cfB1B520528EC8585d126f7f3bFfE7A158</code></li>
                 <li data-lang-key="technical_details_token">Tokens: USDT (6), USDC (6), DAI (18)</li>
             </ul>
         </div>
@@ -155,9 +162,10 @@
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
     <script>
         // CONTRACT DETAILS
-        const CONTRACT_ADDRESS = "0x0051DAA5650cF0dB0C1F9c42DCE1a66c8c3268Ff";
+        // The contract address has been updated to the new one.
+        const CONTRACT_ADDRESS = "0x39bA20cfB1B520528EC8585d126f7f3bFfE7A158";
 
-        // TOKEN DETAILS - All supported tokens
+        // TOKEN DETAILS - All supported tokens on Polygon Mainnet
         const TOKENS = {
             usdt: {
                 address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
@@ -176,17 +184,18 @@
             }
         };
 
-        // ABI for the NRT contract
+        // ABI for the NRT contract - `donate` function
         const ABI = [
             "function donate(address token, address[] recipients, uint256[] amounts) external"
         ];
         
-        // ABI for ERC-20 tokens
+        // ABI for ERC-20 tokens - `approve` function
         const ERC20_ABI = [
             "function approve(address spender, uint256 amount) public returns (bool)"
         ];
 
         // RECIPIENT LIST
+        // These are the organizations that will receive the donations.
         const ORGS = [
             ["thisproject", "0xc0F467567570AADa929fFA115E65bB39066e3E42"],
             ["ovdinfo", "0x421896bb0Dcf271a294bC7019014EE90503656Fd"],
@@ -220,7 +229,7 @@
                 donate_button: 'Send Donation',
                 technical_details_title: 'Technical Details',
                 technical_details_network: 'Network: Polygon',
-                technical_details_contract: 'NRT Contract: <code>0x0051DAA5650cF0dB0C1F9c42DCE1a66c8c3268Ff</code>',
+                technical_details_contract: 'NRT Contract: <code>0x39bA20cfB1B520528EC8585d126f7f3bFfE7A158</code>',
                 technical_details_token: 'Tokens: USDT (6), USDC (6), DAI (18)',
                 modal_connect: 'Please connect your wallet first.',
                 modal_metamask: 'Please install MetaMask or Rabby.',
@@ -247,7 +256,7 @@
                 donate_button: 'Отправить пожертвование',
                 technical_details_title: 'Технические детали',
                 technical_details_network: 'Сеть: Polygon',
-                technical_details_contract: 'Контракт NRT: <code>0x0051DAA5650cF0dB0C1F9c42DCE1a66c8c3268Ff</code>',
+                technical_details_contract: 'Контракт NRT: <code>0x39bA20cfB1B520528EC8585d126f7f3bFfE7A158</code>',
                 technical_details_token: 'Токены: USDT (6), USDC (6), DAI (18)',
                 modal_connect: 'Сначала подключите кошелёк.',
                 modal_metamask: 'Установите MetaMask или Rabby.',
