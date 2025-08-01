@@ -392,21 +392,28 @@
                 // Use a read-only provider for fetching rates
                 const readOnlyProvider = new ethers.JsonRpcProvider(POLYGON_RPC_URL);
                 const nrtContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, readOnlyProvider);
-
+                
                 // Get the NRT token's decimals once
-                nrtDecimals = await nrtContract.decimals();
+                const nrtDecimals = await nrtContract.decimals();
                 
                 ratesTableBody.innerHTML = ''; // Clear loading row
 
                 for (const token in TOKEN_METADATA) {
                     try {
                         const tokenAddress = TOKEN_METADATA[token].address;
+
+                        // Create a new contract instance for each token to get its decimals
+                        const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, readOnlyProvider);
+                        const tokenDecimals = await tokenContract.decimals();
                         
-                        // Fetch the rate from the NRT contract.
-                        const rate = await nrtContract.tokenRates(tokenAddress);
+                        // Fetch the raw rate from the NRT contract. This rate is NRT/smallest_unit_of_token.
+                        const rateRaw = await nrtContract.tokenRates(tokenAddress);
                         
-                        // Use the NRT token's decimals to format the rate correctly.
-                        const nrtPerToken = parseFloat(ethers.formatUnits(rate, nrtDecimals));
+                        // To get NRT per 1 human-readable token, we need to scale the raw rate
+                        // by the token's decimals and then format with the NRT token's decimals.
+                        const rateInNRTDecimals = rateRaw * (10n ** BigInt(tokenDecimals));
+                        const nrtPerToken = parseFloat(ethers.formatUnits(rateInNRTDecimals, nrtDecimals));
+                        
                         tokenRates[token] = nrtPerToken;
                         
                         const row = document.createElement("tr");
