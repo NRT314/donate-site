@@ -60,8 +60,8 @@
 
         <!-- Language Switcher -->
         <div class="absolute top-4 right-4">
-            <button id="lang-en" class="bg-blue-600 text-white font-bold py-1 px-3 rounded-lg transition duration-300">EN</button>
-            <button id="lang-ru" class="bg-gray-200 text-gray-800 font-bold py-1 px-3 rounded-lg transition duration-300">RU</button>
+            <button id="lang-en" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-blue-600 transition duration-300">EN</button>
+            <button id="lang-ru" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-transparent transition duration-300">RU</button>
         </div>
 
         <h1 data-lang-key="title" class="text-3xl font-bold mb-4 text-center">Support Independent Organizations</h1>
@@ -85,7 +85,7 @@
             <p data-lang-key="network_info" class="text-sm text-gray-500 mb-4">Network: <strong>Polygon</strong></p>
             <div class="flex flex-wrap gap-4 mb-4">
                 <button data-token="USDT" class="token-btn bg-white text-gray-800 font-bold py-2 px-4 rounded-full border-2 border-transparent transition-all duration-300 shadow-sm hover:shadow-lg">USDT</button>
-                <button data-token="DAI" class="token-btn bg-white text-gray-800 font-bold py-2 px-4 rounded-full border-2 border-transparent transition-all duration-300 shadow-sm hover:shadow-lg">DAI</button>
+                <!-- DAI currency option removed as requested -->
                 <button data-token="USDC" class="token-btn bg-white text-gray-800 font-bold py-2 px-4 rounded-full border-2 border-transparent transition-all duration-300 shadow-sm hover:shadow-lg">USDC</button>
                 <button data-token="WETH" class="token-btn bg-white text-gray-800 font-bold py-2 px-4 rounded-full border-2 border-transparent transition-all duration-300 shadow-sm hover:shadow-lg">WETH</button>
             </div>
@@ -100,6 +100,7 @@
                 </thead>
                 <tbody id="ratesTable">
                     <!-- Rates will be dynamically inserted here -->
+                    <tr><td colspan="2" class="p-3 text-center text-gray-500">Loading rates...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -161,10 +162,6 @@
                 address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
                 symbol: "USDT"
             },
-            DAI: {
-                address: "0x8f3Cf7Ad23cd3cadbd9735AFF958023239c6A063",
-                symbol: "DAI"
-            },
             USDC: {
                 address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
                 symbol: "USDC"
@@ -174,6 +171,7 @@
                 symbol: "WETH"
             }
         };
+        const POLYGON_RPC_URL = 'https://polygon-rpc.com';
 
         const ABI = [
             "function donate(address token, address[] recipients, uint256[] amounts) external",
@@ -228,7 +226,8 @@
                 status_success: '✅ Thank you for your donation!',
                 status_error: '❌ Error: ',
                 rates_error: 'ERROR',
-                currency_label: 'Currency: '
+                currency_label: 'Currency: ',
+                rates_loading: 'Loading rates...'
             },
             ru: {
                 title: 'Поддержите независимые организации',
@@ -259,7 +258,8 @@
                 status_success: '✅ Спасибо за донат!',
                 status_error: '❌ Ошибка: ',
                 rates_error: 'ОШИБКА',
-                currency_label: 'Валюта: '
+                currency_label: 'Валюта: ',
+                rates_loading: 'Загрузка курсов...'
             }
         };
 
@@ -301,16 +301,15 @@
                 }
             });
 
-            // Update language switcher buttons' style
-            document.getElementById('lang-en').classList.remove('bg-blue-600', 'text-white');
-            document.getElementById('lang-en').classList.add('bg-gray-200', 'text-gray-800');
-            document.getElementById('lang-ru').classList.remove('bg-blue-600', 'text-white');
-            document.getElementById('lang-ru').classList.add('bg-gray-200', 'text-gray-800');
-            document.getElementById(`lang-${lang}`).classList.add('bg-blue-600', 'text-white');
-            document.getElementById(`lang-${lang}`).classList.remove('bg-gray-200', 'text-gray-800');
-
+            // Update language switcher buttons' style for visibility
+            document.getElementById('lang-en').classList.remove('border-blue-600', 'border-transparent');
+            document.getElementById('lang-ru').classList.remove('border-blue-600', 'border-transparent');
+            document.getElementById(`lang-${lang}`).classList.add('border-blue-600');
+            document.getElementById(`lang-${lang === 'en' ? 'ru' : 'en'}`).classList.add('border-transparent');
+            
             // Update dynamic text
             updateTokenDetails();
+            fetchRates(); // Re-fetch and display rates in the new language
         }
 
         // Populate donation table
@@ -356,9 +355,13 @@
         // Handle token selection button clicks
         document.querySelectorAll('.token-btn').forEach(button => {
             button.addEventListener('click', () => {
-                // Update selected state and token
-                document.querySelector('.token-btn.bg-blue-600')?.classList.remove('bg-blue-600', 'text-white');
-                button.classList.add('bg-blue-600', 'text-white');
+                // Update selected state and token for better visibility
+                document.querySelectorAll('.token-btn').forEach(btn => {
+                    btn.classList.remove('border-blue-600', 'shadow-lg');
+                    btn.classList.add('border-transparent', 'shadow-sm');
+                });
+                button.classList.add('border-blue-600', 'shadow-lg');
+                button.classList.remove('border-transparent', 'shadow-sm');
                 selectedToken = button.dataset.token;
 
                 // Update UI elements with the new token symbol
@@ -374,44 +377,51 @@
 
         // Fetch token rates from the contract and update the UI
         async function fetchRates() {
-            if (!provider) {
-                showModal(translations[currentLang].modal_connect);
-                return;
-            }
-            const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
-            const rates = {};
             const ratesTableBody = document.getElementById('ratesTable');
-            ratesTableBody.innerHTML = '';
+            ratesTableBody.innerHTML = `<tr><td colspan="2" class="p-3 text-center text-gray-500">${translations[currentLang].rates_loading}</td></tr>`;
             
-            for (const token in TOKEN_METADATA) {
-                try {
-                    const rate = await contract.tokenRates(TOKEN_METADATA[token].address);
-                    // The rate is stored as rate * 1e6, so we divide to get the actual USDT value per token
-                    const usdtPerToken = parseFloat(ethers.formatUnits(rate, 6));
-                    rates[token] = usdtPerToken;
-                    
-                    const row = document.createElement("tr");
-                    row.className = "hover:bg-gray-50 transition-colors duration-200";
-                    row.innerHTML = `
-                        <td class="p-3 border border-gray-300 font-bold">${token}</td>
-                        <td class="p-3 border border-gray-300 text-right">${usdtPerToken.toFixed(4)} NRT</td>
-                    `;
-                    ratesTableBody.appendChild(row);
-                } catch (e) {
-                     console.error(`Error fetching rate for ${token}:`, e);
-                     const row = document.createElement("tr");
-                     row.innerHTML = `<td class="p-3 border border-gray-300">${token}</td><td class="p-3 border border-gray-300 text-red-500">${translations[currentLang].rates_error}</td>`;
-                     ratesTableBody.appendChild(row);
+            try {
+                // Use a read-only provider for fetching rates
+                const readOnlyProvider = new ethers.JsonRpcProvider(POLYGON_RPC_URL);
+                const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, readOnlyProvider);
+                const rates = {};
+                
+                ratesTableBody.innerHTML = ''; // Clear loading row
+                
+                for (const token in TOKEN_METADATA) {
+                    try {
+                        const rate = await contract.tokenRates(TOKEN_METADATA[token].address);
+                        // The rate is stored as rate * 1e6, so we divide to get the actual USDT value per token
+                        const usdtPerToken = parseFloat(ethers.formatUnits(rate, 6));
+                        rates[token] = usdtPerToken;
+                        
+                        const row = document.createElement("tr");
+                        row.className = "hover:bg-gray-50 transition-colors duration-200";
+                        row.innerHTML = `
+                            <td class="p-3 border border-gray-300 font-bold">${token}</td>
+                            <td class="p-3 border border-gray-300 text-right">${usdtPerToken.toFixed(4)} NRT</td>
+                        `;
+                        ratesTableBody.appendChild(row);
+                    } catch (e) {
+                        console.error(`Error fetching rate for ${token}:`, e);
+                        const row = document.createElement("tr");
+                        row.innerHTML = `<td class="p-3 border border-gray-300">${token}</td><td class="p-3 border border-gray-300 text-red-500">${translations[currentLang].rates_error}</td>`;
+                        ratesTableBody.appendChild(row);
+                    }
                 }
+                tokenRates = rates;
+                recalc();
+            } catch (e) {
+                console.error("Error fetching rates with read-only provider:", e);
+                ratesTableBody.innerHTML = `<tr><td colspan="2" class="p-3 text-center text-red-500">${translations[currentLang].rates_error}</td></tr>`;
             }
-            tokenRates = rates;
-            recalc();
         }
 
         // Initialize UI and set up event listeners
         renderDonationTable();
+        // Automatically select the first token (USDT) on load
         document.querySelector('.token-btn[data-token="USDT"]').click();
-        setLanguage('en'); // Set default language
+        setLanguage('en'); // Set default language and fetch rates
 
         document.getElementById("lang-en").addEventListener('click', () => setLanguage('en'));
         document.getElementById("lang-ru").addEventListener('click', () => setLanguage('ru'));
@@ -422,12 +432,12 @@
                 return;
             }
             try {
+                // Use a browser provider for wallet connection and signing
                 provider = new ethers.BrowserProvider(window.ethereum);
                 const accounts = await provider.send("eth_requestAccounts", []);
                 signer = await provider.getSigner();
                 document.getElementById("walletAddress").innerText = `Wallet: ${accounts[0]}`;
                 document.getElementById("connectBtn").disabled = true;
-                await fetchRates();
             } catch (e) {
                 showModal(`${translations[currentLang].modal_error} ${e.message}`);
             }
