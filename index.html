@@ -173,13 +173,18 @@
         };
         const POLYGON_RPC_URL = 'https://polygon-rpc.com';
 
+        // ABI for the NRT contract
         const ABI = [
             "function donate(address token, address[] recipients, uint256[] amounts) external",
             "function tokenRates(address) public view returns (uint256)",
-            // The decimals() function for the NRT token is included here.
             "function decimals() public view returns (uint8)"
         ];
         
+        // ABI for ERC-20 tokens to get decimals
+        const ERC20_ABI = [
+            "function decimals() public view returns (uint8)"
+        ];
+
         // RECIPIENT LIST
         const ORGS = [
             ["thisproject", "0xc0F467567570AADa929fFA115E65bB39066e3E42"],
@@ -268,6 +273,7 @@
         let provider, signer;
         let selectedToken = 'USDT';
         let tokenRates = {};
+        let nrtDecimals; // Global variable to store NRT decimals
         const donationTable = document.getElementById("donationTable");
         const ratesTable = document.getElementById("ratesTable");
         const totalAmountEl = document.getElementById("totalAmount");
@@ -387,22 +393,19 @@
                 const readOnlyProvider = new ethers.JsonRpcProvider(POLYGON_RPC_URL);
                 const nrtContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, readOnlyProvider);
 
-                // First, get the NRT token's decimals to ensure correct rate formatting
-                const nrtDecimals = await nrtContract.decimals();
+                // Get the NRT token's decimals once
+                nrtDecimals = await nrtContract.decimals();
                 
                 ratesTableBody.innerHTML = ''; // Clear loading row
-                
-                // ABI for ERC-20 tokens to get decimals
-                const tokenAbi = ["function decimals() public view returns (uint8)"];
 
                 for (const token in TOKEN_METADATA) {
                     try {
                         const tokenAddress = TOKEN_METADATA[token].address;
                         
-                        // Fetch the rate from the NRT contract. This value is likely scaled by NRT decimals.
+                        // Fetch the rate from the NRT contract.
                         const rate = await nrtContract.tokenRates(tokenAddress);
                         
-                        // Use the fetched NRT decimals to format the rate correctly
+                        // Use the NRT token's decimals to format the rate correctly.
                         const nrtPerToken = parseFloat(ethers.formatUnits(rate, nrtDecimals));
                         tokenRates[token] = nrtPerToken;
                         
