@@ -67,7 +67,7 @@
         <h1 data-lang-key="title" class="text-3xl font-bold mb-4 text-center">Support Independent Organizations</h1>
 
         <p data-lang-key="description" class="text-center text-lg mb-6 text-gray-600">
-            Donate to verified Russian independent projects using USDT and receive <strong>NRT</strong> tokens in return. The exchange rate is fixed at <strong>1 USDT = 1 NRT</strong>.
+            Donate to verified Russian independent projects using stablecoins and receive <strong>NRT</strong> tokens in return. The exchange rate is fixed at <strong>1 stablecoin = 1 NRT</strong>.
         </p>
 
         <!-- Wallet Connection Section -->
@@ -82,18 +82,37 @@
         <!-- Fixed Rate Display -->
         <div class="bg-gray-100 p-6 rounded-lg mb-6">
             <h2 data-lang-key="rates_title" class="text-2xl font-semibold mb-3">Exchange Rate</h2>
-            <p class="text-lg font-bold text-gray-700">1 USDT = 1 NRT</p>
+            <p class="text-lg font-bold text-gray-700"><span id="rateDisplay">1 USDT = 1 NRT</span></p>
+        </div>
+        
+        <!-- Token Selection Section -->
+        <div class="bg-gray-100 p-6 rounded-lg mb-6">
+            <h2 data-lang-key="token_selection_title" class="text-2xl font-semibold mb-3">Select Donation Token</h2>
+            <div class="flex flex-wrap gap-4 justify-center">
+                <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
+                    <input type="radio" name="token" id="radio-usdt" value="usdt" class="h-4 w-4 text-blue-600" checked />
+                    <span class="text-lg">USDT</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
+                    <input type="radio" name="token" id="radio-usdc" value="usdc" class="h-4 w-4 text-blue-600" />
+                    <span class="text-lg">USDC</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
+                    <input type="radio" name="token" id="radio-dai" value="dai" class="h-4 w-4 text-blue-600" />
+                    <span class="text-lg">DAI</span>
+                </label>
+            </div>
         </div>
 
         <!-- Donation Table Section -->
         <div class="bg-gray-100 p-6 rounded-lg mb-6">
-            <h2 data-lang-key="donations_title" class="text-2xl font-semibold mb-3">Your Donations (USDT)</h2>
+            <h2 data-lang-key="donations_title" class="text-2xl font-semibold mb-3">Your Donations (<span id="tokenSymbolHeader">USDT</span>)</h2>
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-gray-200">
                         <th data-lang-key="org_header" class="p-3 border border-gray-300">Organization</th>
                         <th data-lang-key="wallet_header" class="p-3 border border-gray-300 hidden md:table-cell">Wallet</th>
-                        <th data-lang-key="amount_header" class="p-3 border border-gray-300">Amount (USDT)</th>
+                        <th data-lang-key="amount_header" class="p-3 border border-gray-300">Amount (<span id="tokenSymbolAmount">USDT</span>)</th>
                     </tr>
                 </thead>
                 <tbody id="donationTable">
@@ -127,7 +146,7 @@
             <ul>
                 <li data-lang-key="technical_details_network">Network: Polygon</li>
                 <li data-lang-key="technical_details_contract">NRT Contract: <code>0x0051DAA5650cF0dB0C1F9c42DCE1a66c8c3268Ff</code></li>
-                <li data-lang-key="technical_details_token">Token: USDT (ERC-20) — <code>0xc2132D05D31c914a87C6611C10748AEb04B58e8F</code></li>
+                <li data-lang-key="technical_details_token">Tokens: USDT (6), USDC (6), DAI (18)</li>
             </ul>
         </div>
     </div>
@@ -137,18 +156,34 @@
     <script>
         // CONTRACT DETAILS
         const CONTRACT_ADDRESS = "0x0051DAA5650cF0dB0C1F9c42DCE1a66c8c3268Ff";
-        const USDT_ADDRESS = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
-        const USDT_DECIMALS = 6;
-        const POLYGON_RPC_URL = 'https://polygon-rpc.com';
+
+        // TOKEN DETAILS - All supported tokens
+        const TOKENS = {
+            usdt: {
+                address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+                decimals: 6,
+                symbol: "USDT"
+            },
+            usdc: {
+                address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+                decimals: 6,
+                symbol: "USDC"
+            },
+            dai: {
+                address: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
+                decimals: 18,
+                symbol: "DAI"
+            }
+        };
 
         // ABI for the NRT contract
         const ABI = [
             "function donate(address token, address[] recipients, uint256[] amounts) external"
         ];
-
-        // ABI for ERC-20 tokens to get decimals
+        
+        // ABI for ERC-20 tokens
         const ERC20_ABI = [
-            "function decimals() public view returns (uint8)"
+            "function approve(address spender, uint256 amount) public returns (bool)"
         ];
 
         // RECIPIENT LIST
@@ -171,10 +206,11 @@
         const translations = {
             en: {
                 title: 'Support Independent Organizations',
-                description: 'Donate to verified Russian independent projects using USDT and receive <strong>NRT</strong> tokens in return. The exchange rate is fixed at <strong>1 USDT = 1 NRT</strong>.',
+                description: 'Donate to verified Russian independent projects using stablecoins and receive <strong>NRT</strong> tokens in return. The exchange rate is fixed at <strong>1 stablecoin = 1 NRT</strong>.',
                 wallet_title: 'Wallet Connection',
                 connect_button: 'Connect Wallet',
                 rates_title: 'Exchange Rate',
+                token_selection_title: 'Select Donation Token',
                 donations_title: 'Your Donations',
                 org_header: 'Organization',
                 wallet_header: 'Wallet',
@@ -185,22 +221,23 @@
                 technical_details_title: 'Technical Details',
                 technical_details_network: 'Network: Polygon',
                 technical_details_contract: 'NRT Contract: <code>0x0051DAA5650cF0dB0C1F9c42DCE1a66c8c3268Ff</code>',
-                technical_details_token: 'Token: USDT (ERC-20) — <code>0xc2132D05D31c914a87C6611C10748AEb04B58e8F</code>',
+                technical_details_token: 'Tokens: USDT (6), USDC (6), DAI (18)',
                 modal_connect: 'Please connect your wallet first.',
                 modal_metamask: 'Please install MetaMask or Rabby.',
                 modal_error: 'Connection Error: ',
                 modal_no_amount: 'Please enter at least one donation amount.',
-                status_approve: '⏳ Confirm (approve)...',
-                status_donate: '⏳ Confirm (donate)...',
+                status_approve: '⏳ Confirm approval...',
+                status_donate: '⏳ Confirm donation...',
                 status_success: '✅ Thank you for your donation!',
                 status_error: '❌ Error: '
             },
             ru: {
                 title: 'Поддержите независимые организации',
-                description: 'Пожертвуйте в проверенные российские независимые проекты, используя USDT, и получите токены <strong>NRT</strong> в ответ. Курс обмена фиксирован: <strong>1 USDT = 1 NRT</strong>.',
+                description: 'Пожертвуйте в проверенные российские независимые проекты, используя стейблкоины, и получите токены <strong>NRT</strong> в ответ. Курс обмена фиксирован: <strong>1 стейблкоин = 1 NRT</strong>.',
                 wallet_title: 'Подключение кошелька',
                 connect_button: 'Подключить кошелёк',
                 rates_title: 'Курс обмена',
+                token_selection_title: 'Выберите токен для пожертвования',
                 donations_title: 'Ваши пожертвования',
                 org_header: 'Организация',
                 wallet_header: 'Кошелёк',
@@ -211,13 +248,13 @@
                 technical_details_title: 'Технические детали',
                 technical_details_network: 'Сеть: Polygon',
                 technical_details_contract: 'Контракт NRT: <code>0x0051DAA5650cF0dB0C1F9c42DCE1a66c8c3268Ff</code>',
-                technical_details_token: 'Токен: USDT (ERC-20) — <code>0xc2132D05D31c914a87C6611C10748AEb04B58e8F</code>',
+                technical_details_token: 'Токены: USDT (6), USDC (6), DAI (18)',
                 modal_connect: 'Сначала подключите кошелёк.',
                 modal_metamask: 'Установите MetaMask или Rabby.',
                 modal_error: 'Ошибка подключения: ',
                 modal_no_amount: 'Укажите хотя бы одну сумму для пожертвования.',
-                status_approve: '⏳ Подтвердите (approve)...',
-                status_donate: '⏳ Подтвердите (donate)...',
+                status_approve: '⏳ Подтвердите одобрение...',
+                status_donate: '⏳ Подтвердите пожертвование...',
                 status_success: '✅ Спасибо за донат!',
                 status_error: '❌ Ошибка: '
             }
@@ -229,7 +266,11 @@
         const totalAmountEl = document.getElementById("totalAmount");
         const nrtAmountEl = document.getElementById("nrtAmount");
         const statusEl = document.getElementById("status");
+        const tokenSymbolHeader = document.getElementById("tokenSymbolHeader");
+        const tokenSymbolAmount = document.getElementById("tokenSymbolAmount");
+        const rateDisplay = document.getElementById("rateDisplay");
         const inputMap = new Map();
+        let selectedToken = TOKENS.usdt; // Default to USDT
 
         // Custom modal functions
         function showModal(message) {
@@ -264,6 +305,7 @@
             document.getElementById(`lang-${lang}`).classList.add('border-blue-600');
             document.getElementById(`lang-${lang === 'en' ? 'ru' : 'en'}`).classList.add('border-transparent');
             
+            // Recalculate and update UI with new language
             recalc();
         }
 
@@ -289,15 +331,19 @@
         
         // Recalculate totals based on inputs and the fixed rate
         function recalc() {
-            let totalInUsdt = 0;
-            // The rate is now fixed at 1 NRT per 1 USDT
-            const nrtPerToken = 1;
+            let totalInTokens = 0;
+            // The rate is now fixed at 1 NRT per 1 token
             for (const input of inputMap.values()) {
-                totalInUsdt += parseFloat(input.value) || 0;
+                totalInTokens += parseFloat(input.value) || 0;
             }
-            const totalNrt = totalInUsdt * nrtPerToken;
+            const totalNrt = totalInTokens;
 
-            totalAmountEl.textContent = `${totalInUsdt.toFixed(2)} USDT`;
+            // Update UI text to reflect the selected token
+            const tokenSymbol = selectedToken.symbol;
+            tokenSymbolHeader.textContent = tokenSymbol;
+            tokenSymbolAmount.textContent = tokenSymbol;
+            rateDisplay.textContent = `1 ${tokenSymbol} = 1 NRT`;
+            totalAmountEl.textContent = `${totalInTokens.toFixed(2)} ${tokenSymbol}`;
             nrtAmountEl.textContent = `${totalNrt.toFixed(2)} NRT`;
         }
 
@@ -308,6 +354,14 @@
         document.getElementById("lang-en").addEventListener('click', () => setLanguage('en'));
         document.getElementById("lang-ru").addEventListener('click', () => setLanguage('ru'));
         
+        // Handle token selection
+        document.querySelectorAll('input[name="token"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                selectedToken = TOKENS[e.target.value];
+                recalc();
+            });
+        });
+
         document.getElementById("connectBtn").onclick = async () => {
             if (!window.ethereum) {
                 showModal(translations[currentLang].modal_metamask);
@@ -349,20 +403,20 @@
             }
             
             try {
-                const tokenContract = new ethers.Contract(USDT_ADDRESS, [
-                    "function approve(address spender, uint256 amount) public returns (bool)"
-                ], signer);
-
-                const totalAmount = ethers.parseUnits(total.toString(), USDT_DECIMALS);
-                const amountBNs = amounts.map(a => ethers.parseUnits(a.toString(), USDT_DECIMALS));
+                // Use the selected token's address and decimals
+                const tokenContract = new ethers.Contract(selectedToken.address, ERC20_ABI, signer);
+                
+                const totalAmount = ethers.parseUnits(total.toString(), selectedToken.decimals);
+                const amountBNs = amounts.map(a => ethers.parseUnits(a.toString(), selectedToken.decimals));
 
                 statusEl.textContent = translations[currentLang].status_approve;
                 const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, totalAmount);
                 await approveTx.wait();
 
+                // Call the donate function with the selected token's address
                 const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
                 statusEl.textContent = translations[currentLang].status_donate;
-                const donateTx = await contract.donate(USDT_ADDRESS, recipients, amountBNs);
+                const donateTx = await contract.donate(selectedToken.address, recipients, amountBNs);
                 await donateTx.wait();
 
                 statusEl.textContent = translations[currentLang].status_success;
