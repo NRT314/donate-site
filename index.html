@@ -160,15 +160,18 @@
         const TOKEN_METADATA = {
             USDT: {
                 address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
-                symbol: "USDT"
+                symbol: "USDT",
+                decimals: 6
             },
             USDC: {
                 address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
-                symbol: "USDC"
+                symbol: "USDC",
+                decimals: 6
             },
             WETH: {
                 address: "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
-                symbol: "WETH"
+                symbol: "WETH",
+                decimals: 18
             }
         };
         const POLYGON_RPC_URL = 'https://polygon-rpc.com';
@@ -273,7 +276,6 @@
         let provider, signer;
         let selectedToken = 'USDT';
         let tokenRates = {};
-        let nrtDecimals; // Global variable to store NRT decimals
         const donationTable = document.getElementById("donationTable");
         const ratesTable = document.getElementById("ratesTable");
         const totalAmountEl = document.getElementById("totalAmount");
@@ -342,7 +344,6 @@
         // Recalculate totals based on inputs and selected token
         function recalc() {
             let totalInSelectedToken = 0;
-            // The total is now calculated based on the fetched token rates
             const nrtPerToken = tokenRates[selectedToken] || 0;
             for (const input of inputMap.values()) {
                 totalInSelectedToken += parseFloat(input.value) || 0;
@@ -401,19 +402,13 @@
                 for (const token in TOKEN_METADATA) {
                     try {
                         const tokenAddress = TOKEN_METADATA[token].address;
-
-                        // Create a new contract instance for each token to get its decimals
-                        const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, readOnlyProvider);
-                        const tokenDecimals = await tokenContract.decimals();
                         
-                        // Fetch the raw rate from the NRT contract. This rate is NRT/smallest_unit_of_token.
+                        // Fetch the raw rate from the NRT contract.
+                        // The contract appears to return a value that, when formatted by the NRT decimals,
+                        // gives the human-readable rate.
                         const rateRaw = await nrtContract.tokenRates(tokenAddress);
                         
-                        // To get NRT per 1 human-readable token, we need to scale the raw rate
-                        // by the token's decimals and then format with the NRT token's decimals.
-                        const rateInNRTDecimals = rateRaw * (10n ** BigInt(tokenDecimals));
-                        const nrtPerToken = parseFloat(ethers.formatUnits(rateInNRTDecimals, nrtDecimals));
-                        
+                        const nrtPerToken = parseFloat(ethers.formatUnits(rateRaw, nrtDecimals));
                         tokenRates[token] = nrtPerToken;
                         
                         const row = document.createElement("tr");
