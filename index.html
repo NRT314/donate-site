@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>NRT Donate — Поддержите независимые организации</title>
+    <title>NRT Donate — Support Independent Organizations</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Tailwind CSS for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -56,27 +56,33 @@
         </div>
     </div>
 
-    <div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg mt-8">
+    <div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg mt-8 relative">
 
-        <h1 class="text-3xl font-bold mb-4 text-center">Поддержите независимые организации</h1>
+        <!-- Language Switcher -->
+        <div class="absolute top-4 right-4">
+            <button id="lang-en" class="bg-blue-600 text-white font-bold py-1 px-3 rounded-lg transition duration-300">EN</button>
+            <button id="lang-ru" class="bg-gray-200 text-gray-800 font-bold py-1 px-3 rounded-lg transition duration-300">RU</button>
+        </div>
 
-        <p class="text-center text-lg mb-6 text-gray-600">
-            Пожертвуйте в проверенные российские независимые проекты, получив токены <strong>NRT</strong> в ответ. NRT — цифровой актив, с помощью которого вы в будущем сможете участвовать в голосованиях DAO и управлении платформой.
+        <h1 data-lang-key="title" class="text-3xl font-bold mb-4 text-center">Support Independent Organizations</h1>
+
+        <p data-lang-key="description" class="text-center text-lg mb-6 text-gray-600">
+            Donate to verified Russian independent projects and receive <strong>NRT</strong> tokens in return. NRT is a digital asset that will allow you to participate in future DAO votes and platform governance.
         </p>
 
         <!-- Wallet Connection Section -->
         <div class="bg-gray-100 p-6 rounded-lg mb-6">
-            <h2 class="text-2xl font-semibold mb-3">Подключение кошелька</h2>
+            <h2 data-lang-key="wallet_title" class="text-2xl font-semibold mb-3">Wallet Connection</h2>
             <button id="connectBtn" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 shadow-md">
-                🔗 Подключить кошелёк
+                🔗 <span data-lang-key="connect_button">Connect Wallet</span>
             </button>
             <p id="walletAddress" class="mt-3 text-gray-700 font-mono"></p>
         </div>
 
         <!-- Token Selection and Rates Section -->
         <div class="bg-gray-100 p-6 rounded-lg mb-6">
-            <h2 class="text-2xl font-semibold mb-3">Выберите валюту пожертвования</h2>
-            <p id="networkInfo" class="text-sm text-gray-500 mb-4">Сеть: <strong>Polygon</strong></p>
+            <h2 data-lang-key="currency_title" class="text-2xl font-semibold mb-3">Choose Donation Currency</h2>
+            <p data-lang-key="network_info" class="text-sm text-gray-500 mb-4">Network: <strong>Polygon</strong></p>
             <div class="flex flex-wrap gap-4 mb-4">
                 <button data-token="USDT" class="token-btn bg-white text-gray-800 font-bold py-2 px-4 rounded-full border-2 border-transparent transition-all duration-300 shadow-sm hover:shadow-lg">USDT</button>
                 <button data-token="DAI" class="token-btn bg-white text-gray-800 font-bold py-2 px-4 rounded-full border-2 border-transparent transition-all duration-300 shadow-sm hover:shadow-lg">DAI</button>
@@ -84,12 +90,12 @@
                 <button data-token="WETH" class="token-btn bg-white text-gray-800 font-bold py-2 px-4 rounded-full border-2 border-transparent transition-all duration-300 shadow-sm hover:shadow-lg">WETH</button>
             </div>
             
-            <h3 class="text-xl font-semibold mt-6 mb-3">Текущие курсы NRT</h3>
+            <h3 data-lang-key="rates_title" class="text-xl font-semibold mt-6 mb-3">Current NRT Rates</h3>
             <table class="w-full text-left bg-white rounded-lg shadow-sm overflow-hidden">
                 <thead>
                     <tr class="bg-gray-200">
-                        <th class="p-3">Валюта</th>
-                        <th class="p-3">Курс (NRT / 1 ${selectedTokenSymbol})</th>
+                        <th data-lang-key="currency_header" class="p-3">Currency</th>
+                        <th data-lang-key="rate_header" class="p-3">Rate (NRT per 1 Token)</th>
                     </tr>
                 </thead>
                 <tbody id="ratesTable">
@@ -100,13 +106,13 @@
 
         <!-- Donation Table Section -->
         <div class="bg-gray-100 p-6 rounded-lg mb-6">
-            <h2 class="text-2xl font-semibold mb-3">Ваши пожертвования (<span id="selectedTokenSymbol">USDT</span>)</h2>
+            <h2 class="text-2xl font-semibold mb-3"><span data-lang-key="donations_title">Your Donations</span> (<span id="selectedTokenSymbol">USDT</span>)</h2>
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-gray-200">
-                        <th class="p-3 border border-gray-300">Организация</th>
-                        <th class="p-3 border border-gray-300 hidden md:table-cell">Кошелёк</th>
-                        <th class="p-3 border border-gray-300">Сумма (<span id="tableTokenSymbol">USDT</span>)</th>
+                        <th data-lang-key="org_header" class="p-3 border border-gray-300">Organization</th>
+                        <th data-lang-key="wallet_header" class="p-3 border border-gray-300 hidden md:table-cell">Wallet</th>
+                        <th class="p-3 border border-gray-300"><span data-lang-key="amount_header">Amount</span> (<span id="tableTokenSymbol">USDT</span>)</th>
                     </tr>
                 </thead>
                 <tbody id="donationTable">
@@ -114,11 +120,11 @@
                 </tbody>
                 <tfoot>
                     <tr class="bg-gray-200 font-bold">
-                        <td colspan="2" class="p-3 border border-gray-300">Общая сумма</td>
+                        <td colspan="2" data-lang-key="total_amount_text" class="p-3 border border-gray-300">Total Amount</td>
                         <td id="totalAmount" class="p-3 border border-gray-300 text-right">0.00 <span id="footerTokenSymbol">USDT</span></td>
                     </tr>
                     <tr class="bg-gray-200 font-bold">
-                        <td colspan="2" class="p-3 border border-gray-300">Вы получите</td>
+                        <td colspan="2" data-lang-key="nrt_received_text" class="p-3 border border-gray-300">You will receive</td>
                         <td id="nrtAmount" class="p-3 border border-gray-300 text-right">0.00 NRT</td>
                     </tr>
                 </tfoot>
@@ -128,7 +134,7 @@
         <!-- Donation Button -->
         <div class="flex justify-center">
             <button id="donateBtn" class="bg-green-600 text-white font-bold text-xl py-4 px-8 rounded-lg hover:bg-green-700 transition duration-300 shadow-xl">
-                💸 Отправить пожертвование
+                💸 <span data-lang-key="donate_button">Send Donation</span>
             </button>
         </div>
         <p id="status" class="mt-4 text-center font-bold text-lg"></p>
@@ -136,11 +142,11 @@
 
         <!-- Technical Details -->
         <div class="mt-8 pt-4 border-t border-gray-300 text-sm text-gray-500">
-            <h2 class="text-xl font-semibold mb-2">Технические детали</h2>
+            <h2 data-lang-key="technical_details_title" class="text-xl font-semibold mb-2">Technical Details</h2>
             <ul>
-                <li>Сеть: Polygon</li>
-                <li>Контракт NRT: <code>0x0051DAA5650cF0dB0C1F9c42DCE1a66c8c3268Ff</code></li>
-                <li id="selectedTokenDetails">Валюта: USDT (ERC-20) — <code>0xc2132D05D31c914a87C6611C10748AEb04B58e8F</code></li>
+                <li data-lang-key="technical_details_network">Network: Polygon</li>
+                <li data-lang-key="technical_details_contract">NRT Contract: <code>0x0051DAA5650cF0dB0C1F9c42DCE1a66c8c3268Ff</code></li>
+                <li id="selectedTokenDetails"></li>
             </ul>
         </div>
     </div>
@@ -191,6 +197,73 @@
             ["fbk", "0x314aC71aEB2feC4D60Cc50Eb46e64980a27F2680"]
         ];
 
+        // Language translations object
+        const translations = {
+            en: {
+                title: 'Support Independent Organizations',
+                description: 'Donate to verified Russian independent projects and receive <strong>NRT</strong> tokens in return. NRT is a digital asset that will allow you to participate in future DAO votes and platform governance.',
+                wallet_title: 'Wallet Connection',
+                connect_button: 'Connect Wallet',
+                currency_title: 'Choose Donation Currency',
+                network_info: 'Network: <strong>Polygon</strong>',
+                rates_title: 'Current NRT Rates',
+                currency_header: 'Currency',
+                rate_header: 'Rate (NRT per 1 Token)',
+                donations_title: 'Your Donations',
+                org_header: 'Organization',
+                wallet_header: 'Wallet',
+                amount_header: 'Amount',
+                total_amount_text: 'Total Amount',
+                nrt_received_text: 'You will receive',
+                donate_button: 'Send Donation',
+                technical_details_title: 'Technical Details',
+                technical_details_network: 'Network: Polygon',
+                technical_details_contract: 'NRT Contract: <code>0x0051DAA5650cF0dB0C1F9c42DCE1a66c8c3268Ff</code>',
+                modal_connect: 'Please connect your wallet first.',
+                modal_metamask: 'Please install MetaMask or Rabby.',
+                modal_error: 'Connection Error: ',
+                modal_no_amount: 'Please enter at least one donation amount.',
+                status_approve: '⏳ Confirm (approve)...',
+                status_donate: '⏳ Confirm (donate)...',
+                status_success: '✅ Thank you for your donation!',
+                status_error: '❌ Error: ',
+                rates_error: 'ERROR',
+                currency_label: 'Currency: '
+            },
+            ru: {
+                title: 'Поддержите независимые организации',
+                description: 'Пожертвуйте в проверенные российские независимые проекты, получив токены <strong>NRT</strong> в ответ. NRT — цифровой актив, с помощью которого вы в будущем сможете участвовать в голосованиях DAO и управлении платформой.',
+                wallet_title: 'Подключение кошелька',
+                connect_button: 'Подключить кошелёк',
+                currency_title: 'Выберите валюту пожертвования',
+                network_info: 'Сеть: <strong>Polygon</strong>',
+                rates_title: 'Текущие курсы NRT',
+                currency_header: 'Валюта',
+                rate_header: 'Курс (NRT / 1 токен)',
+                donations_title: 'Ваши пожертвования',
+                org_header: 'Организация',
+                wallet_header: 'Кошелёк',
+                amount_header: 'Сумма',
+                total_amount_text: 'Общая сумма',
+                nrt_received_text: 'Вы получите',
+                donate_button: 'Отправить пожертвование',
+                technical_details_title: 'Технические детали',
+                technical_details_network: 'Сеть: Polygon',
+                technical_details_contract: 'Контракт NRT: <code>0x0051DAA5650cF0dB0C1F9c42DCE1a66c8c3268Ff</code>',
+                modal_connect: 'Сначала подключите кошелёк.',
+                modal_metamask: 'Установите MetaMask или Rabby.',
+                modal_error: 'Ошибка подключения: ',
+                modal_no_amount: 'Укажите хотя бы одну сумму для пожертвования.',
+                status_approve: '⏳ Подтвердите (approve)...',
+                status_donate: '⏳ Подтвердите (donate)...',
+                status_success: '✅ Спасибо за донат!',
+                status_error: '❌ Ошибка: ',
+                rates_error: 'ОШИБКА',
+                currency_label: 'Валюта: '
+            }
+        };
+
+        let currentLang = 'en';
         let provider, signer;
         let selectedToken = 'USDT';
         let tokenRates = {};
@@ -217,6 +290,29 @@
             }
         }
         
+        // Function to update the UI based on the selected language
+        function setLanguage(lang) {
+            currentLang = lang;
+            const langKeys = document.querySelectorAll('[data-lang-key]');
+            langKeys.forEach(element => {
+                const key = element.getAttribute('data-lang-key');
+                if (translations[lang][key]) {
+                    element.innerHTML = translations[lang][key];
+                }
+            });
+
+            // Update language switcher buttons' style
+            document.getElementById('lang-en').classList.remove('bg-blue-600', 'text-white');
+            document.getElementById('lang-en').classList.add('bg-gray-200', 'text-gray-800');
+            document.getElementById('lang-ru').classList.remove('bg-blue-600', 'text-white');
+            document.getElementById('lang-ru').classList.add('bg-gray-200', 'text-gray-800');
+            document.getElementById(`lang-${lang}`).classList.add('bg-blue-600', 'text-white');
+            document.getElementById(`lang-${lang}`).classList.remove('bg-gray-200', 'text-gray-800');
+
+            // Update dynamic text
+            updateTokenDetails();
+        }
+
         // Populate donation table
         function renderDonationTable() {
             donationTable.innerHTML = ''; // Clear existing rows
@@ -239,14 +335,22 @@
         
         // Recalculate totals based on inputs and selected token
         function recalc() {
-            let total = 0;
-            const currentRate = tokenRates[selectedToken] || 0;
+            let totalInSelectedToken = 0;
+            const usdtPerToken = tokenRates[selectedToken] || 0;
             for (const input of inputMap.values()) {
-                total += parseFloat(input.value) || 0;
+                totalInSelectedToken += parseFloat(input.value) || 0;
             }
-            totalAmountEl.textContent = `${total.toFixed(2)} ${TOKEN_METADATA[selectedToken].symbol}`;
-            const nrtTotal = total * currentRate;
-            nrtAmountEl.textContent = `${nrtTotal.toFixed(2)} NRT`;
+            const totalUsdt = totalInSelectedToken * usdtPerToken;
+
+            totalAmountEl.textContent = `${totalInSelectedToken.toFixed(2)} ${TOKEN_METADATA[selectedToken].symbol}`;
+            nrtAmountEl.textContent = `${totalUsdt.toFixed(2)} NRT`;
+        }
+        
+        // Update the token details line
+        function updateTokenDetails() {
+            const symbol = TOKEN_METADATA[selectedToken].symbol;
+            const address = TOKEN_METADATA[selectedToken].address;
+            document.getElementById('selectedTokenDetails').innerHTML = `${translations[currentLang].currency_label} ${symbol} (ERC-20) — <code>${address}</code>`;
         }
 
         // Handle token selection button clicks
@@ -262,8 +366,8 @@
                 document.getElementById('selectedTokenSymbol').textContent = symbol;
                 document.getElementById('tableTokenSymbol').textContent = symbol;
                 document.getElementById('footerTokenSymbol').textContent = symbol;
-                document.getElementById('selectedTokenDetails').innerHTML = `Валюта: ${symbol} (ERC-20) — <code>${TOKEN_METADATA[selectedToken].address}</code>`;
                 
+                updateTokenDetails();
                 recalc();
             });
         });
@@ -271,7 +375,7 @@
         // Fetch token rates from the contract and update the UI
         async function fetchRates() {
             if (!provider) {
-                showModal("Сначала подключите кошелёк");
+                showModal(translations[currentLang].modal_connect);
                 return;
             }
             const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
@@ -282,21 +386,21 @@
             for (const token in TOKEN_METADATA) {
                 try {
                     const rate = await contract.tokenRates(TOKEN_METADATA[token].address);
-                    // The rate is stored as rate * 1e6, so we divide to get the actual value
-                    const actualRate = parseFloat(ethers.formatUnits(rate, 6));
-                    rates[token] = 1 / actualRate; // NRT to token rate (assuming 1 NRT = 1 USDT)
+                    // The rate is stored as rate * 1e6, so we divide to get the actual USDT value per token
+                    const usdtPerToken = parseFloat(ethers.formatUnits(rate, 6));
+                    rates[token] = usdtPerToken;
                     
                     const row = document.createElement("tr");
                     row.className = "hover:bg-gray-50 transition-colors duration-200";
                     row.innerHTML = `
                         <td class="p-3 border border-gray-300 font-bold">${token}</td>
-                        <td class="p-3 border border-gray-300 text-right">${(1 / actualRate).toFixed(4)}</td>
+                        <td class="p-3 border border-gray-300 text-right">${usdtPerToken.toFixed(4)} NRT</td>
                     `;
                     ratesTableBody.appendChild(row);
                 } catch (e) {
                      console.error(`Error fetching rate for ${token}:`, e);
                      const row = document.createElement("tr");
-                     row.innerHTML = `<td class="p-3 border border-gray-300">${token}</td><td class="p-3 border border-gray-300 text-red-500">ОШИБКА</td>`;
+                     row.innerHTML = `<td class="p-3 border border-gray-300">${token}</td><td class="p-3 border border-gray-300 text-red-500">${translations[currentLang].rates_error}</td>`;
                      ratesTableBody.appendChild(row);
                 }
             }
@@ -304,30 +408,34 @@
             recalc();
         }
 
-        // Initialize UI
+        // Initialize UI and set up event listeners
         renderDonationTable();
         document.querySelector('.token-btn[data-token="USDT"]').click();
+        setLanguage('en'); // Set default language
+
+        document.getElementById("lang-en").addEventListener('click', () => setLanguage('en'));
+        document.getElementById("lang-ru").addEventListener('click', () => setLanguage('ru'));
         
         document.getElementById("connectBtn").onclick = async () => {
             if (!window.ethereum) {
-                showModal("Установите MetaMask или Rabby");
+                showModal(translations[currentLang].modal_metamask);
                 return;
             }
             try {
                 provider = new ethers.BrowserProvider(window.ethereum);
                 const accounts = await provider.send("eth_requestAccounts", []);
                 signer = await provider.getSigner();
-                document.getElementById("walletAddress").innerText = `Кошелёк: ${accounts[0]}`;
+                document.getElementById("walletAddress").innerText = `Wallet: ${accounts[0]}`;
                 document.getElementById("connectBtn").disabled = true;
                 await fetchRates();
             } catch (e) {
-                showModal("Ошибка подключения: " + e.message);
+                showModal(`${translations[currentLang].modal_error} ${e.message}`);
             }
         };
 
         document.getElementById("donateBtn").onclick = async () => {
             if (!signer) {
-                showModal("Сначала подключите кошелёк");
+                showModal(translations[currentLang].modal_connect);
                 return;
             }
             
@@ -345,7 +453,7 @@
             }
 
             if (recipients.length === 0) {
-                showModal("Укажите хотя бы одну сумму для пожертвования");
+                showModal(translations[currentLang].modal_no_amount);
                 return;
             }
             
@@ -361,19 +469,19 @@
                 const totalAmount = ethers.parseUnits(total.toString(), decimals);
                 const amountBNs = amounts.map(a => ethers.parseUnits(a.toString(), decimals));
 
-                statusEl.textContent = "⏳ Подтвердите (approve)...";
+                statusEl.textContent = translations[currentLang].status_approve;
                 const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, totalAmount);
                 await approveTx.wait();
 
                 const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-                statusEl.textContent = "⏳ Подтвердите (donate)...";
+                statusEl.textContent = translations[currentLang].status_donate;
                 const donateTx = await contract.donate(selectedTokenAddress, recipients, amountBNs);
                 await donateTx.wait();
 
-                statusEl.textContent = "✅ Спасибо за донат!";
+                statusEl.textContent = translations[currentLang].status_success;
             } catch (err) {
                 console.error(err);
-                statusEl.textContent = `❌ Ошибка: ${err.message}`;
+                statusEl.textContent = `${translations[currentLang].status_error} ${err.message}`;
             }
         };
     </script>
