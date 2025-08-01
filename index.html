@@ -67,7 +67,7 @@
         <h1 data-lang-key="title" class="text-3xl font-bold mb-4 text-center">Support Independent Organizations</h1>
 
         <p data-lang-key="description" class="text-center text-lg mb-6 text-gray-600">
-            Donate to verified Russian independent projects using WETH and receive <strong>NRT</strong> tokens in return. The exchange rate is fixed at <strong>1 WETH = 1 NRT</strong>.
+            Donate to verified Russian independent projects using USDT and receive <strong>NRT</strong> tokens in return. The exchange rate is fixed at <strong>1 USDT = 1 NRT</strong>.
         </p>
 
         <!-- Wallet Connection Section -->
@@ -82,18 +82,18 @@
         <!-- Fixed Rate Display -->
         <div class="bg-gray-100 p-6 rounded-lg mb-6">
             <h2 data-lang-key="rates_title" class="text-2xl font-semibold mb-3">Exchange Rate</h2>
-            <p class="text-lg font-bold text-gray-700">1 WETH = 1 NRT</p>
+            <p class="text-lg font-bold text-gray-700">1 USDT = 1 NRT</p>
         </div>
 
         <!-- Donation Table Section -->
         <div class="bg-gray-100 p-6 rounded-lg mb-6">
-            <h2 data-lang-key="donations_title" class="text-2xl font-semibold mb-3">Your Donations (WETH)</h2>
+            <h2 data-lang-key="donations_title" class="text-2xl font-semibold mb-3">Your Donations (USDT)</h2>
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-gray-200">
                         <th data-lang-key="org_header" class="p-3 border border-gray-300">Organization</th>
                         <th data-lang-key="wallet_header" class="p-3 border border-gray-300 hidden md:table-cell">Wallet</th>
-                        <th data-lang-key="amount_header" class="p-3 border border-gray-300">Amount (WETH)</th>
+                        <th data-lang-key="amount_header" class="p-3 border border-gray-300">Amount (USDT)</th>
                     </tr>
                 </thead>
                 <tbody id="donationTable">
@@ -102,7 +102,7 @@
                 <tfoot>
                     <tr class="bg-gray-200 font-bold">
                         <td colspan="2" data-lang-key="total_amount_text" class="p-3 border border-gray-300">Total Amount</td>
-                        <td id="totalAmount" class="p-3 border border-gray-300 text-right">0.00 WETH</td>
+                        <td id="totalAmount" class="p-3 border border-gray-300 text-right">0.00 USDT</td>
                     </tr>
                     <tr class="bg-gray-200 font-bold">
                         <td colspan="2" data-lang-key="nrt_received_text" class="p-3 border border-gray-300">You will receive</td>
@@ -127,7 +127,7 @@
             <ul>
                 <li data-lang-key="technical_details_network">Network: Polygon</li>
                 <li data-lang-key="technical_details_contract">NRT Contract: <code>0x0051DAA5650cF0dB0C1F9c42DCE1a66c8c3268Ff</code></li>
-                <li data-lang-key="technical_details_token">Token: WETH (ERC-20) — <code>0x7ceB23fD6bC0adD59E62ac255e427dFCb9aAB1F9</code></li>
+                <li data-lang-key="technical_details_token">Token: USDT (ERC-20) — <code>0xc2132D05D31c914a87C6611C10748AEb04B58e8F</code></li>
             </ul>
         </div>
     </div>
@@ -137,8 +137,8 @@
     <script>
         // CONTRACT DETAILS
         const CONTRACT_ADDRESS = "0x0051DAA5650cF0dB0C1F9c42DCE1a66c8c3268Ff";
-        const WETH_ADDRESS = "0x7ceB23fD6bC0adD59E62ac255e427dFCb9aAB1F9";
-        const WETH_DECIMALS = 18;
+        const USDT_ADDRESS = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
+        const USDT_DECIMALS = 6;
         const POLYGON_RPC_URL = 'https://polygon-rpc.com';
 
         // ABI for the NRT contract
@@ -171,21 +171,21 @@
         const translations = {
             en: {
                 title: 'Support Independent Organizations',
-                description: 'Donate to verified Russian independent projects using WETH and receive <strong>NRT</strong> tokens in return. The exchange rate is fixed at <strong>1 WETH = 1 NRT</strong>.',
+                description: 'Donate to verified Russian independent projects using USDT and receive <strong>NRT</strong> tokens in return. The exchange rate is fixed at <strong>1 USDT = 1 NRT</strong>.',
                 wallet_title: 'Wallet Connection',
                 connect_button: 'Connect Wallet',
                 rates_title: 'Exchange Rate',
-                donations_title: 'Your Donations (WETH)',
+                donations_title: 'Your Donations',
                 org_header: 'Organization',
                 wallet_header: 'Wallet',
-                amount_header: 'Amount (WETH)',
+                amount_header: 'Amount',
                 total_amount_text: 'Total Amount',
                 nrt_received_text: 'You will receive',
                 donate_button: 'Send Donation',
                 technical_details_title: 'Technical Details',
                 technical_details_network: 'Network: Polygon',
                 technical_details_contract: 'NRT Contract: <code>0x0051DAA5650cF0dB0C1F9c42DCE1a66c8c3268Ff</code>',
-                technical_details_token: 'Token: WETH (ERC-20) — <code>0x7ceB23fD6bC0adD59E62ac255e427dFCb9aAB1F9</code>',
+                technical_details_token: 'Token: USDT (ERC-20) — <code>0xc2132D05D31c914a87C6611C10748AEb04B58e8F</code>',
                 modal_connect: 'Please connect your wallet first.',
                 modal_metamask: 'Please install MetaMask or Rabby.',
                 modal_error: 'Connection Error: ',
@@ -197,21 +197,21 @@
             },
             ru: {
                 title: 'Поддержите независимые организации',
-                description: 'Пожертвуйте в проверенные российские независимые проекты, используя WETH, и получите токены <strong>NRT</strong> в ответ. Курс обмена фиксирован: <strong>1 WETH = 1 NRT</strong>.',
+                description: 'Пожертвуйте в проверенные российские независимые проекты, используя USDT, и получите токены <strong>NRT</strong> в ответ. Курс обмена фиксирован: <strong>1 USDT = 1 NRT</strong>.',
                 wallet_title: 'Подключение кошелька',
                 connect_button: 'Подключить кошелёк',
                 rates_title: 'Курс обмена',
-                donations_title: 'Ваши пожертвования (WETH)',
+                donations_title: 'Ваши пожертвования',
                 org_header: 'Организация',
                 wallet_header: 'Кошелёк',
-                amount_header: 'Сумма (WETH)',
+                amount_header: 'Сумма',
                 total_amount_text: 'Общая сумма',
                 nrt_received_text: 'Вы получите',
                 donate_button: 'Отправить пожертвование',
                 technical_details_title: 'Технические детали',
                 technical_details_network: 'Сеть: Polygon',
                 technical_details_contract: 'Контракт NRT: <code>0x0051DAA5650cF0dB0C1F9c42DCE1a66c8c3268Ff</code>',
-                technical_details_token: 'Токен: WETH (ERC-20) — <code>0x7ceB23fD6bC0adD59E62ac255e427dFCb9aAB1F9</code>',
+                technical_details_token: 'Токен: USDT (ERC-20) — <code>0xc2132D05D31c914a87C6611C10748AEb04B58e8F</code>',
                 modal_connect: 'Сначала подключите кошелёк.',
                 modal_metamask: 'Установите MetaMask или Rabby.',
                 modal_error: 'Ошибка подключения: ',
@@ -289,15 +289,15 @@
         
         // Recalculate totals based on inputs and the fixed rate
         function recalc() {
-            let totalInWeth = 0;
-            // The rate is now fixed at 1 NRT per 1 WETH
+            let totalInUsdt = 0;
+            // The rate is now fixed at 1 NRT per 1 USDT
             const nrtPerToken = 1;
             for (const input of inputMap.values()) {
-                totalInWeth += parseFloat(input.value) || 0;
+                totalInUsdt += parseFloat(input.value) || 0;
             }
-            const totalNrt = totalInWeth * nrtPerToken;
+            const totalNrt = totalInUsdt * nrtPerToken;
 
-            totalAmountEl.textContent = `${totalInWeth.toFixed(2)} WETH`;
+            totalAmountEl.textContent = `${totalInUsdt.toFixed(2)} USDT`;
             nrtAmountEl.textContent = `${totalNrt.toFixed(2)} NRT`;
         }
 
@@ -349,12 +349,12 @@
             }
             
             try {
-                const tokenContract = new ethers.Contract(WETH_ADDRESS, [
+                const tokenContract = new ethers.Contract(USDT_ADDRESS, [
                     "function approve(address spender, uint256 amount) public returns (bool)"
                 ], signer);
 
-                const totalAmount = ethers.parseUnits(total.toString(), WETH_DECIMALS);
-                const amountBNs = amounts.map(a => ethers.parseUnits(a.toString(), WETH_DECIMALS));
+                const totalAmount = ethers.parseUnits(total.toString(), USDT_DECIMALS);
+                const amountBNs = amounts.map(a => ethers.parseUnits(a.toString(), USDT_DECIMALS));
 
                 statusEl.textContent = translations[currentLang].status_approve;
                 const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, totalAmount);
@@ -362,7 +362,7 @@
 
                 const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
                 statusEl.textContent = translations[currentLang].status_donate;
-                const donateTx = await contract.donate(WETH_ADDRESS, recipients, amountBNs);
+                const donateTx = await contract.donate(USDT_ADDRESS, recipients, amountBNs);
                 await donateTx.wait();
 
                 statusEl.textContent = translations[currentLang].status_success;
