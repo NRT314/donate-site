@@ -102,7 +102,7 @@
                 </label>
                 <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
                     <input type="radio" name="token" id="radio-usdc" value="usdc" class="h-4 w-4 text-blue-600" />
-                    <span class="text-lg">USDC</span>
+                    <span class="text-lg">USDC (Bridget)</span>
                 </label>
                 <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
                     <input type="radio" name="token" id="radio-dai" value="dai" class="h-4 w-4 text-blue-600" />
@@ -153,7 +153,7 @@
             <ul>
                 <li data-lang-key="technical_details_network">Network: Polygon</li>
                 <li data-lang-key="technical_details_contract">NRT Contract: <code>0x39bA20cfB1B520528EC8585d126f7f3bFfE7A158</code></li>
-                <li data-lang-key="technical_details_token">Tokens: USDT (6), USDC (6), DAI (18)</li>
+                <li data-lang-key="technical_details_token">Tokens: USDT (6), USDC (Bridget) (6), DAI (18)</li>
             </ul>
         </div>
     </div>
@@ -173,9 +173,9 @@
                 symbol: "USDT"
             },
             usdc: {
-                address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+                address: "0x2791Bca1f2de4661ED88a30C99a7a9449Aa84174",
                 decimals: 6,
-                symbol: "USDC"
+                symbol: "USDC (Bridget)"
             },
             dai: {
                 address: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
@@ -208,7 +208,9 @@
             ["meduza", "0x00B9d7Fe4a2d3aCdd4102Cfb55b98d193B94C0fa"],
             ["cit", "0xfBcc8904ce75fF90CC741DA80703202faf5b2FcF"],
             ["importantstories", "0x5433CE0E05D117C54f814cc6697244eA0b902DBF"],
-            ["fbk", "0x314aC71aEB2feC4D60Cc50Eb46e64980a27F2680"]
+            ["fbk", "0x314aC71aEB2feC4D60Cc50Eb46e64980a27F2680"],
+            // Добавлена новая организация по запросу пользователя.
+            ["iditelesom", "0x387C5300586336d145A87C245DD30f9724C6eC01"]
         ];
 
         // Language translations object
@@ -230,7 +232,8 @@
                 technical_details_title: 'Technical Details',
                 technical_details_network: 'Network: Polygon',
                 technical_details_contract: 'NRT Contract: <code>0x39bA20cfB1B520528EC8585d126f7f3bFfE7A158</code>',
-                technical_details_token: 'Tokens: USDT (6), USDC (6), DAI (18)',
+                // Обновлено название токена USDC
+                technical_details_token: 'Tokens: USDT (6), USDC (Bridget) (6), DAI (18)',
                 modal_connect: 'Please connect your wallet first.',
                 modal_metamask: 'Please install MetaMask or Rabby.',
                 modal_error: 'Connection Error: ',
@@ -257,7 +260,8 @@
                 technical_details_title: 'Технические детали',
                 technical_details_network: 'Сеть: Polygon',
                 technical_details_contract: 'Контракт NRT: <code>0x39bA20cfB1B520528EC8585d126f7f3bFfE7A158</code>',
-                technical_details_token: 'Токены: USDT (6), USDC (6), DAI (18)',
+                // Обновлено название токена USDC
+                technical_details_token: 'Токены: USDT (6), USDC (Bridget) (6), DAI (18)',
                 modal_connect: 'Сначала подключите кошелёк.',
                 modal_metamask: 'Установите MetaMask или Rabby.',
                 modal_error: 'Ошибка подключения: ',
@@ -422,7 +426,13 @@
                 const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, totalAmount);
                 await approveTx.wait();
 
-                // Call the donate function with the selected token's address
+                // ----------------------------------------------------------------------------------
+                // Этот блок кода выполняется после успешного одобрения.
+                // ВАЖНО: После этой строки ваш кошелёк должен запросить подтверждение второй транзакции.
+                // Проверьте, появилось ли уведомление от кошелька.
+                // ----------------------------------------------------------------------------------
+                console.log("Approval successful. Attempting to send donation transaction...");
+
                 const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
                 statusEl.textContent = translations[currentLang].status_donate;
                 const donateTx = await contract.donate(selectedToken.address, recipients, amountBNs);
