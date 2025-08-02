@@ -9,6 +9,7 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+        /* Custom modal for alerts */
         .modal {
             display: none;
             position: fixed;
@@ -40,6 +41,7 @@
             text-decoration: none;
             cursor: pointer;
         }
+        /* Style for the active token radio button label */
         input[name="token"]:checked + span {
             font-weight: bold;
         }
@@ -95,14 +97,7 @@
                 <span id="loadingTotal" class="text-sm text-gray-500 ml-2"> (Loading...)</span>
             </p>
         </div>
-
-        <div class="bg-gray-100 p-6 rounded-lg mb-6">
-            <h2 data-lang-key="recent_donations_title" class="text-2xl font-semibold mb-3">Recent Donations</h2>
-            <div id="donationsList" class="space-y-4">
-                <p data-lang-key="donations_loading" class="text-gray-500 text-center">Loading donations history...</p>
-            </div>
-        </div>
-
+        
         <div class="bg-gray-100 p-6 rounded-lg mb-6">
             <h2 data-lang-key="token_selection_title" class="text-2xl font-semibold mb-3">Select Donation Token</h2>
             <div class="flex flex-wrap gap-4 justify-center">
@@ -158,7 +153,7 @@
             <h2 data-lang-key="technical_details_title" class="text-xl font-semibold mb-2">Technical Details</h2>
             <ul>
                 <li data-lang-key="technical_details_network">Network: Polygon</li>
-                <li data-lang-key="technical_details_contract">NRT Contract: <code>0x4dF47E7fdEE9619e5fb4CBE8C615C3eE43D5227F</code></li>
+                <li data-lang-key="technical_details_contract">NRT Contract: <code>0x2De8c4d6Ad2265e6c7D0dFDC2Ff8d3E26D5607FB</code></li>
                 <li data-lang-key="technical_details_token">Tokens: USDT (6), USDC (Bridget) (6), DAI (18)</li>
             </ul>
         </div>
@@ -167,7 +162,8 @@
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
     <script>
         // CONTRACT DETAILS
-        const CONTRACT_ADDRESS = "0x4dF47E7fdEE9619e5fb4CBE8C615C3eE43D5227F";
+        // The contract address has been updated to the new one.
+        const CONTRACT_ADDRESS = "0x2De8c4d6Ad2265e6c7D0dFDC2Ff8d3E26D5607FB";
 
         // TOKEN DETAILS - All supported tokens on Polygon Mainnet
         const TOKENS = {
@@ -177,23 +173,21 @@
                 symbol: "USDT"
             },
             usdc: {
-                address: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                address: "0x2791bca1f2de4661ed88a30c99a7a9f21eebe1d7",
                 decimals: 6,
                 symbol: "USDC (Bridget)"
             },
             dai: {
-                address: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
+                address: "0x8f3cf7ad23cd3cadbd9735fd5cbbe1e6e7d69286",
                 decimals: 18,
                 symbol: "DAI"
             }
         };
 
-        // ABI for the NRT contract - now includes the new function and event
+        // ABI for the NRT contract - now includes the new function
         const ABI = [
             "function donate(address token, address[] recipients, uint256[] amounts) external",
-            "function totalDonatedOverallInUsdt() external view returns (uint256)",
-            // ИСПРАВЛЕНО: Обновлено до более полного формата ABI для события
-            "event Donation(address indexed donor, address indexed token, address indexed recipient, uint256 amount)"
+            "function totalDonatedOverallInUsdt() external view returns (uint256)" // Added for total donations
         ];
         
         // ABI for ERC-20 tokens - approve function
@@ -202,6 +196,7 @@
         ];
 
         // RECIPIENT LIST
+        // These are the organizations that will receive the donations.
         const ORGS = [
             ["thisproject", "0xc0F467567570AADa929fFA115E65bB39066e3E42"],
             ["ovdinfo", "0x421896bb0Dcf271a294bC7019014EE90503656Fd"],
@@ -228,9 +223,6 @@
                 disconnect_button: 'Disconnect Wallet',
                 rates_title: 'Exchange Rate',
                 total_donated_title: 'Total Donations',
-                recent_donations_title: 'Recent Donations',
-                donations_loading: 'Loading donations history...',
-                donation_message: '<strong>{donor}</strong> donated {amount} {symbol} to <strong>{recipient}</strong>',
                 token_selection_title: 'Select Donation Token',
                 donations_title: 'Your Donations',
                 org_header: 'Organization',
@@ -241,7 +233,7 @@
                 donate_button: 'Send Donation',
                 technical_details_title: 'Technical Details',
                 technical_details_network: 'Network: Polygon',
-                technical_details_contract: 'NRT Contract: <code>0x4dF47E7fdEE9619e5fb4CBE8C615C3eE43D5227F</code>',
+                technical_details_contract: 'NRT Contract: <code>0x2De8c4d6Ad2265e6c7D0dFDC2Ff8d3E26D5607FB</code>',
                 technical_details_token: 'Tokens: USDT (6), USDC (Bridget) (6), DAI (18)',
                 modal_connect: 'Please connect your wallet first.',
                 modal_metamask: 'Please install MetaMask or Rabby.',
@@ -260,9 +252,6 @@
                 disconnect_button: 'Отключить кошелёк',
                 rates_title: 'Курс обмена',
                 total_donated_title: 'Общая сумма пожертвований',
-                recent_donations_title: 'Последние пожертвования',
-                donations_loading: 'Загрузка истории пожертвований...',
-                donation_message: '<strong>{donor}</strong> пожертвовал {amount} {symbol} для <strong>{recipient}</strong>',
                 token_selection_title: 'Выберите токен для пожертвования',
                 donations_title: 'Ваши пожертвования',
                 org_header: 'Организация',
@@ -273,7 +262,7 @@
                 donate_button: 'Отправить пожертвование',
                 technical_details_title: 'Технические детали',
                 technical_details_network: 'Сеть: Polygon',
-                technical_details_contract: 'Контракт NRT: <code>0x4dF47E7fdEE9619e5fb4CBE8C615C3eE43D5227F</code>',
+                technical_details_contract: 'Контракт NRT: <code>0x2De8c4d6Ad2265e6c7D0dFDC2Ff8d3E26D5607FB</code>',
                 technical_details_token: 'Токены: USDT (6), USDC (Bridget) (6), DAI (18)',
                 modal_connect: 'Сначала подключите кошелёк.',
                 modal_metamask: 'Установите MetaMask или Rabby.',
@@ -302,7 +291,6 @@
         const loadingTotalEl = document.getElementById("loadingTotal");
         const inputMap = new Map();
         let selectedToken = TOKENS.usdt; // Default to USDT
-        const donationsListEl = document.getElementById("donationsList");
 
         // Custom modal functions
         function showModal(message) {
@@ -320,6 +308,7 @@
             }
         }
         
+        // Function to update the UI based on the selected language
         function setLanguage(lang) {
             currentLang = lang;
             const langKeys = document.querySelectorAll('[data-lang-key]');
@@ -330,6 +319,7 @@
                 }
             });
 
+            // Update language switcher buttons' style for visibility
             document.getElementById('lang-en').classList.remove('border-blue-600', 'border-transparent');
             document.getElementById('lang-ru').classList.remove('border-blue-600', 'border-transparent');
             if (lang === 'en') {
@@ -340,11 +330,13 @@
                 document.getElementById('lang-en').classList.add('border-transparent');
             }
             
+            // Recalculate and update UI with new language
             recalc();
         }
 
+        // Populate donation table
         function renderDonationTable() {
-            donationTable.innerHTML = '';
+            donationTable.innerHTML = ''; // Clear existing rows
             ORGS.forEach(([name, addr]) => {
                 const row = document.createElement("tr");
                 row.className = "hover:bg-gray-50 transition-colors duration-200";
@@ -360,13 +352,16 @@
             });
         }
         
+        // Recalculate totals based on inputs and the fixed rate
         function recalc() {
             let totalInTokens = 0;
+            // The rate is now fixed at 1 NRT per 1 token
             for (const input of inputMap.values()) {
                 totalInTokens += parseFloat(input.value) || 0;
             }
             const totalNrt = totalInTokens;
 
+            // Update UI text to reflect the selected token
             const tokenSymbol = selectedToken.symbol;
             tokenSymbolHeader.textContent = tokenSymbol;
             tokenSymbolAmount.textContent = tokenSymbol;
@@ -375,87 +370,30 @@
             nrtAmountEl.textContent = `${totalNrt.toFixed(2)} NRT`;
         }
         
+        // NEW: Function to fetch total donations from the contract
         async function fetchTotalDonations() {
             try {
-                // ИСПРАВЛЕНО: Используем более надёжный RPC-провайдер
-                const rpcProvider = new ethers.JsonRpcProvider('https://rpc-mainnet.matic.network');
+                // Use a public RPC provider to read data without a connected wallet
+                const rpcProvider = new ethers.JsonRpcProvider('https://polygon-rpc.com/');
                 const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
 
+                // Call the contract function to get the total amount
                 const totalAmountBigInt = await contract.totalDonatedOverallInUsdt();
-                // ИСПРАВЛЕНО: Используем 6 знаков после запятой для USDT
-                const formattedAmount = ethers.formatUnits(totalAmountBigInt, 6);
+                
+                // The amount is in 1e18, so we need to format it for display
+                const formattedAmount = ethers.formatUnits(totalAmountBigInt, 18);
 
+                // Update the UI
                 totalDonatedOverallEl.textContent = parseFloat(formattedAmount).toFixed(2);
-                loadingTotalEl.classList.add('hidden');
+                loadingTotalEl.classList.add('hidden'); // Hide the loading indicator
             } catch (error) {
                 console.error("Failed to fetch total donations:", error);
                 totalDonatedOverallEl.textContent = "Error";
                 loadingTotalEl.classList.add('hidden');
             }
         }
-        
-        function formatAddress(address) {
-            return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
-        }
 
-        function displayDonation(donor, tokenAddress, recipient, amount, isPreloaded = false) {
-            const token = Object.values(TOKENS).find(t => t.address.toLowerCase() === tokenAddress.toLowerCase());
-            const symbol = token ? token.symbol : 'UNKNOWN';
-
-            const formattedAmount = ethers.formatUnits(amount, token ? token.decimals : 18);
-
-            const message = translations[currentLang].donation_message
-                .replace('{donor}', formatAddress(donor))
-                .replace('{amount}', parseFloat(formattedAmount).toFixed(2))
-                .replace('{symbol}', symbol)
-                .replace('{recipient}', formatAddress(recipient));
-                
-            const donationItem = document.createElement('div');
-            donationItem.className = 'p-4 bg-white rounded-lg shadow';
-            donationItem.innerHTML = message;
-            
-            if (!isPreloaded && donationsListEl.firstChild) {
-                donationsListEl.insertBefore(donationItem, donationsListEl.firstChild);
-            } else {
-                donationsListEl.appendChild(donationItem);
-            }
-        }
-
-        async function fetchDonationHistory() {
-            try {
-                donationsListEl.innerHTML = `<p data-lang-key="donations_loading" class="text-gray-500 text-center">Loading donations history...</p>`;
-                
-                // ИСПРАВЛЕНО: Используем более надёжный RPC-провайдер
-                const rpcProvider = new ethers.JsonRpcProvider('https://rpc-mainnet.matic.network');
-                const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
-
-                const filter = contract.filters.Donation();
-                const logs = await contract.queryFilter(filter, 0, 'latest');
-                
-                donationsListEl.innerHTML = '';
-                for (const log of logs.reverse()) {
-                    const [donor, tokenAddress, recipient, amount] = log.args;
-                    displayDonation(donor, tokenAddress, recipient, amount, true);
-                }
-
-            } catch (error) {
-                console.error("Failed to fetch donation history:", error);
-                donationsListEl.innerHTML = `<p class="text-red-500 text-center">Error loading donations.</p>`;
-            }
-        }
-
-        function listenForNewDonations() {
-            // ИСПРАВЛЕНО: Используем более надёжный RPC-провайдер
-            const rpcProvider = new ethers.JsonRpcProvider('https://rpc-mainnet.matic.network');
-            const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
-
-            contract.on("Donation", (donor, tokenAddress, recipient, amount) => {
-                console.log("New donation event received!");
-                displayDonation(donor, tokenAddress, recipient, amount);
-                fetchTotalDonations();
-            });
-        }
-
+        // Function to reset the application state after disconnection
         function resetWalletState() {
             signer = null;
             walletAddressEl.innerText = '';
@@ -464,31 +402,40 @@
             console.log("Wallet connection reset.");
         }
 
+        // Function to set up event listeners for the wallet
         function setupWalletListeners() {
             if (window.ethereum) {
+                // Listen for account changes
                 window.ethereum.on('accountsChanged', (accounts) => {
                     if (accounts.length === 0) {
+                        // Wallet disconnected from dApp
                         console.log('Wallet disconnected.');
                         resetWalletState();
                     } else {
+                        // Account changed, update signer
                         console.log('Account changed to:', accounts[0]);
                         signer = new ethers.BrowserProvider(window.ethereum).getSigner(accounts[0]);
                         walletAddressEl.innerText = `Wallet: ${accounts[0]}`;
                     }
                 });
+
+                // Listen for network (chain) changes
                 window.ethereum.on('chainChanged', (chainId) => {
+                    // It is recommended to reload the page on chain changes to avoid state errors.
                     console.log('Chain changed. Reloading page...');
                     window.location.reload();
                 });
             }
         }
 
+        // Initialize UI and set up event listeners
         renderDonationTable();
-        setLanguage('en');
+        setLanguage('en'); // Set default language
         
         document.getElementById("lang-en").addEventListener('click', () => setLanguage('en'));
         document.getElementById("lang-ru").addEventListener('click', () => setLanguage('ru'));
         
+        // Handle token selection
         document.querySelectorAll('input[name="token"]').forEach(radio => {
             radio.addEventListener('change', (e) => {
                 selectedToken = TOKENS[e.target.value];
@@ -509,6 +456,7 @@
                 connectBtn.classList.add('hidden');
                 disconnectBtn.classList.remove('hidden');
                 
+                // Add wallet event listeners after successful connection
                 setupWalletListeners();
 
             } catch (e) {
@@ -516,6 +464,7 @@
             }
         };
 
+        // NEW: Disconnect button handler
         disconnectBtn.onclick = () => {
             resetWalletState();
         };
@@ -545,6 +494,7 @@
             }
             
             try {
+                // Use the selected token's address and decimals
                 const tokenContract = new ethers.Contract(selectedToken.address, ERC20_ABI, signer);
                 
                 const totalAmount = ethers.parseUnits(total.toString(), selectedToken.decimals);
@@ -554,6 +504,11 @@
                 const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, totalAmount);
                 await approveTx.wait();
 
+                // ----------------------------------------------------------------------------------
+                // Этот блок кода выполняется после успешного одобрения.
+                // ВАЖНО: После этой строки ваш кошелёк должен запросить подтверждение второй транзакции.
+                // Проверьте, появилось ли уведомление от кошелька.
+                // ----------------------------------------------------------------------------------
                 console.log("Approval successful. Attempting to send donation transaction...");
 
                 const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
@@ -563,6 +518,7 @@
 
                 statusEl.textContent = translations[currentLang].status_success;
 
+                // After a successful donation, fetch the total donations again to update the display
                 await fetchTotalDonations();
             } catch (err) {
                 console.error(err);
@@ -570,10 +526,9 @@
             }
         };
 
+        // Fetch total donations when the page loads
         window.onload = function() {
             fetchTotalDonations();
-            fetchDonationHistory();
-            listenForNewDonations();
         };
     </script>
 </body>
