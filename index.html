@@ -80,10 +80,15 @@
         <!-- Wallet Connection Section -->
         <div class="bg-gray-100 p-6 rounded-lg mb-6">
             <h2 data-lang-key="wallet_title" class="text-2xl font-semibold mb-3">Wallet Connection</h2>
-            <button id="connectBtn" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 shadow-md">
-                🔗 <span data-lang-key="connect_button">Connect Wallet</span>
-            </button>
-            <p id="walletAddress" class="mt-3 text-gray-700 font-mono"></p>
+            <div id="walletActions" class="flex flex-col md:flex-row gap-4 justify-center items-center">
+                <button id="connectBtn" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 shadow-md">
+                    🔗 <span data-lang-key="connect_button">Connect Wallet</span>
+                </button>
+                <button id="disconnectBtn" class="bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-700 transition duration-300 shadow-md hidden">
+                    ❌ <span data-lang-key="disconnect_button">Disconnect Wallet</span>
+                </button>
+            </div>
+            <p id="walletAddress" class="mt-3 text-center text-gray-700 font-mono"></p>
         </div>
         
         <!-- Fixed Rate Display -->
@@ -185,12 +190,12 @@
             }
         };
 
-        // ABI for the NRT contract - `donate` function
+        // ABI for the NRT contract - donate function
         const ABI = [
             "function donate(address token, address[] recipients, uint256[] amounts) external"
         ];
         
-        // ABI for ERC-20 tokens - `approve` function
+        // ABI for ERC-20 tokens - approve function
         const ERC20_ABI = [
             "function approve(address spender, uint256 amount) public returns (bool)"
         ];
@@ -221,6 +226,7 @@
                 description: 'Donate to verified Russian independent projects using stablecoins and receive <strong>NRT</strong> tokens in return. The exchange rate is fixed at <strong>1 stablecoin = 1 NRT</strong>.',
                 wallet_title: 'Wallet Connection',
                 connect_button: 'Connect Wallet',
+                disconnect_button: 'Disconnect Wallet',
                 rates_title: 'Exchange Rate',
                 token_selection_title: 'Select Donation Token',
                 donations_title: 'Your Donations',
@@ -249,6 +255,7 @@
                 description: 'Пожертвуйте в проверенные российские независимые проекты, используя стейблкоины, и получите токены <strong>NRT</strong> в ответ. Курс обмена фиксирован: <strong>1 стейблкоин = 1 NRT</strong>.',
                 wallet_title: 'Подключение кошелька',
                 connect_button: 'Подключить кошелёк',
+                disconnect_button: 'Отключить кошелёк',
                 rates_title: 'Курс обмена',
                 token_selection_title: 'Выберите токен для пожертвования',
                 donations_title: 'Ваши пожертвования',
@@ -283,6 +290,9 @@
         const tokenSymbolHeader = document.getElementById("tokenSymbolHeader");
         const tokenSymbolAmount = document.getElementById("tokenSymbolAmount");
         const rateDisplay = document.getElementById("rateDisplay");
+        const connectBtn = document.getElementById("connectBtn");
+        const disconnectBtn = document.getElementById("disconnectBtn");
+        const walletAddressEl = document.getElementById("walletAddress");
         const inputMap = new Map();
         let selectedToken = TOKENS.usdt; // Default to USDT
 
@@ -316,8 +326,13 @@
             // Update language switcher buttons' style for visibility
             document.getElementById('lang-en').classList.remove('border-blue-600', 'border-transparent');
             document.getElementById('lang-ru').classList.remove('border-blue-600', 'border-transparent');
-            document.getElementById(`lang-${lang}`).classList.add('border-blue-600');
-            document.getElementById(`lang-${lang === 'en' ? 'ru' : 'en'}`).classList.add('border-transparent');
+            if (lang === 'en') {
+                document.getElementById('lang-en').classList.add('border-blue-600');
+                document.getElementById('lang-ru').classList.add('border-transparent');
+            } else {
+                document.getElementById('lang-ru').classList.add('border-blue-600');
+                document.getElementById('lang-en').classList.add('border-transparent');
+            }
             
             // Recalculate and update UI with new language
             recalc();
@@ -329,13 +344,11 @@
             ORGS.forEach(([name, addr]) => {
                 const row = document.createElement("tr");
                 row.className = "hover:bg-gray-50 transition-colors duration-200";
-                row.innerHTML = `
-                    <td class="p-3 border border-gray-300">${name}</td>
+                row.innerHTML = `<td class="p-3 border border-gray-300">${name}</td>
                     <td class="p-3 border border-gray-300 font-mono text-xs hidden md:table-cell"><code>${addr}</code></td>
                     <td class="p-3 border border-gray-300">
                         <input type="number" min="0" step="0.01" value="0" class="w-full md:w-32 p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-                    </td>
-                `;
+                    </td>`;
                 const input = row.querySelector("input");
                 input.addEventListener("input", recalc);
                 inputMap.set(addr, input);
@@ -361,6 +374,45 @@
             nrtAmountEl.textContent = `${totalNrt.toFixed(2)} NRT`;
         }
 
+        // --- NEW FUNCTIONS FOR WALLET STATE MANAGEMENT ---
+
+        // Function to reset the application state after disconnection
+        function resetWalletState() {
+            signer = null;
+            walletAddressEl.innerText = '';
+            connectBtn.classList.remove('hidden');
+            disconnectBtn.classList.add('hidden');
+            console.log("Wallet connection reset.");
+        }
+
+        // Function to set up event listeners for the wallet
+        function setupWalletListeners() {
+            if (window.ethereum) {
+                // Listen for account changes
+                window.ethereum.on('accountsChanged', (accounts) => {
+                    if (accounts.length === 0) {
+                        // Wallet disconnected from dApp
+                        console.log('Wallet disconnected.');
+                        resetWalletState();
+                    } else {
+                        // Account changed, update signer
+                        console.log('Account changed to:', accounts[0]);
+                        signer = new ethers.BrowserProvider(window.ethereum).getSigner(accounts[0]);
+                        walletAddressEl.innerText = `Wallet: ${accounts[0]}`;
+                    }
+                });
+
+                // Listen for network (chain) changes
+                window.ethereum.on('chainChanged', (chainId) => {
+                    // It is recommended to reload the page on chain changes to avoid state errors.
+                    console.log('Chain changed. Reloading page...');
+                    window.location.reload();
+                });
+            }
+        }
+
+        // --- END OF NEW FUNCTIONS ---
+
         // Initialize UI and set up event listeners
         renderDonationTable();
         setLanguage('en'); // Set default language
@@ -376,7 +428,7 @@
             });
         });
 
-        document.getElementById("connectBtn").onclick = async () => {
+        connectBtn.onclick = async () => {
             if (!window.ethereum) {
                 showModal(translations[currentLang].modal_metamask);
                 return;
@@ -385,11 +437,21 @@
                 provider = new ethers.BrowserProvider(window.ethereum);
                 const accounts = await provider.send("eth_requestAccounts", []);
                 signer = await provider.getSigner();
-                document.getElementById("walletAddress").innerText = `Wallet: ${accounts[0]}`;
-                document.getElementById("connectBtn").disabled = true;
+                walletAddressEl.innerText = `Wallet: ${accounts[0]}`;
+                connectBtn.classList.add('hidden');
+                disconnectBtn.classList.remove('hidden');
+                
+                // Add wallet event listeners after successful connection
+                setupWalletListeners();
+
             } catch (e) {
                 showModal(`${translations[currentLang].modal_error} ${e.message}`);
             }
+        };
+
+        // NEW: Disconnect button handler
+        disconnectBtn.onclick = () => {
+            resetWalletState();
         };
 
         document.getElementById("donateBtn").onclick = async () => {
