@@ -194,8 +194,18 @@
         const ABI = [
             "function donate(address token, address[] recipients, uint256[] amounts) external",
             "function totalDonatedOverallInUsdt() external view returns (uint256)",
-            // ИСПРАВЛЕНО: Заменил uint252 на uint256 для правильной работы с ethers.js
-            "event Donation(address indexed donor, address indexed token, address indexed recipient, uint256 amount)" 
+            // ИСПРАВЛЕНО: Обновлено до более полного формата ABI для события
+            {
+                "anonymous": false,
+                "inputs": [
+                  { "indexed": true, "internalType": "address", "name": "donor", "type": "address" },
+                  { "indexed": true, "internalType": "address", "name": "token", "type": "address" },
+                  { "indexed": true, "internalType": "address", "name": "recipient", "type": "address" },
+                  { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
+                ],
+                "name": "Donation",
+                "type": "event"
+            }
         ];
         
         // ABI for ERC-20 tokens - approve function
