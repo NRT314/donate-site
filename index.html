@@ -194,8 +194,8 @@
         const ABI = [
             "function donate(address token, address[] recipients, uint256[] amounts) external",
             "function totalDonatedOverallInUsdt() external view returns (uint256)",
-            // NEW: Added the Donation event ABI
-            "event Donation(address indexed donor, address indexed token, address indexed recipient, uint252 amount)" 
+            // ИСПРАВЛЕНО: Заменил uint252 на uint256 для правильной работы с ethers.js
+            "event Donation(address indexed donor, address indexed token, address indexed recipient, uint256 amount)" 
         ];
         
         // ABI for ERC-20 tokens - approve function
@@ -230,9 +230,9 @@
                 disconnect_button: 'Disconnect Wallet',
                 rates_title: 'Exchange Rate',
                 total_donated_title: 'Total Donations',
-                recent_donations_title: 'Recent Donations', // NEW
-                donations_loading: 'Loading donations history...', // NEW
-                donation_message: '<strong>{donor}</strong> donated {amount} {symbol} to <strong>{recipient}</strong>', // NEW
+                recent_donations_title: 'Recent Donations',
+                donations_loading: 'Loading donations history...',
+                donation_message: '<strong>{donor}</strong> donated {amount} {symbol} to <strong>{recipient}</strong>',
                 token_selection_title: 'Select Donation Token',
                 donations_title: 'Your Donations',
                 org_header: 'Organization',
@@ -262,9 +262,9 @@
                 disconnect_button: 'Отключить кошелёк',
                 rates_title: 'Курс обмена',
                 total_donated_title: 'Общая сумма пожертвований',
-                recent_donations_title: 'Последние пожертвования', // NEW
-                donations_loading: 'Загрузка истории пожертвований...', // NEW
-                donation_message: '<strong>{donor}</strong> пожертвовал {amount} {symbol} для <strong>{recipient}</strong>', // NEW
+                recent_donations_title: 'Последние пожертвования',
+                donations_loading: 'Загрузка истории пожертвований...',
+                donation_message: '<strong>{donor}</strong> пожертвовал {amount} {symbol} для <strong>{recipient}</strong>',
                 token_selection_title: 'Выберите токен для пожертвования',
                 donations_title: 'Ваши пожертвования',
                 org_header: 'Организация',
@@ -304,7 +304,7 @@
         const loadingTotalEl = document.getElementById("loadingTotal");
         const inputMap = new Map();
         let selectedToken = TOKENS.usdt; // Default to USDT
-        const donationsListEl = document.getElementById("donationsList"); // NEW
+        const donationsListEl = document.getElementById("donationsList");
 
         // Custom modal functions
         function showModal(message) {
@@ -382,7 +382,7 @@
             nrtAmountEl.textContent = `${totalNrt.toFixed(2)} NRT`;
         }
         
-        // NEW: Function to fetch total donations from the contract
+        // Function to fetch total donations from the contract
         async function fetchTotalDonations() {
             try {
                 const rpcProvider = new ethers.JsonRpcProvider('https://polygon-rpc.com/');
@@ -400,12 +400,12 @@
             }
         }
         
-        // NEW: Function to format addresses for display
+        // Function to format addresses for display
         function formatAddress(address) {
             return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
         }
 
-        // NEW: Function to display a single donation event
+        // Function to display a single donation event
         function displayDonation(donor, tokenAddress, recipient, amount, isPreloaded = false) {
             const token = Object.values(TOKENS).find(t => t.address.toLowerCase() === tokenAddress.toLowerCase());
             const symbol = token ? token.symbol : 'UNKNOWN';
@@ -430,7 +430,7 @@
             }
         }
 
-        // NEW: Function to fetch and display the history of donations
+        // Function to fetch and display the history of donations
         async function fetchDonationHistory() {
             try {
                 donationsListEl.innerHTML = `<p data-lang-key="donations_loading" class="text-gray-500 text-center">Loading donations history...</p>`;
@@ -455,7 +455,7 @@
             }
         }
 
-        // NEW: Function to listen for new donation events in real-time
+        // Function to listen for new donation events in real-time
         function listenForNewDonations() {
             const rpcProvider = new ethers.JsonRpcProvider('https://polygon-rpc.com/');
             const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
@@ -532,7 +532,7 @@
             }
         };
 
-        // NEW: Disconnect button handler
+        // Disconnect button handler
         disconnectBtn.onclick = () => {
             resetWalletState();
         };
@@ -580,7 +580,6 @@
 
                 statusEl.textContent = translations[currentLang].status_success;
 
-                // After a successful donation, fetch the total donations again to update the display
                 await fetchTotalDonations();
             } catch (err) {
                 console.error(err);
@@ -591,8 +590,8 @@
         // Fetch total donations and donation history when the page loads
         window.onload = function() {
             fetchTotalDonations();
-            fetchDonationHistory(); // NEW: Load initial history
-            listenForNewDonations(); // NEW: Listen for real-time events
+            fetchDonationHistory();
+            listenForNewDonations();
         };
     </script>
 </body>
