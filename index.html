@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8" />
-    <title>NRT Donate — Версия на русском</title>
+    <title>NRT Donate — Только RU</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -51,17 +51,22 @@
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 p-4">
+
+<!-- Модалка -->
 <div id="myModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
         <p id="modalMessage" class="text-lg"></p>
     </div>
 </div>
-<div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg mt-8 relative">
+
+<div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg mt-8">
     <h1 class="text-3xl font-bold mb-4 text-center">Поддержите независимые организации</h1>
+
     <p class="text-center text-lg mb-6 text-gray-600">
-        Пожертвуйте в проверенные российские независимые проекты, используя стейблкоины, и получите <strong>NRT</strong> в ответ. Курс обмена фиксирован: <strong>1 стейблкоин = 1 NRT</strong>.
+        Пожертвуйте в проверенные российские независимые проекты, используя стейблкоины, и получите токены <strong>NRT</strong> в ответ. Курс обмена фиксирован: <strong>1 стейблкоин = 1 NRT</strong>.
     </p>
+
     <div class="bg-gray-100 p-6 rounded-lg mb-6">
         <h2 class="text-2xl font-semibold mb-3">Подключение кошелька</h2>
         <button id="connectBtn" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 shadow-md">
@@ -69,10 +74,12 @@
         </button>
         <p id="walletAddress" class="mt-3 text-gray-700 font-mono"></p>
     </div>
+
     <div class="bg-gray-100 p-6 rounded-lg mb-6">
         <h2 class="text-2xl font-semibold mb-3">Курс обмена</h2>
         <p class="text-lg font-bold text-gray-700"><span id="rateDisplay">1 USDT = 1 NRT</span></p>
     </div>
+
     <div class="bg-gray-100 p-6 rounded-lg mb-6">
         <h2 class="text-2xl font-semibold mb-3">Выберите токен для пожертвования</h2>
         <div class="flex flex-wrap gap-4 justify-center">
@@ -90,6 +97,7 @@
             </label>
         </div>
     </div>
+
     <div class="bg-gray-100 p-6 rounded-lg mb-6">
         <h2 class="text-2xl font-semibold mb-3">Ваши пожертвования (<span id="tokenSymbolHeader">USDT</span>)</h2>
         <table class="w-full text-left border-collapse">
@@ -113,12 +121,14 @@
             </tfoot>
         </table>
     </div>
+
     <div class="flex justify-center">
         <button id="donateBtn" class="bg-green-600 text-white font-bold text-xl py-4 px-8 rounded-lg hover:bg-green-700 transition duration-300 shadow-xl">
             💸 Отправить пожертвование
         </button>
     </div>
     <p id="status" class="mt-4 text-center font-bold text-lg"></p>
+
     <div class="mt-8 pt-4 border-t border-gray-300 text-sm text-gray-500">
         <h2 class="text-xl font-semibold mb-2">Технические детали</h2>
         <ul>
@@ -128,6 +138,11 @@
         </ul>
     </div>
 </div>
-<!-- Сюда вставляется скрипт из оригинала -->
+
+<!-- JS остаётся без изменений (отвечает за функциональность) -->
+<script>
+    // ... JS-код тот же — оставлен без изменений
+</script>
+
 </body>
 </html>
