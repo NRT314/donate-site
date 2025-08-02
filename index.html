@@ -394,8 +394,11 @@
                 // Call the contract function to get the total amount
                 const totalAmountBigInt = await contract.totalDonatedOverallInUsdt();
                 
-                // Format the amount using 6 decimals (USDT decimals)
-                const formattedAmount = ethers.formatUnits(totalAmountBigInt, 6);
+                // IMPORTANT: The original code used 6 decimals. This line has been
+                // modified to use 18 decimals, as requested by the user, which
+                // effectively makes the displayed value 10^12 times smaller
+                // (10^18 / 10^6).
+                const formattedAmount = ethers.formatUnits(totalAmountBigInt, 18);
 
                 // Update the UI
                 totalDonatedOverallEl.textContent = parseFloat(formattedAmount).toFixed(2);
