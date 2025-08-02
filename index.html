@@ -9,7 +9,6 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Custom modal for alerts */
         .modal {
             display: none;
             position: fixed;
@@ -41,7 +40,6 @@
             text-decoration: none;
             cursor: pointer;
         }
-        /* Style for the active token radio button label */
         input[name="token"]:checked + span {
             font-weight: bold;
         }
@@ -195,17 +193,7 @@
             "function donate(address token, address[] recipients, uint256[] amounts) external",
             "function totalDonatedOverallInUsdt() external view returns (uint256)",
             // ИСПРАВЛЕНО: Обновлено до более полного формата ABI для события
-            {
-                "anonymous": false,
-                "inputs": [
-                  { "indexed": true, "internalType": "address", "name": "donor", "type": "address" },
-                  { "indexed": true, "internalType": "address", "name": "token", "type": "address" },
-                  { "indexed": true, "internalType": "address", "name": "recipient", "type": "address" },
-                  { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
-                ],
-                "name": "Donation",
-                "type": "event"
-            }
+            "event Donation(address indexed donor, address indexed token, address indexed recipient, uint256 amount)"
         ];
         
         // ABI for ERC-20 tokens - approve function
@@ -332,7 +320,6 @@
             }
         }
         
-        // Function to update the UI based on the selected language
         function setLanguage(lang) {
             currentLang = lang;
             const langKeys = document.querySelectorAll('[data-lang-key]');
@@ -343,7 +330,6 @@
                 }
             });
 
-            // Update language switcher buttons' style for visibility
             document.getElementById('lang-en').classList.remove('border-blue-600', 'border-transparent');
             document.getElementById('lang-ru').classList.remove('border-blue-600', 'border-transparent');
             if (lang === 'en') {
@@ -354,13 +340,11 @@
                 document.getElementById('lang-en').classList.add('border-transparent');
             }
             
-            // Recalculate and update UI with new language
             recalc();
         }
 
-        // Populate donation table
         function renderDonationTable() {
-            donationTable.innerHTML = ''; // Clear existing rows
+            donationTable.innerHTML = '';
             ORGS.forEach(([name, addr]) => {
                 const row = document.createElement("tr");
                 row.className = "hover:bg-gray-50 transition-colors duration-200";
@@ -376,7 +360,6 @@
             });
         }
         
-        // Recalculate totals based on inputs and the fixed rate
         function recalc() {
             let totalInTokens = 0;
             for (const input of inputMap.values()) {
@@ -392,14 +375,15 @@
             nrtAmountEl.textContent = `${totalNrt.toFixed(2)} NRT`;
         }
         
-        // Function to fetch total donations from the contract
         async function fetchTotalDonations() {
             try {
-                const rpcProvider = new ethers.JsonRpcProvider('https://polygon-rpc.com/');
+                // ИСПРАВЛЕНО: Используем более надёжный RPC-провайдер
+                const rpcProvider = new ethers.JsonRpcProvider('https://rpc-mainnet.matic.network');
                 const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
 
                 const totalAmountBigInt = await contract.totalDonatedOverallInUsdt();
-                const formattedAmount = ethers.formatUnits(totalAmountBigInt, 18);
+                // ИСПРАВЛЕНО: Используем 6 знаков после запятой для USDT
+                const formattedAmount = ethers.formatUnits(totalAmountBigInt, 6);
 
                 totalDonatedOverallEl.textContent = parseFloat(formattedAmount).toFixed(2);
                 loadingTotalEl.classList.add('hidden');
@@ -410,12 +394,10 @@
             }
         }
         
-        // Function to format addresses for display
         function formatAddress(address) {
             return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
         }
 
-        // Function to display a single donation event
         function displayDonation(donor, tokenAddress, recipient, amount, isPreloaded = false) {
             const token = Object.values(TOKENS).find(t => t.address.toLowerCase() === tokenAddress.toLowerCase());
             const symbol = token ? token.symbol : 'UNKNOWN';
@@ -432,7 +414,6 @@
             donationItem.className = 'p-4 bg-white rounded-lg shadow';
             donationItem.innerHTML = message;
             
-            // Add new donations to the top of the list
             if (!isPreloaded && donationsListEl.firstChild) {
                 donationsListEl.insertBefore(donationItem, donationsListEl.firstChild);
             } else {
@@ -440,20 +421,18 @@
             }
         }
 
-        // Function to fetch and display the history of donations
         async function fetchDonationHistory() {
             try {
                 donationsListEl.innerHTML = `<p data-lang-key="donations_loading" class="text-gray-500 text-center">Loading donations history...</p>`;
                 
-                const rpcProvider = new ethers.JsonRpcProvider('https://polygon-rpc.com/');
+                // ИСПРАВЛЕНО: Используем более надёжный RPC-провайдер
+                const rpcProvider = new ethers.JsonRpcProvider('https://rpc-mainnet.matic.network');
                 const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
 
                 const filter = contract.filters.Donation();
                 const logs = await contract.queryFilter(filter, 0, 'latest');
                 
-                donationsListEl.innerHTML = ''; // Clear loading message
-
-                // Display recent donations first
+                donationsListEl.innerHTML = '';
                 for (const log of logs.reverse()) {
                     const [donor, tokenAddress, recipient, amount] = log.args;
                     displayDonation(donor, tokenAddress, recipient, amount, true);
@@ -465,20 +444,18 @@
             }
         }
 
-        // Function to listen for new donation events in real-time
         function listenForNewDonations() {
-            const rpcProvider = new ethers.JsonRpcProvider('https://polygon-rpc.com/');
+            // ИСПРАВЛЕНО: Используем более надёжный RPC-провайдер
+            const rpcProvider = new ethers.JsonRpcProvider('https://rpc-mainnet.matic.network');
             const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
 
             contract.on("Donation", (donor, tokenAddress, recipient, amount) => {
                 console.log("New donation event received!");
                 displayDonation(donor, tokenAddress, recipient, amount);
-                // Also update the total donations amount
                 fetchTotalDonations();
             });
         }
 
-        // Function to reset the application state after disconnection
         function resetWalletState() {
             signer = null;
             walletAddressEl.innerText = '';
@@ -487,7 +464,6 @@
             console.log("Wallet connection reset.");
         }
 
-        // Function to set up event listeners for the wallet
         function setupWalletListeners() {
             if (window.ethereum) {
                 window.ethereum.on('accountsChanged', (accounts) => {
@@ -507,14 +483,12 @@
             }
         }
 
-        // Initialize UI and set up event listeners
         renderDonationTable();
         setLanguage('en');
         
         document.getElementById("lang-en").addEventListener('click', () => setLanguage('en'));
         document.getElementById("lang-ru").addEventListener('click', () => setLanguage('ru'));
         
-        // Handle token selection
         document.querySelectorAll('input[name="token"]').forEach(radio => {
             radio.addEventListener('change', (e) => {
                 selectedToken = TOKENS[e.target.value];
@@ -542,7 +516,6 @@
             }
         };
 
-        // Disconnect button handler
         disconnectBtn.onclick = () => {
             resetWalletState();
         };
@@ -597,7 +570,6 @@
             }
         };
 
-        // Fetch total donations and donation history when the page loads
         window.onload = function() {
             fetchTotalDonations();
             fetchDonationHistory();
