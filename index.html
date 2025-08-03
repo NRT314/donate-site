@@ -98,6 +98,11 @@
             </p>
         </div>
         
+        <div class="bg-gray-100 p-6 rounded-lg mb-6 max-h-96 overflow-y-auto">
+            <h2 data-lang-key="events_title" class="text-2xl font-semibold mb-3">Recent Donations</h2>
+            <ul id="eventsLog" class="space-y-4">
+                </ul>
+        </div>
         <div class="bg-gray-100 p-6 rounded-lg mb-6">
             <h2 data-lang-key="token_selection_title" class="text-2xl font-semibold mb-3">Select Donation Token</h2>
             <div class="flex flex-wrap gap-4 justify-center">
@@ -186,10 +191,12 @@
             }
         };
 
-        // ABI for the NRT contract - now includes the new function
+        // ABI for the NRT contract - now includes events and new function
+        // 🚀 ИСПРАВЛЕНИЕ: Добавлен event 'Donation' в ABI
         const ABI = [
             "function donate(address token, address[] recipients, uint256[] amounts) external",
-            "function totalDonatedOverallInUsdt() external view returns (uint256)" // Added for total donations
+            "function totalDonatedOverallInUsdt() external view returns (uint256)",
+            "event Donation(address indexed donor, address indexed token, address[] recipients, uint256[] amounts)"
         ];
         
         // ABI for ERC-20 tokens - approve function
@@ -225,6 +232,7 @@
                 disconnect_button: 'Disconnect Wallet',
                 rates_title: 'Exchange Rate',
                 total_donated_title: 'Total Donations',
+                events_title: 'Recent Donations', // NEW
                 token_selection_title: 'Select Donation Token',
                 donations_title: 'Your Donations',
                 org_header: 'Organization',
@@ -254,6 +262,7 @@
                 disconnect_button: 'Отключить кошелёк',
                 rates_title: 'Курс обмена',
                 total_donated_title: 'Общая сумма пожертвований',
+                events_title: 'Недавние пожертвования', // NEW
                 token_selection_title: 'Выберите токен для пожертвования',
                 donations_title: 'Ваши пожертвования',
                 org_header: 'Организация',
@@ -293,7 +302,10 @@
         const loadingTotalEl = document.getElementById("loadingTotal");
         const inputMap = new Map();
         let selectedToken = TOKENS.usdt; // Default to USDT
-
+        
+        // 🚀 NEW: Events log element
+        const eventsLogEl = document.getElementById("eventsLog");
+        
         // Custom modal functions
         function showModal(message) {
             document.getElementById("modalMessage").innerText = message;
@@ -372,6 +384,70 @@
             nrtAmountEl.textContent = `${totalNrt.toFixed(2)} NRT`;
         }
         
+        // NEW: Function to get the name of the organization from its address
+        function getOrgName(address) {
+            const org = ORGS.find(([name, addr]) => addr.toLowerCase() === address.toLowerCase());
+            return org ? org[0] : address; // Return name or address if not found
+        }
+        
+        // NEW: Function to display a new event in the events log
+        function addEventToLog(event) {
+            // Get the token symbol from the event, defaulting to a generic name if not found
+            const tokenSymbol = Object.values(TOKENS).find(t => t.address.toLowerCase() === event.args.token.toLowerCase())?.symbol || event.args.token.substring(0, 6) + '...';
+            
+            // Format the amounts and recipients
+            const formattedAmounts = event.args.amounts.map((amount, index) => {
+                // Determine decimals based on the token
+                const decimals = Object.values(TOKENS).find(t => t.address.toLowerCase() === event.args.token.toLowerCase())?.decimals || 18; // Default to 18
+                const formattedValue = ethers.formatUnits(amount, decimals);
+                const recipientName = getOrgName(event.args.recipients[index]);
+                return `${parseFloat(formattedValue).toFixed(2)} ${tokenSymbol} to ${recipientName}`;
+            }).join(', ');
+
+            const logItem = document.createElement("li");
+            logItem.className = "bg-white p-3 rounded-lg shadow-sm";
+            logItem.innerHTML = `
+                <p class="text-sm">
+                    <strong>From:</strong> <code>${event.args.donor.substring(0, 6)}...${event.args.donor.slice(-4)}</code>
+                </p>
+                <p class="text-sm">
+                    <strong>Donation:</strong> ${formattedAmounts}
+                </p>
+                <p class="text-xs text-gray-400 mt-1">
+                    Transaction hash: <code>${event.log.transactionHash.substring(0, 6)}...</code>
+                </p>
+            `;
+            
+            eventsLogEl.prepend(logItem); // Add to the top of the list
+            if (eventsLogEl.children.length > 10) {
+                eventsLogEl.lastChild.remove(); // Keep the list from getting too long
+            }
+        }
+        
+        // NEW: Function to fetch past events and listen for new ones
+        async function fetchAndListenForEvents() {
+            try {
+                // Use the dedicated RPC provider
+                const rpcProvider = new ethers.JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
+                const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
+
+                // Fetch past 10 events
+                const pastEvents = await contract.queryFilter("Donation", -10);
+                pastEvents.reverse().forEach(addEventToLog); // Show most recent events at the top
+
+                // Listen for new events
+                contract.on("Donation", (...args) => {
+                    const event = args.pop(); // The event object is the last argument
+                    console.log("New Donation Event:", event);
+                    addEventToLog(event);
+                    fetchTotalDonations(); // Update the total amount when a new donation is made
+                });
+
+            } catch (error) {
+                console.error("Failed to fetch or listen for events:", error);
+            }
+        }
+
         // NEW: Function to fetch total donations from the contract
         async function fetchTotalDonations() {
             try {
@@ -528,9 +604,10 @@
             }
         };
 
-        // Fetch total donations when the page loads
+        // Fetch total donations and events when the page loads
         window.onload = function() {
             fetchTotalDonations();
+            fetchAndListenForEvents();
         };
     </script>
 </body>
