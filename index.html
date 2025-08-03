@@ -110,10 +110,6 @@
                     <span class="text-lg">USDC (Bridget)</span>
                 </label>
                 <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
-                    <input type="radio" name="token" id="radio-usdc-e" value="usdc_e" class="h-4 w-4 text-blue-600" />
-                    <span class="text-lg">USDC (E)</span>
-                </label>
-                <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
                     <input type="radio" name="token" id="radio-dai" value="dai" class="h-4 w-4 text-blue-600" />
                     <span class="text-lg">DAI</span>
                 </label>
@@ -157,8 +153,8 @@
             <h2 data-lang-key="technical_details_title" class="text-xl font-semibold mb-2">Technical Details</h2>
             <ul>
                 <li data-lang-key="technical_details_network">Network: Polygon</li>
-                <li data-lang-key="technical_details_contract">NRT Contract: <code>0x095db7581f2A79a76bcCD6c04750444ee9aA7f7B</code></li>
-                <li data-lang-key="technical_details_token">Tokens: USDT (6), USDC (Bridget) (6), USDC (E) (6), DAI (18)</li>
+                <li data-lang-key="technical_details_contract">NRT Contract: <code>0x2440272Bb06F2dd6A4BB324fA2a9c6620Cb7536A</code></li>
+                <li data-lang-key="technical_details_token">Tokens: USDT (6), USDC (Bridget) (6), DAI (18)</li>
             </ul>
         </div>
     </div>
@@ -166,7 +162,7 @@
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
     <script>
         // CONTRACT DETAILS
-        const CONTRACT_ADDRESS = "0x095db7581f2A79a76bcCD6c04750444ee9aA7f7B";
+        const CONTRACT_ADDRESS = "0x2440272Bb06F2dd6A4BB324fA2a9c6620Cb7536A";
 
         // TOKEN DETAILS - All supported tokens on Polygon Mainnet
         const TOKENS = {
@@ -179,11 +175,6 @@
                 address: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
                 decimals: 6,
                 symbol: "USDC (Bridget)"
-            },
-            usdc_e: {
-                address: "0x0FA8781a83E46826621b3BC094Ea2A0212e71B23",
-                decimals: 6,
-                symbol: "USDC (E)"
             },
             dai: {
                 address: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
@@ -241,8 +232,8 @@
                 donate_button: 'Send Donation',
                 technical_details_title: 'Technical Details',
                 technical_details_network: 'Network: Polygon',
-                technical_details_contract: 'NRT Contract: <code>0x095db7581f2A79a76bcCD6c04750444ee9aA7f7B</code>',
-                technical_details_token: 'Tokens: USDT (6), USDC (Bridget) (6), USDC (E) (6), DAI (18)',
+                technical_details_contract: 'NRT Contract: <code>0x2440272Bb06F2dd6A4BB324fA2a9c6620Cb7536A</code>',
+                technical_details_token: 'Tokens: USDT (6), USDC (Bridget) (6), DAI (18)',
                 modal_connect: 'Please connect your wallet first.',
                 modal_metamask: 'Please install MetaMask or Rabby.',
                 modal_error: 'Connection Error: ',
@@ -270,8 +261,8 @@
                 donate_button: 'Отправить пожертвование',
                 technical_details_title: 'Технические детали',
                 technical_details_network: 'Сеть: Polygon',
-                technical_details_contract: 'Контракт NRT: <code>0x095db7581f2A79a76bcCD6c04750444ee9aA7f7B</code>',
-                technical_details_token: 'Токены: USDT (6), USDC (Bridget) (6), USDC (E) (6), DAI (18)',
+                technical_details_contract: 'Контракт NRT: <code>0x2440272Bb06F2dd6A4BB324fA2a9c6620Cb7536A</code>',
+                technical_details_token: 'Токены: USDT (6), USDC (Bridget) (6), DAI (18)',
                 modal_connect: 'Сначала подключите кошелёк.',
                 modal_metamask: 'Установите MetaMask или Rabby.',
                 modal_error: 'Ошибка подключения: ',
