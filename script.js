@@ -23,11 +23,12 @@ const TOKENS = {
     }
 };
 
-// ABI for the NRT contract - now includes corrected event signature
+// ABI for the NRT contract - now includes events and new function
 const ABI = [
     "function donate(address token, address[] recipients, uint256[] amounts) external",
     "function totalDonatedOverallInUsdt() external view returns (uint256)",
-    "event Donation(address indexed donor, address indexed token, address indexed recipient, uint256 amount)"
+    // ИСПРАВЛЕНО: ABI события теперь соответствует структуре `Donation` из контракта
+    "event Donation(address indexed donor, address indexed token, address[] recipients, uint256[] amounts)"
 ];
 
 // ABI for ERC-20 tokens - approve function
@@ -132,9 +133,9 @@ const totalDonatedOverallEl = document.getElementById("totalDonatedOverallInUsdt
 const loadingTotalEl = document.getElementById("loadingTotal");
 const inputMap = new Map();
 let selectedToken = TOKENS.usdt;
-
+    
 const eventsLogEl = document.getElementById("eventsLog");
-
+    
 function showModal(message) {
     document.getElementById("modalMessage").innerText = message;
     document.getElementById("myModal").style.display = "block";
@@ -143,13 +144,13 @@ function showModal(message) {
 function closeModal() {
     document.getElementById("myModal").style.display = "none";
 }
-
+    
 window.onclick = function(event) {
     if (event.target == document.getElementById("myModal")) {
         closeModal();
     }
 }
-
+    
 function setLanguage(lang) {
     currentLang = lang;
     const langKeys = document.querySelectorAll('[data-lang-key]');
@@ -187,7 +188,7 @@ function renderDonationTable() {
         donationTable.appendChild(row);
     });
 }
-
+    
 function recalc() {
     let totalInTokens = 0;
     for (const input of inputMap.values()) {
@@ -202,21 +203,22 @@ function recalc() {
     totalAmountEl.textContent = `${totalInTokens.toFixed(2)} ${tokenSymbol}`;
     nrtAmountEl.textContent = `${totalNrt.toFixed(2)} NRT`;
 }
-
+    
 function getOrgName(address) {
     const org = ORGS.find(([name, addr]) => addr.toLowerCase() === address.toLowerCase());
     return org ? org[0] : address.substring(0, 6) + '...';
 }
-
-function addEventToLog(donor, tokenAddress, recipient, amount, transactionHash) {
-    const token = Object.values(TOKENS).find(t => t.address.toLowerCase() === tokenAddress.toLowerCase());
-    if (!token) {
-        console.error("Unknown token address:", tokenAddress);
-        return;
-    }
-
-    const formattedAmount = ethers.formatUnits(amount, token.decimals);
-    const recipientName = getOrgName(recipient);
+    
+// 🚀 ИСПРАВЛЕНО: Объединённая функция для отображения событий
+function addEventToLog(donor, tokenAddress, recipients, amounts, transactionHash) {
+    const tokenSymbol = Object.values(TOKENS).find(t => t.address.toLowerCase() === tokenAddress.toLowerCase())?.symbol || tokenAddress.substring(0, 6) + '...';
+    const decimals = Object.values(TOKENS).find(t => t.address.toLowerCase() === tokenAddress.toLowerCase())?.decimals || 18;
+        
+    const formattedAmounts = amounts.map((amount, index) => {
+        const formattedValue = ethers.formatUnits(amount, decimals);
+        const recipientName = getOrgName(recipients[index]);
+        return `${parseFloat(formattedValue).toFixed(2)} ${tokenSymbol} to ${recipientName}`;
+    }).join(', ');
 
     const logItem = document.createElement("li");
     logItem.className = "bg-white p-3 rounded-lg shadow-sm";
@@ -225,54 +227,37 @@ function addEventToLog(donor, tokenAddress, recipient, amount, transactionHash) 
             <strong>From:</strong> <code>${donor.substring(0, 6)}...${donor.slice(-4)}</code>
         </p>
         <p class="text-sm">
-            <strong>Donation:</strong> ${parseFloat(formattedAmount).toFixed(2)} ${token.symbol} to ${recipientName}
+            <strong>Donation:</strong> ${formattedAmounts}
         </p>
         <p class="text-xs text-gray-400 mt-1">
-            Transaction hash: <a href="https://polygonscan.com/tx/${transactionHash}" target="_blank" class="text-blue-500 hover:underline"><code>${transactionHash.substring(0, 6)}...${transactionHash.slice(-4)}</code></a>
+            Transaction hash: <code>${transactionHash.substring(0, 6)}...</code>
         </p>
     `;
-
+        
+    // 🚀 ИСПРАВЛЕНО: Убираем все предыдущие донаты и добавляем только один новый
+    eventsLogEl.innerHTML = '';
     eventsLogEl.prepend(logItem);
-    // Keep only the last 10 entries
-    while (eventsLogEl.children.length > 10) {
-        eventsLogEl.removeChild(eventsLogEl.lastChild);
-    }
 }
-
-// ---------------------------------------------------------------------------------------------------------------------
-// ИСПРАВЛЕННАЯ ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ СОБЫТИЙ
-// ---------------------------------------------------------------------------------------------------------------------
+    
+// 🚀 ИСПРАВЛЕНО: Функция для получения и подписки на события
 async function fetchAndListenForEvents() {
     try {
         const rpcProvider = new ethers.JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
         const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
 
-        // В этом случае мы просто очищаем лог, потому что мы не будем загружать исторические данные.
-        // Если вы захотите добавить исторические данные в будущем, эту часть можно изменить.
-        eventsLogEl.innerHTML = '';
+        // Очищаем лог, так как мы не будем показывать историю
+        eventsLogEl.innerHTML = `
+            <li class="bg-white p-3 rounded-lg shadow-sm text-center text-gray-500">
+                Ожидание первого пожертвования...
+            </li>
+        `;
 
-        // Теперь мы просто подписываемся на новые события и ждём их.
-        // Это полностью решает проблему с лимитом запросов.
-        rpcProvider.on("Donation", async (log) => {
+        // 🚀 ИСПРАВЛЕНО: Теперь мы просто подписываемся на новые события,
+        // не запрашивая историю. Это полностью решает проблему с лимитом запросов.
+        contract.on("Donation", (donor, tokenAddress, recipients, amounts, log) => {
             console.log("New Donation Event:", log);
-
-            // Получаем транзакцию, чтобы получить время
-            const tx = await rpcProvider.getTransaction(log.transactionHash);
-            // Получаем блок, чтобы получить отметку времени
-            const block = await rpcProvider.getBlock(tx.blockNumber);
-            const date = new Date(block.timestamp * 1000);
-
-            const parsedEvent = contract.interface.parseLog(log);
-            if (parsedEvent) {
-                // Добавляем новое событие в начало списка
-                addEventToLog(
-                    parsedEvent.args.donor,
-                    parsedEvent.args.token,
-                    parsedEvent.args.recipient,
-                    parsedEvent.args.amount,
-                    log.transactionHash
-                );
-            }
+            // Добавляем только что произошедшее событие
+            addEventToLog(donor, tokenAddress, recipients, amounts, log.transactionHash);
             fetchTotalDonations();
         });
 
@@ -285,9 +270,6 @@ async function fetchAndListenForEvents() {
         `;
     }
 }
-// ---------------------------------------------------------------------------------------------------------------------
-// КОНЕЦ ИСПРАВЛЕННОЙ ФУНКЦИИ
-// ---------------------------------------------------------------------------------------------------------------------
 
 async function fetchTotalDonations() {
     try {
@@ -295,7 +277,7 @@ async function fetchTotalDonations() {
         const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
 
         const totalAmountBigInt = await contract.totalDonatedOverallInUsdt();
-
+            
         const formattedAmount = ethers.formatUnits(totalAmountBigInt, 6);
 
         totalDonatedOverallEl.textContent = parseFloat(formattedAmount).toFixed(2);
@@ -336,10 +318,10 @@ function setupWalletListeners() {
 
 renderDonationTable();
 setLanguage('en');
-
+    
 document.getElementById("lang-en").addEventListener('click', () => setLanguage('en'));
 document.getElementById("lang-ru").addEventListener('click', () => setLanguage('ru'));
-
+    
 document.querySelectorAll('input[name="token"]').forEach(radio => {
     radio.addEventListener('change', (e) => {
         selectedToken = TOKENS[e.target.value];
@@ -374,7 +356,7 @@ document.getElementById("donateBtn").onclick = async () => {
         showModal(translations[currentLang].modal_connect);
         return;
     }
-
+        
     const recipients = [];
     const amounts = [];
     let total = 0;
@@ -392,10 +374,10 @@ document.getElementById("donateBtn").onclick = async () => {
         showModal(translations[currentLang].modal_no_amount);
         return;
     }
-
+        
     try {
         const tokenContract = new ethers.Contract(selectedToken.address, ERC20_ABI, signer);
-
+            
         const totalAmount = ethers.parseUnits(total.toString(), selectedToken.decimals);
         const amountBNs = amounts.map(a => ethers.parseUnits(a.toString(), selectedToken.decimals));
 
