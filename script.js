@@ -245,10 +245,17 @@ async function fetchAndListenForEvents() {
         const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
 
         // Fetch and display past events
-        const pastEvents = await contract.queryFilter("Donation", -10);
+        const pastEvents = await contract.queryFilter("Donation");
         eventsLogEl.innerHTML = ''; // Clear the log before repopulating
-        // Reverse to show the newest at the top
-        pastEvents.reverse().forEach(event => {
+        
+        // Sort events by block number to ensure correct order
+        pastEvents.sort((a, b) => b.blockNumber - a.blockNumber);
+        
+        // Get the last 10 events
+        const recentEvents = pastEvents.slice(0, 10);
+        
+        // Display events from newest to oldest
+        recentEvents.forEach(event => {
             addEventToLog(event.args.donor, event.args.token, event.args.recipient, event.args.amount, event.transactionHash);
         });
 
