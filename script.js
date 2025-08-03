@@ -247,7 +247,7 @@ async function fetchAndListenForEvents() {
         // Fetch logs directly from the provider for the last 1000 blocks
         const latestBlock = await rpcProvider.getBlockNumber();
         const fromBlock = latestBlock > 1000 ? latestBlock - 1000 : 0;
-
+        
         const logs = await rpcProvider.getLogs({
             address: CONTRACT_ADDRESS,
             fromBlock: fromBlock,
@@ -281,10 +281,20 @@ async function fetchAndListenForEvents() {
             );
         });
 
-        // Listen for new events
-        contract.on("Donation", (donor, tokenAddress, recipient, amount, log) => {
-            console.log("New Donation Event:", log);
-            addEventToLog(donor, tokenAddress, recipient, amount, log.transactionHash);
+        // Listen for new events using provider.on for better reliability
+        const donationFilter = contract.filters.Donation();
+        rpcProvider.on(donationFilter, (log) => {
+            console.log("New Donation Event via provider.on:", log);
+            const parsedEvent = contract.interface.parseLog(log);
+            if (parsedEvent) {
+                addEventToLog(
+                    parsedEvent.args.donor,
+                    parsedEvent.args.token,
+                    parsedEvent.args.recipient,
+                    parsedEvent.args.amount,
+                    log.transactionHash
+                );
+            }
             fetchTotalDonations();
         });
 
