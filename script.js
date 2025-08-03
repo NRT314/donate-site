@@ -3,6 +3,11 @@ const CONTRACT_ADDRESS = "0x2440272Bb06F2dd6A4BB324fA2a9c6620Cb7536A";
 
 // 🚀 ВАЖНО: Вставьте сюда ваш новый API-ключ Alchemy
 const ALCHEMY_API_KEY = "JdPCO0ShPVRm3qtHGVfBU";
+// 🚀 ВАЖНО: Используйте WSS-адрес для подписки на события
+const ALCHEMY_WSS_URL = `wss://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`;
+// Используйте HTTPS-адрес для обычных запросов
+const ALCHEMY_HTTPS_URL = `https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`;
+
 
 // TOKEN DETAILS - All supported tokens on Polygon Mainnet
 const TOKENS = {
@@ -27,7 +32,6 @@ const TOKENS = {
 const ABI = [
     "function donate(address token, address[] recipients, uint256[] amounts) external",
     "function totalDonatedOverallInUsdt() external view returns (uint256)",
-    // ИСПРАВЛЕНО: ABI события теперь соответствует структуре `Donation` из контракта
     "event Donation(address indexed donor, address indexed token, address[] recipients, uint256[] amounts)"
 ];
 
@@ -209,7 +213,6 @@ function getOrgName(address) {
     return org ? org[0] : address.substring(0, 6) + '...';
 }
     
-// 🚀 ИСПРАВЛЕНО: Объединённая функция для отображения событий
 function addEventToLog(donor, tokenAddress, recipients, amounts, transactionHash) {
     const tokenSymbol = Object.values(TOKENS).find(t => t.address.toLowerCase() === tokenAddress.toLowerCase())?.symbol || tokenAddress.substring(0, 6) + '...';
     const decimals = Object.values(TOKENS).find(t => t.address.toLowerCase() === tokenAddress.toLowerCase())?.decimals || 18;
@@ -234,29 +237,23 @@ function addEventToLog(donor, tokenAddress, recipients, amounts, transactionHash
         </p>
     `;
         
-    // 🚀 ИСПРАВЛЕНО: Убираем все предыдущие донаты и добавляем только один новый
     eventsLogEl.innerHTML = '';
     eventsLogEl.prepend(logItem);
 }
     
-// 🚀 ИСПРАВЛЕНО: Функция для получения и подписки на события
 async function fetchAndListenForEvents() {
     try {
-        const rpcProvider = new ethers.JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
-        const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
+        const wssProvider = new ethers.WebSocketProvider(ALCHEMY_WSS_URL);
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, wssProvider);
 
-        // Очищаем лог, так как мы не будем показывать историю
         eventsLogEl.innerHTML = `
             <li class="bg-white p-3 rounded-lg shadow-sm text-center text-gray-500">
                 Ожидание первого пожертвования...
             </li>
         `;
 
-        // 🚀 ИСПРАВЛЕНО: Теперь мы просто подписываемся на новые события,
-        // не запрашивая историю. Это полностью решает проблему с лимитом запросов.
         contract.on("Donation", (donor, tokenAddress, recipients, amounts, log) => {
             console.log("New Donation Event:", log);
-            // Добавляем только что произошедшее событие
             addEventToLog(donor, tokenAddress, recipients, amounts, log.transactionHash);
             fetchTotalDonations();
         });
@@ -273,7 +270,7 @@ async function fetchAndListenForEvents() {
 
 async function fetchTotalDonations() {
     try {
-        const rpcProvider = new ethers.JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
+        const rpcProvider = new ethers.JsonRpcProvider(ALCHEMY_HTTPS_URL);
         const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
 
         const totalAmountBigInt = await contract.totalDonatedOverallInUsdt();
