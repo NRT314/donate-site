@@ -170,7 +170,7 @@
         const CONTRACT_ADDRESS = "0x2440272Bb06F2dd6A4BB324fA2a9c6620Cb7536A";
 
         // 🚀 ВАЖНО: Вставьте сюда ваш новый API-ключ Alchemy
-        const ALCHEMY_API_KEY = "JdPCO0ShPVRm3qtHGVfBU"; 
+        const ALCHEMY_API_KEY = "JdPCO0ShPVRm3qtHGVfBU";
 
         // TOKEN DETAILS - All supported tokens on Polygon Mainnet
         const TOKENS = {
@@ -192,7 +192,6 @@
         };
 
         // ABI for the NRT contract - now includes events and new function
-        // 🚀 ИСПРАВЛЕНИЕ: Добавлен event 'Donation' в ABI
         const ABI = [
             "function donate(address token, address[] recipients, uint256[] amounts) external",
             "function totalDonatedOverallInUsdt() external view returns (uint256)",
@@ -205,7 +204,6 @@
         ];
 
         // RECIPIENT LIST
-        // These are the organizations that will receive the donations.
         const ORGS = [
             ["thisproject", "0xc0F467567570AADa929fFA115E65bB39066e3E42"],
             ["ovdinfo", "0x421896bb0Dcf271a294bC7019014EE90503656Fd"],
@@ -232,7 +230,7 @@
                 disconnect_button: 'Disconnect Wallet',
                 rates_title: 'Exchange Rate',
                 total_donated_title: 'Total Donations',
-                events_title: 'Recent Donations', // NEW
+                events_title: 'Recent Donations',
                 token_selection_title: 'Select Donation Token',
                 donations_title: 'Your Donations',
                 org_header: 'Organization',
@@ -262,7 +260,7 @@
                 disconnect_button: 'Отключить кошелёк',
                 rates_title: 'Курс обмена',
                 total_donated_title: 'Общая сумма пожертвований',
-                events_title: 'Недавние пожертвования', // NEW
+                events_title: 'Недавние пожертвования',
                 token_selection_title: 'Выберите токен для пожертвования',
                 donations_title: 'Ваши пожертвования',
                 org_header: 'Организация',
@@ -301,12 +299,10 @@
         const totalDonatedOverallEl = document.getElementById("totalDonatedOverallInUsdt");
         const loadingTotalEl = document.getElementById("loadingTotal");
         const inputMap = new Map();
-        let selectedToken = TOKENS.usdt; // Default to USDT
+        let selectedToken = TOKENS.usdt;
         
-        // 🚀 NEW: Events log element
         const eventsLogEl = document.getElementById("eventsLog");
         
-        // Custom modal functions
         function showModal(message) {
             document.getElementById("modalMessage").innerText = message;
             document.getElementById("myModal").style.display = "block";
@@ -322,7 +318,6 @@
             }
         }
         
-        // Function to update the UI based on the selected language
         function setLanguage(lang) {
             currentLang = lang;
             const langKeys = document.querySelectorAll('[data-lang-key]');
@@ -332,8 +327,6 @@
                     element.innerHTML = translations[lang][key];
                 }
             });
-
-            // Update language switcher buttons' style for visibility
             document.getElementById('lang-en').classList.remove('border-blue-600', 'border-transparent');
             document.getElementById('lang-ru').classList.remove('border-blue-600', 'border-transparent');
             if (lang === 'en') {
@@ -343,14 +336,11 @@
                 document.getElementById('lang-ru').classList.add('border-blue-600');
                 document.getElementById('lang-en').classList.add('border-transparent');
             }
-            
-            // Recalculate and update UI with new language
             recalc();
         }
 
-        // Populate donation table
         function renderDonationTable() {
-            donationTable.innerHTML = ''; // Clear existing rows
+            donationTable.innerHTML = '';
             ORGS.forEach(([name, addr]) => {
                 const row = document.createElement("tr");
                 row.className = "hover:bg-gray-50 transition-colors duration-200";
@@ -366,16 +356,13 @@
             });
         }
         
-        // Recalculate totals based on inputs and the fixed rate
         function recalc() {
             let totalInTokens = 0;
-            // The rate is now fixed at 1 NRT per 1 token
             for (const input of inputMap.values()) {
                 totalInTokens += parseFloat(input.value) || 0;
             }
             const totalNrt = totalInTokens;
 
-            // Update UI text to reflect the selected token
             const tokenSymbol = selectedToken.symbol;
             tokenSymbolHeader.textContent = tokenSymbol;
             tokenSymbolAmount.textContent = tokenSymbol;
@@ -384,23 +371,22 @@
             nrtAmountEl.textContent = `${totalNrt.toFixed(2)} NRT`;
         }
         
-        // NEW: Function to get the name of the organization from its address
         function getOrgName(address) {
             const org = ORGS.find(([name, addr]) => addr.toLowerCase() === address.toLowerCase());
-            return org ? org[0] : address; // Return name or address if not found
+            return org ? org[0] : address.substring(0, 6) + '...';
         }
         
-        // NEW: Function to display a new event in the events log
+        // 🚀 ИСПРАВЛЕНО: Функция для отображения событий
         function addEventToLog(event) {
-            // Get the token symbol from the event, defaulting to a generic name if not found
-            const tokenSymbol = Object.values(TOKENS).find(t => t.address.toLowerCase() === event.args.token.toLowerCase())?.symbol || event.args.token.substring(0, 6) + '...';
+            // Получаем аргументы из объекта события
+            const { donor, token: tokenAddress, recipients, amounts } = event.args;
             
-            // Format the amounts and recipients
-            const formattedAmounts = event.args.amounts.map((amount, index) => {
-                // Determine decimals based on the token
-                const decimals = Object.values(TOKENS).find(t => t.address.toLowerCase() === event.args.token.toLowerCase())?.decimals || 18; // Default to 18
+            const tokenSymbol = Object.values(TOKENS).find(t => t.address.toLowerCase() === tokenAddress.toLowerCase())?.symbol || tokenAddress.substring(0, 6) + '...';
+            const decimals = Object.values(TOKENS).find(t => t.address.toLowerCase() === tokenAddress.toLowerCase())?.decimals || 18;
+            
+            const formattedAmounts = amounts.map((amount, index) => {
                 const formattedValue = ethers.formatUnits(amount, decimals);
-                const recipientName = getOrgName(event.args.recipients[index]);
+                const recipientName = getOrgName(recipients[index]);
                 return `${parseFloat(formattedValue).toFixed(2)} ${tokenSymbol} to ${recipientName}`;
             }).join(', ');
 
@@ -408,7 +394,7 @@
             logItem.className = "bg-white p-3 rounded-lg shadow-sm";
             logItem.innerHTML = `
                 <p class="text-sm">
-                    <strong>From:</strong> <code>${event.args.donor.substring(0, 6)}...${event.args.donor.slice(-4)}</code>
+                    <strong>From:</strong> <code>${donor.substring(0, 6)}...${donor.slice(-4)}</code>
                 </p>
                 <p class="text-sm">
                     <strong>Donation:</strong> ${formattedAmounts}
@@ -418,29 +404,33 @@
                 </p>
             `;
             
-            eventsLogEl.prepend(logItem); // Add to the top of the list
+            eventsLogEl.prepend(logItem);
             if (eventsLogEl.children.length > 10) {
-                eventsLogEl.lastChild.remove(); // Keep the list from getting too long
+                eventsLogEl.lastChild.remove();
             }
         }
         
-        // NEW: Function to fetch past events and listen for new ones
+        // 🚀 ИСПРАВЛЕНО: Функция для получения и подписки на события
         async function fetchAndListenForEvents() {
             try {
-                // Use the dedicated RPC provider
                 const rpcProvider = new ethers.JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
                 const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
 
-                // Fetch past 10 events
                 const pastEvents = await contract.queryFilter("Donation", -10);
-                pastEvents.reverse().forEach(addEventToLog); // Show most recent events at the top
+                pastEvents.reverse().forEach(addEventToLog);
 
-                // Listen for new events
-                contract.on("Donation", (...args) => {
-                    const event = args.pop(); // The event object is the last argument
+                contract.on("Donation", (donor, tokenAddress, recipients, amounts, event) => {
                     console.log("New Donation Event:", event);
-                    addEventToLog(event);
-                    fetchTotalDonations(); // Update the total amount when a new donation is made
+                    addEventToLog({
+                        args: {
+                            donor: donor,
+                            token: tokenAddress,
+                            recipients: recipients,
+                            amounts: amounts
+                        },
+                        log: { transactionHash: event.log.transactionHash }
+                    });
+                    fetchTotalDonations();
                 });
 
             } catch (error) {
@@ -448,22 +438,17 @@
             }
         }
 
-        // NEW: Function to fetch total donations from the contract
         async function fetchTotalDonations() {
             try {
-                // 🚀 ИСПРАВЛЕНИЕ: Используем выделенный RPC-провайдер Alchemy с правильной переменной
                 const rpcProvider = new ethers.JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
                 const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
 
-                // Call the contract function to get the total amount
                 const totalAmountBigInt = await contract.totalDonatedOverallInUsdt();
                 
-                // --- ИСПРАВЛЕНИЕ: Используем 6 десятичных знаков для USDT ---
                 const formattedAmount = ethers.formatUnits(totalAmountBigInt, 6);
 
-                // Update the UI
                 totalDonatedOverallEl.textContent = parseFloat(formattedAmount).toFixed(2);
-                loadingTotalEl.classList.add('hidden'); // Hide the loading indicator
+                loadingTotalEl.classList.add('hidden');
             } catch (error) {
                 console.error("Failed to fetch total donations:", error);
                 totalDonatedOverallEl.textContent = "Error";
@@ -471,7 +456,6 @@
             }
         }
 
-        // Function to reset the application state after disconnection
         function resetWalletState() {
             signer = null;
             walletAddressEl.innerText = '';
@@ -480,40 +464,31 @@
             console.log("Wallet connection reset.");
         }
 
-        // Function to set up event listeners for the wallet
         function setupWalletListeners() {
             if (window.ethereum) {
-                // Listen for account changes
                 window.ethereum.on('accountsChanged', (accounts) => {
                     if (accounts.length === 0) {
-                        // Wallet disconnected from dApp
                         console.log('Wallet disconnected.');
                         resetWalletState();
                     } else {
-                        // Account changed, update signer
                         console.log('Account changed to:', accounts[0]);
                         signer = (new ethers.BrowserProvider(window.ethereum)).getSigner(accounts[0]);
                         walletAddressEl.innerText = `Wallet: ${accounts[0]}`;
                     }
                 });
-
-                // Listen for network (chain) changes
                 window.ethereum.on('chainChanged', (chainId) => {
-                    // It is recommended to reload the page on chain changes to avoid state errors.
                     console.log('Chain changed. Reloading page...');
                     window.location.reload();
                 });
             }
         }
 
-        // Initialize UI and set up event listeners
         renderDonationTable();
-        setLanguage('en'); // Set default language
+        setLanguage('en');
         
         document.getElementById("lang-en").addEventListener('click', () => setLanguage('en'));
         document.getElementById("lang-ru").addEventListener('click', () => setLanguage('ru'));
         
-        // Handle token selection
         document.querySelectorAll('input[name="token"]').forEach(radio => {
             radio.addEventListener('change', (e) => {
                 selectedToken = TOKENS[e.target.value];
@@ -533,16 +508,12 @@
                 walletAddressEl.innerText = `Wallet: ${accounts[0]}`;
                 connectBtn.classList.add('hidden');
                 disconnectBtn.classList.remove('hidden');
-                
-                // Add wallet event listeners after successful connection
                 setupWalletListeners();
-
             } catch (e) {
                 showModal(`${translations[currentLang].modal_error} ${e.message}`);
             }
         };
 
-        // NEW: Disconnect button handler
         disconnectBtn.onclick = () => {
             resetWalletState();
         };
@@ -572,7 +543,6 @@
             }
             
             try {
-                // Use the selected token's address and decimals
                 const tokenContract = new ethers.Contract(selectedToken.address, ERC20_ABI, signer);
                 
                 const totalAmount = ethers.parseUnits(total.toString(), selectedToken.decimals);
@@ -582,11 +552,6 @@
                 const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, totalAmount);
                 await approveTx.wait();
 
-                // ----------------------------------------------------------------------------------
-                // Этот блок кода выполняется после успешного одобрения.
-                // ВАЖНО: После этой строки ваш кошелёк должен запросить подтверждение второй транзакции.
-                // Проверьте, появилось ли уведомление от кошелька.
-                // ----------------------------------------------------------------------------------
                 console.log("Approval successful. Attempting to send donation transaction...");
 
                 const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
@@ -596,7 +561,6 @@
 
                 statusEl.textContent = translations[currentLang].status_success;
 
-                // After a successful donation, fetch the total donations again to update the display
                 await fetchTotalDonations();
             } catch (err) {
                 console.error(err);
@@ -604,7 +568,6 @@
             }
         };
 
-        // Fetch total donations and events when the page loads
         window.onload = function() {
             fetchTotalDonations();
             fetchAndListenForEvents();
