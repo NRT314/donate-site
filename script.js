@@ -257,10 +257,14 @@ async function fetchAndListenForEvents() {
         eventsLogEl.innerHTML = ''; // Clear the log before repopulating
 
         // Parse and sort the logs
-        const parsedLogs = logs.map(log => ({
-            ...log,
-            parsed: contract.interface.parseLog(log)
-        })).filter(log => log.parsed && log.parsed.name === "Donation");
+        const parsedLogs = logs.map(log => {
+            try {
+                const parsed = contract.interface.parseLog(log);
+                return { ...log, parsed };
+            } catch (e) {
+                return { ...log, parsed: null };
+            }
+        }).filter(log => log.parsed && log.parsed.name === "Donation");
 
         parsedLogs.sort((a, b) => b.blockNumber - a.blockNumber);
 
