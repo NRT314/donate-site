@@ -239,36 +239,40 @@ function addEventToLog(donor, tokenAddress, recipient, amount, transactionHash) 
     }
 }
 
-async function fetchAndListenForEvents() {
-    try {
-        const rpcProvider = new ethers.JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
-        const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
+async function fetchAndDisplayPastEvents() {
+    const rpcProvider = new ethers.JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
+    
+    // Fetch and display past events
+    const latestBlock = await rpcProvider.getBlockNumber();
+    const fromBlock = latestBlock > 1000 ? latestBlock - 1000 : 0;
+    
+    const pastEvents = await contract.queryFilter("Donation", fromBlock, latestBlock);
+    
+    eventsLogEl.innerHTML = ''; // Clear the log before repopulating
+    
+    // Sort events by block number to ensure correct order
+    pastEvents.sort((a, b) => b.blockNumber - a.blockNumber);
+    
+    // Get the last 10 events
+    const recentEvents = pastEvents.slice(0, 10);
+    
+    // Display events from newest to oldest
+    recentEvents.forEach(event => {
+        addEventToLog(event.args.donor, event.args.token, event.args.recipient, event.args.amount, event.transactionHash);
+    });
+}
 
-        // Fetch and display past events
-        const pastEvents = await contract.queryFilter("Donation");
-        eventsLogEl.innerHTML = ''; // Clear the log before repopulating
-        
-        // Sort events by block number to ensure correct order
-        pastEvents.sort((a, b) => b.blockNumber - a.blockNumber);
-        
-        // Get the last 10 events
-        const recentEvents = pastEvents.slice(0, 10);
-        
-        // Display events from newest to oldest
-        recentEvents.forEach(event => {
-            addEventToLog(event.args.donor, event.args.token, event.args.recipient, event.args.amount, event.transactionHash);
-        });
+async function listenForNewEvents() {
+    const rpcProvider = new ethers.JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
 
-        // Listen for new events
-        contract.on("Donation", (donor, tokenAddress, recipient, amount, log) => {
-            console.log("New Donation Event:", log);
-            addEventToLog(donor, tokenAddress, recipient, amount, log.transactionHash);
-            fetchTotalDonations();
-        });
-
-    } catch (error) {
-        console.error("Failed to fetch or listen for events:", error);
-    }
+    // Listen for new events
+    contract.on("Donation", (donor, tokenAddress, recipient, amount, log) => {
+        console.log("New Donation Event:", log);
+        addEventToLog(donor, tokenAddress, recipient, amount, log.transactionHash);
+        fetchTotalDonations();
+    });
 }
 
 async function fetchTotalDonations() {
@@ -403,5 +407,6 @@ document.getElementById("donateBtn").onclick = async () => {
 
 window.onload = function() {
     fetchTotalDonations();
-    fetchAndListenForEvents();
+    fetchAndDisplayPastEvents();
+    listenForNewEvents();
 };
