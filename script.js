@@ -23,11 +23,11 @@ const TOKENS = {
     }
 };
 
-// ABI for the NRT contract - now includes events and new function
+// ABI for the NRT contract - now includes corrected event signature
 const ABI = [
     "function donate(address token, address[] recipients, uint256[] amounts) external",
     "function totalDonatedOverallInUsdt() external view returns (uint256)",
-    "event Donation(address indexed donor, address indexed token, address[] recipients, uint256[] amounts)"
+    "event Donation(address indexed donor, address indexed token, address indexed recipient, uint256 amount)" // Corrected event signature
 ];
 
 // ABI for ERC-20 tokens - approve function
@@ -208,15 +208,12 @@ function getOrgName(address) {
     return org ? org[0] : address.substring(0, 6) + '...';
 }
 
-function addEventToLog(donor, tokenAddress, recipients, amounts, transactionHash) {
+function addEventToLog(donor, tokenAddress, recipient, amount, transactionHash) {
     const tokenSymbol = Object.values(TOKENS).find(t => t.address.toLowerCase() === tokenAddress.toLowerCase())?.symbol || tokenAddress.substring(0, 6) + '...';
     const decimals = Object.values(TOKENS).find(t => t.address.toLowerCase() === tokenAddress.toLowerCase())?.decimals || 18;
 
-    const formattedAmounts = amounts.map((amount, index) => {
-        const formattedValue = ethers.formatUnits(amount, decimals);
-        const recipientName = getOrgName(recipients[index]);
-        return `${parseFloat(formattedValue).toFixed(2)} ${tokenSymbol} to ${recipientName}`;
-    }).join(', ');
+    const formattedAmount = ethers.formatUnits(amount, decimals);
+    const recipientName = getOrgName(recipient);
 
     const logItem = document.createElement("li");
     logItem.className = "bg-white p-3 rounded-lg shadow-sm";
@@ -225,7 +222,7 @@ function addEventToLog(donor, tokenAddress, recipients, amounts, transactionHash
             <strong>From:</strong> <code>${donor.substring(0, 6)}...${donor.slice(-4)}</code>
         </p>
         <p class="text-sm">
-            <strong>Donation:</strong> ${formattedAmounts}
+            <strong>Donation:</strong> ${parseFloat(formattedAmount).toFixed(2)} ${tokenSymbol} to ${recipientName}
         </p>
         <p class="text-xs text-gray-400 mt-1">
             Transaction hash: <a href="https://polygonscan.com/tx/${transactionHash}" target="_blank" class="text-blue-500 hover:underline"><code>${transactionHash.substring(0, 6)}...${transactionHash.slice(-4)}</code></a>
@@ -238,7 +235,6 @@ function addEventToLog(donor, tokenAddress, recipients, amounts, transactionHash
     }
 }
 
-// 🚀 ИСПРАВЛЕНО: Функция для получения и подписки на события
 async function fetchAndListenForEvents() {
     try {
         const rpcProvider = new ethers.JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
@@ -248,15 +244,15 @@ async function fetchAndListenForEvents() {
         const pastEvents = await contract.queryFilter("Donation", -10);
         eventsLogEl.innerHTML = '';
         pastEvents.reverse().forEach(event => {
-            // 🚀 ИСПРАВЛЕНО: Доступ к хэшу транзакции
-            addEventToLog(event.args.donor, event.args.token, event.args.recipients, event.args.amounts, event.transactionHash);
+            // 🚀 ИСПРАВЛЕНО: Доступ к хэшу транзакции и параметрам
+            addEventToLog(event.args.donor, event.args.token, event.args.recipient, event.args.amount, event.transactionHash);
         });
 
         // Listen for new events
-        contract.on("Donation", (donor, tokenAddress, recipients, amounts, log) => {
+        contract.on("Donation", (donor, tokenAddress, recipient, amount, log) => {
             console.log("New Donation Event:", log);
-            // 🚀 ИСПРАВЛЕНО: Доступ к хэшу транзакции
-            addEventToLog(donor, tokenAddress, recipients, amounts, log.transactionHash);
+            // 🚀 ИСПРАВЛЕНО: Доступ к хэшу транзакции и параметрам
+            addEventToLog(donor, tokenAddress, recipient, amount, log.transactionHash);
             fetchTotalDonations();
         });
 
