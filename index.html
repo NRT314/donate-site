@@ -376,11 +376,8 @@
             return org ? org[0] : address.substring(0, 6) + '...';
         }
         
-        // 🚀 ИСПРАВЛЕНО: Функция для отображения событий
-        function addEventToLog(event) {
-            // Получаем аргументы из объекта события
-            const { donor, token: tokenAddress, recipients, amounts } = event.args;
-            
+        // 🚀 ИСПРАВЛЕНО: Объединённая функция для отображения событий
+        function addEventToLog(donor, tokenAddress, recipients, amounts, transactionHash) {
             const tokenSymbol = Object.values(TOKENS).find(t => t.address.toLowerCase() === tokenAddress.toLowerCase())?.symbol || tokenAddress.substring(0, 6) + '...';
             const decimals = Object.values(TOKENS).find(t => t.address.toLowerCase() === tokenAddress.toLowerCase())?.decimals || 18;
             
@@ -400,7 +397,7 @@
                     <strong>Donation:</strong> ${formattedAmounts}
                 </p>
                 <p class="text-xs text-gray-400 mt-1">
-                    Transaction hash: <code>${event.log.transactionHash.substring(0, 6)}...</code>
+                    Transaction hash: <code>${transactionHash.substring(0, 6)}...</code>
                 </p>
             `;
             
@@ -416,20 +413,17 @@
                 const rpcProvider = new ethers.JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
                 const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
 
+                // Fetch and display past events
                 const pastEvents = await contract.queryFilter("Donation", -10);
-                pastEvents.reverse().forEach(addEventToLog);
+                eventsLogEl.innerHTML = '';
+                pastEvents.reverse().forEach(event => {
+                    addEventToLog(event.args.donor, event.args.token, event.args.recipients, event.args.amounts, event.log.transactionHash);
+                });
 
-                contract.on("Donation", (donor, tokenAddress, recipients, amounts, event) => {
-                    console.log("New Donation Event:", event);
-                    addEventToLog({
-                        args: {
-                            donor: donor,
-                            token: tokenAddress,
-                            recipients: recipients,
-                            amounts: amounts
-                        },
-                        log: { transactionHash: event.log.transactionHash }
-                    });
+                // Listen for new events
+                contract.on("Donation", (donor, tokenAddress, recipients, amounts, log) => {
+                    console.log("New Donation Event:", log);
+                    addEventToLog(donor, tokenAddress, recipients, amounts, log.transactionHash);
                     fetchTotalDonations();
                 });
 
