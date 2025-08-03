@@ -239,40 +239,54 @@ function addEventToLog(donor, tokenAddress, recipient, amount, transactionHash) 
     }
 }
 
-async function fetchAndDisplayPastEvents() {
-    const rpcProvider = new ethers.JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
-    const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
-    
-    // Fetch and display past events
-    const latestBlock = await rpcProvider.getBlockNumber();
-    const fromBlock = latestBlock > 1000 ? latestBlock - 1000 : 0;
-    
-    const pastEvents = await contract.queryFilter("Donation", fromBlock, latestBlock);
-    
-    eventsLogEl.innerHTML = ''; // Clear the log before repopulating
-    
-    // Sort events by block number to ensure correct order
-    pastEvents.sort((a, b) => b.blockNumber - a.blockNumber);
-    
-    // Get the last 10 events
-    const recentEvents = pastEvents.slice(0, 10);
-    
-    // Display events from newest to oldest
-    recentEvents.forEach(event => {
-        addEventToLog(event.args.donor, event.args.token, event.args.recipient, event.args.amount, event.transactionHash);
-    });
-}
+async function fetchAndListenForEvents() {
+    try {
+        const rpcProvider = new ethers.JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
 
-async function listenForNewEvents() {
-    const rpcProvider = new ethers.JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
-    const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
+        // Fetch logs directly from the provider for the last 1000 blocks
+        const latestBlock = await rpcProvider.getBlockNumber();
+        const fromBlock = latestBlock > 1000 ? latestBlock - 1000 : 0;
 
-    // Listen for new events
-    contract.on("Donation", (donor, tokenAddress, recipient, amount, log) => {
-        console.log("New Donation Event:", log);
-        addEventToLog(donor, tokenAddress, recipient, amount, log.transactionHash);
-        fetchTotalDonations();
-    });
+        const logs = await rpcProvider.getLogs({
+            address: CONTRACT_ADDRESS,
+            fromBlock: fromBlock,
+            toBlock: 'latest'
+        });
+
+        eventsLogEl.innerHTML = ''; // Clear the log before repopulating
+
+        // Parse and sort the logs
+        const parsedLogs = logs.map(log => ({
+            ...log,
+            parsed: contract.interface.parseLog(log)
+        })).filter(log => log.parsed && log.parsed.name === "Donation");
+
+        parsedLogs.sort((a, b) => b.blockNumber - a.blockNumber);
+
+        // Display the last 10 events
+        const recentLogs = parsedLogs.slice(0, 10);
+
+        recentLogs.forEach(log => {
+            addEventToLog(
+                log.parsed.args.donor,
+                log.parsed.args.token,
+                log.parsed.args.recipient,
+                log.parsed.args.amount,
+                log.transactionHash
+            );
+        });
+
+        // Listen for new events
+        contract.on("Donation", (donor, tokenAddress, recipient, amount, log) => {
+            console.log("New Donation Event:", log);
+            addEventToLog(donor, tokenAddress, recipient, amount, log.transactionHash);
+            fetchTotalDonations();
+        });
+
+    } catch (error) {
+        console.error("Failed to fetch or listen for events:", error);
+    }
 }
 
 async function fetchTotalDonations() {
@@ -281,7 +295,7 @@ async function fetchTotalDonations() {
         const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
 
         const totalAmountBigInt = await contract.totalDonatedOverallInUsdt();
-        
+
         const formattedAmount = ethers.formatUnits(totalAmountBigInt, 6);
 
         totalDonatedOverallEl.textContent = parseFloat(formattedAmount).toFixed(2);
@@ -360,7 +374,7 @@ document.getElementById("donateBtn").onclick = async () => {
         showModal(translations[currentLang].modal_connect);
         return;
     }
-    
+
     const recipients = [];
     const amounts = [];
     let total = 0;
@@ -378,10 +392,10 @@ document.getElementById("donateBtn").onclick = async () => {
         showModal(translations[currentLang].modal_no_amount);
         return;
     }
-    
+
     try {
         const tokenContract = new ethers.Contract(selectedToken.address, ERC20_ABI, signer);
-        
+
         const totalAmount = ethers.parseUnits(total.toString(), selectedToken.decimals);
         const amountBNs = amounts.map(a => ethers.parseUnits(a.toString(), selectedToken.decimals));
 
@@ -407,6 +421,5 @@ document.getElementById("donateBtn").onclick = async () => {
 
 window.onload = function() {
     fetchTotalDonations();
-    fetchAndDisplayPastEvents();
-    listenForNewEvents();
+    fetchAndListenForEvents();
 };
