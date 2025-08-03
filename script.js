@@ -208,7 +208,6 @@ function getOrgName(address) {
     return org ? org[0] : address.substring(0, 6) + '...';
 }
 
-// 🚀 ИСПРАВЛЕНО: Объединённая функция для отображения событий
 function addEventToLog(donor, tokenAddress, recipients, amounts, transactionHash) {
     const tokenSymbol = Object.values(TOKENS).find(t => t.address.toLowerCase() === tokenAddress.toLowerCase())?.symbol || tokenAddress.substring(0, 6) + '...';
     const decimals = Object.values(TOKENS).find(t => t.address.toLowerCase() === tokenAddress.toLowerCase())?.decimals || 18;
@@ -229,7 +228,7 @@ function addEventToLog(donor, tokenAddress, recipients, amounts, transactionHash
             <strong>Donation:</strong> ${formattedAmounts}
         </p>
         <p class="text-xs text-gray-400 mt-1">
-            Transaction hash: <code>${transactionHash.substring(0, 6)}...</code>
+            Transaction hash: <a href="https://polygonscan.com/tx/${transactionHash}" target="_blank" class="text-blue-500 hover:underline"><code>${transactionHash.substring(0, 6)}...${transactionHash.slice(-4)}</code></a>
         </p>
     `;
 
@@ -249,12 +248,14 @@ async function fetchAndListenForEvents() {
         const pastEvents = await contract.queryFilter("Donation", -10);
         eventsLogEl.innerHTML = '';
         pastEvents.reverse().forEach(event => {
-            addEventToLog(event.args.donor, event.args.token, event.args.recipients, event.args.amounts, event.log.transactionHash);
+            // 🚀 ИСПРАВЛЕНО: Доступ к хэшу транзакции
+            addEventToLog(event.args.donor, event.args.token, event.args.recipients, event.args.amounts, event.transactionHash);
         });
 
         // Listen for new events
         contract.on("Donation", (donor, tokenAddress, recipients, amounts, log) => {
             console.log("New Donation Event:", log);
+            // 🚀 ИСПРАВЛЕНО: Доступ к хэшу транзакции
             addEventToLog(donor, tokenAddress, recipients, amounts, log.transactionHash);
             fetchTotalDonations();
         });
