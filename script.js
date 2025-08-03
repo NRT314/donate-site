@@ -247,70 +247,24 @@ async function fetchAndListenForEvents() {
         const rpcProvider = new ethers.JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
         const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
 
-        eventsLogEl.innerHTML = ''; // Очищаем лог перед загрузкой новых событий
+        // В этом случае мы просто очищаем лог, потому что мы не будем загружать исторические данные.
+        // Если вы захотите добавить исторические данные в будущем, эту часть можно изменить.
+        eventsLogEl.innerHTML = '';
 
-        const logFetchLimit = 500;
-        const fetchBlocksHistory = 10000; // Настраиваемое количество блоков для истории
-        const latestBlock = await rpcProvider.getBlockNumber();
-        const endBlock = latestBlock > fetchBlocksHistory ? latestBlock - fetchBlocksHistory : 0;
-        let fromBlock = latestBlock;
-        let toBlock = latestBlock;
-
-        const allLogs = [];
-        while (fromBlock > endBlock) {
-            fromBlock = Math.max(toBlock - logFetchLimit, endBlock);
-            try {
-                const logs = await rpcProvider.getLogs({
-                    address: CONTRACT_ADDRESS,
-                    fromBlock: fromBlock,
-                    toBlock: toBlock
-                });
-                allLogs.push(...logs);
-            } catch (e) {
-                console.error("Error fetching logs for block range:", fromBlock, toBlock, e);
-                // Если произошла ошибка, прекращаем цикл, чтобы избежать повторных ошибок
-                break;
-            }
-            // Смещаем диапазон для следующей итерации
-            toBlock = fromBlock - 1;
-        }
-
-        // Парсим и сортируем все полученные логи
-        const parsedLogs = allLogs.map(log => {
-            try {
-                // Если лог пустой, вернем null
-                if (!log.topics || log.topics.length === 0) return { ...log, parsed: null };
-                const parsed = contract.interface.parseLog(log);
-                return { ...log, parsed };
-            } catch (e) {
-                // Пропускаем логи, которые не могут быть распарсены (например, если это не Donation)
-                return { ...log, parsed: null };
-            }
-        }).filter(log => log.parsed && log.parsed.name === "Donation");
-
-        // Сортируем события от новых к старым
-        parsedLogs.sort((a, b) => b.blockNumber - a.blockNumber);
-
-        // Отображаем только последние 10 событий
-        const recentLogs = parsedLogs.slice(0, 10);
-        recentLogs.forEach(log => {
-            addEventToLog(
-                log.parsed.args.donor,
-                log.parsed.args.token,
-                log.parsed.args.recipient,
-                log.parsed.args.amount,
-                log.transactionHash
-            );
-        });
-
-        // -----------------------------------------------------------------------------------------------------------------
-        // ИСПРАВЛЕННАЯ ПОДПИСКА НА НОВЫЕ СОБЫТИЯ
-        // -----------------------------------------------------------------------------------------------------------------
-        // Подписываемся на новые события. Используем строку с именем события, чтобы избежать ошибки.
-        rpcProvider.on("Donation", (log) => {
+        // Теперь мы просто подписываемся на новые события и ждём их.
+        // Это полностью решает проблему с лимитом запросов.
+        rpcProvider.on("Donation", async (log) => {
             console.log("New Donation Event:", log);
+
+            // Получаем транзакцию, чтобы получить время
+            const tx = await rpcProvider.getTransaction(log.transactionHash);
+            // Получаем блок, чтобы получить отметку времени
+            const block = await rpcProvider.getBlock(tx.blockNumber);
+            const date = new Date(block.timestamp * 1000);
+
             const parsedEvent = contract.interface.parseLog(log);
             if (parsedEvent) {
+                // Добавляем новое событие в начало списка
                 addEventToLog(
                     parsedEvent.args.donor,
                     parsedEvent.args.token,
@@ -323,7 +277,12 @@ async function fetchAndListenForEvents() {
         });
 
     } catch (error) {
-        console.error("Failed to fetch or listen for events:", error);
+        console.error("Failed to listen for events:", error);
+        eventsLogEl.innerHTML = `
+            <li class="text-red-500">
+                Ошибка при получении событий: ${error.message}
+            </li>
+        `;
     }
 }
 // ---------------------------------------------------------------------------------------------------------------------
