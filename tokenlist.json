@@ -1,6 +1,6 @@
 {
   "name": "NRT Token List",
-  "logoURI": "https://nrt314.github.io/donate-site/logo.png",
+  "logoURI": "https://nrt314.github.io/donate-site/logo.svg",
   "keywords": ["nrt", "donation", "non-transferable"],
   "timestamp": "2025-08-04T00:00:00+00:00",
   "version": {
@@ -15,7 +15,7 @@
       "name": "Non-Transferable Receipt Token",
       "symbol": "NRT",
       "decimals": 18,
-      "logoURI": "https://nrt314.github.io/donate-site/logo.png"
+      "logoURI": "https://nrt314.github.io/donate-site/logo.svg"
     }
   ]
 }
