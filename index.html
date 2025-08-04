@@ -105,17 +105,17 @@
             <h2 data-lang-key="donation_type_title" class="text-2xl font-semibold mb-3">Donation Type</h2>
             <div class="flex flex-wrap gap-4 justify-center">
                 <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
-                    <input type="radio" name="donation-type" value="preset" class="h-4 w-4 text-blue-600" checked />
-                    <span data-lang-key="preset_button" class="text-lg">Donate Equally</span>
+                    <input type="radio" name="donation-type" value="custom" class="h-4 w-4 text-blue-600" checked />
+                    <span data-lang-key="custom_button" class="text-lg">Custom Distribution</span>
                 </label>
                 <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
-                    <input type="radio" name="donation-type" value="custom" class="h-4 w-4 text-blue-600" />
-                    <span data-lang-key="custom_button" class="text-lg">Custom Distribution</span>
+                    <input type="radio" name="donation-type" value="preset" class="h-4 w-4 text-blue-600" />
+                    <span data-lang-key="preset_button" class="text-lg">Donate Equally</span>
                 </label>
             </div>
         </div>
 
-        <div id="presetDonation" class="bg-gray-100 p-6 rounded-lg mb-6">
+        <div id="presetDonation" class="bg-gray-100 p-6 rounded-lg mb-6 hidden">
             <h2 data-lang-key="preset_donations_title" class="text-2xl font-semibold mb-3">Donate by Preset</h2>
             <p data-lang-key="preset_description" class="mb-4" id="presetDescription"></p>
             <div class="flex items-center gap-4">
@@ -124,7 +124,7 @@
             </div>
         </div>
 
-        <div id="customDonation" class="bg-gray-100 p-6 rounded-lg mb-6 hidden">
+        <div id="customDonation" class="bg-gray-100 p-6 rounded-lg mb-6">
             <h2 data-lang-key="donations_title" class="text-2xl font-semibold mb-3">Your Donations (<span id="tokenSymbolHeader">USDT</span>)</h2>
             <table class="w-full text-left border-collapse">
                 <thead>
@@ -228,33 +228,9 @@
 
         // PRESET RECIPIENTS (for the "equal" preset)
         const PRESET_NAME = "equal";
-        let presetRecipients = [
-            "0xc0F467567570AADa929fFA115E65bB39066e3E42",
-            "0x421896bb0Dcf271a294bC7019014EE90503656Fd",
-            "0xE86D7D922DeF8a8FEB21f1702C9AaEEDBec32DDC",
-            "0x1913A02BB3836AF224aEF136461F43189A0cEcd0",
-            "0xdB4BB555a15bC8bB3b07E57452a8E6E24b358e7F",
-            "0xBf178F99b8790db1BD2194D80c3a268AE4AcE804",
-            "0xADb524cE8c2009e727f6dF4b6a443D455c700244",
-            "0x6051F40d4eF5d5E5BC2B6F4155AcCF57Be6B8F58",
-            "0x00B9d7Fe4a2d3aCdd4102Cfb55b98d193B94C0fa",
-            "0xfBcc8904ce75fF90CC741DA80703202faf5b2FcF",
-            "0x5433CE0E05D117C54f814cc6697244eA0b902DBF",
-            "0x314aC71aEB2feC4D60Cc50Eb46e64980a27F2680",
-            "0x387C5300586336d145A87C245DD30f9724C6eC01",
-            "0x0a4aB5D641f63cd7a2d44d0a643424f5d0df376b",
-            "0xad8221D4A4feb023156b9E09917Baa4ff81A65F8",
-            "0x552dAfED221689e44676477881B6947074a5C342"
-        ];
-        let presetPercentages = [
-            625, 625, 625, 625,
-            625, 625, 625, 625,
-            625, 625, 625, 625,
-            625, 625, 625, 625
-        ];
-        
-        let presetDescriptionEn = `Your donation will be distributed evenly among ${presetRecipients.length} recipients.`;
-        let presetDescriptionRu = `Распределено равномерно на ${presetRecipients.length} реципиентов.`;
+        const presetRecipients = ORGS.map(org => org[1]);
+        const presetDescriptionEn = `Your donation will be distributed evenly among ${presetRecipients.length} recipients.`;
+        const presetDescriptionRu = `Распределено равномерно на ${presetRecipients.length} реципиентов.`;
 
         const translations = {
             en: {
@@ -341,7 +317,7 @@
         const presetDescriptionEl = document.getElementById("presetDescription");
         const inputMap = new Map();
         let selectedToken = TOKENS.usdt;
-        let donationType = 'preset';
+        let donationType = 'custom'; // DEFAULT TO CUSTOM
 
         function showModal(message) {
             document.getElementById("modalMessage").innerText = message;
@@ -423,65 +399,6 @@
                 nrtAmountEl.textContent = `${totalInTokens.toFixed(2)}`;
             }
         }
-
-        async function getPresetFromContract() {
-            if (!provider) {
-                provider = new ethers.JsonRpcProvider("https://polygon-mainnet.g.alchemy.com/v2/" + ALCHEMY_API_KEY);
-            }
-            try {
-                const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
-                const [recipients, percentages] = await contract.getPreset(PRESET_NAME);
-                
-                if (recipients.length === 0) {
-                    console.warn("Preset not found on contract. Using fallback data.");
-                    presetRecipients = [
-                        "0xc0F467567570AADa929fFA115E65bB39066e3E42",
-                        "0x421896bb0Dcf271a294bC7019014EE90503656Fd",
-                        "0xE86D7D922DeF8a8FEB21f1702C9AaEEDBec32DDC",
-                        "0x1913A02BB3836AF224aEF136461F43189A0cEcd0",
-                        "0xdB4BB555a15bC8bB3b07E57452a8E6E24b358e7F",
-                        "0xBf178F99b8790db1BD2194D80c3a268AE4AcE804",
-                        "0xADb524cE8c2009e727f6dF4b6a443D455c700244",
-                        "0x6051F40d4eF5d5E5BC2B6F4155AcCF57Be6B8F58",
-                        "0x00B9d7Fe4a2d3aCdd4102Cfb55b98d193B94C0fa",
-                        "0xfBcc8904ce75fF90CC741DA80703202faf5b2FcF",
-                        "0x5433CE0E05D117C54f814cc6697244eA0b902DBF",
-                        "0x314aC71aEB2feC4D60Cc50Eb46e64980a27F2680",
-                        "0x387C5300586336d145A87C245DD30f9724C6eC01",
-                        "0x0a4aB5D641f63cd7a2d44d0a643424f5d0df376b",
-                        "0xad8221D4A4feb023156b9E09917Baa4ff81A65F8",
-                        "0x552dAfED221689e44676477881B6947074a5C342"
-                    ];
-                    presetPercentages = [
-                        625, 625, 625, 625,
-                        625, 625, 625, 625,
-                        625, 625, 625, 625,
-                        625, 625, 625, 625
-                    ];
-                } else {
-                    presetRecipients = recipients;
-                    presetPercentages = percentages;
-                }
-                
-                presetDescriptionEn = `Your donation will be distributed evenly among ${presetRecipients.length} recipients.`;
-                presetDescriptionRu = `Распределено равномерно на ${presetRecipients.length} реципиентов.`;
-
-                translations.en.preset_description = presetDescriptionEn;
-                translations.ru.preset_description = presetDescriptionRu;
-                
-            } catch (err) {
-                console.error("Error fetching preset from contract:", err);
-                presetDescriptionEn = "Error loading preset from contract. Using default 'equal' distribution.";
-                presetDescriptionRu = "Ошибка загрузки пресета из контракта. Используется равномерное распределение по умолчанию.";
-                translations.en.preset_description = presetDescriptionEn;
-                translations.ru.preset_description = presetDescriptionRu;
-            }
-            updatePresetDescription();
-        }
-        
-        function roundToDecimals(num, decimals) {
-            return parseFloat(num.toFixed(decimals));
-        }
         
         function resetWalletState() {
             signer = null;
@@ -511,9 +428,7 @@
         }
 
         renderDonationTable();
-        getPresetFromContract().then(() => {
-            setLanguage('en');
-        });
+        setLanguage('en');
         
         document.getElementById("lang-en").addEventListener('click', () => setLanguage('en'));
         document.getElementById("lang-ru").addEventListener('click', () => setLanguage('ru'));
@@ -632,7 +547,11 @@
         };
 
         window.onload = function() {
-            // No need to fetch events or total donations for this simplified version
+            // Устанавливаем начальное состояние
+            const customRadio = document.querySelector('input[name="donation-type"][value="custom"]');
+            customRadio.checked = true;
+            presetDonationEl.classList.add('hidden');
+            customDonationEl.classList.remove('hidden');
         };
     </script>
 </body>
