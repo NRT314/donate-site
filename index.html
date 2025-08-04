@@ -372,7 +372,7 @@
             if (donationType === 'preset') {
                 totalInTokens = parseFloat(presetAmountInputEl.value) || 0;
                 presetTokenSymbolEl.textContent = tokenSymbol;
-                nrtAmountEl.textContent = `${totalInTokens.toFixed(2)} NRT`;
+                nrtAmountEl.textContent = `${totalInTokens.toFixed(2)}`;
             } else {
                 for (const input of inputMap.values()) {
                     totalInTokens += parseFloat(input.value) || 0;
@@ -380,8 +380,12 @@
                 tokenSymbolHeader.textContent = tokenSymbol;
                 tokenSymbolAmount.textContent = tokenSymbol;
                 totalAmountEl.textContent = `${totalInTokens.toFixed(2)} ${tokenSymbol}`;
-                nrtAmountEl.textContent = `${totalInTokens.toFixed(2)} NRT`;
+                nrtAmountEl.textContent = `${totalInTokens.toFixed(2)}`;
             }
+        }
+
+        function roundToDecimals(num, decimals) {
+            return parseFloat(num.toFixed(decimals));
         }
         
         function resetWalletState() {
@@ -479,8 +483,9 @@
                     return;
                 }
                 total = presetAmount;
+
                 recipients = PRESET_RECIPIENTS.map(p => ethers.getAddress(p.address));
-                amounts = PRESET_RECIPIENTS.map(p => presetAmount * p.percentage);
+                amounts = PRESET_RECIPIENTS.map(p => roundToDecimals(presetAmount * p.percentage, selectedToken.decimals));
 
             } else { // Custom distribution
                 for (const [addr, input] of inputMap.entries()) {
