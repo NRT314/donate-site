@@ -86,24 +86,6 @@
         </div>
         
         <div class="bg-gray-100 p-6 rounded-lg mb-6">
-            <h2 data-lang-key="rates_title" class="text-2xl font-semibold mb-3">Exchange Rate</h2>
-            <p class="text-lg font-bold text-gray-700"><span id="rateDisplay">1 USDT = 1 NRT</span></p>
-        </div>
-
-        <div class="bg-gray-100 p-6 rounded-lg mb-6">
-            <h2 data-lang-key="total_donated_title" class="text-2xl font-semibold mb-3">Total Donations</h2>
-            <p class="text-lg font-bold text-gray-700">
-                <span id="totalDonatedOverallInUsdt" class="text-2xl font-extrabold text-blue-600">0.00</span> USDT
-                <span id="loadingTotal" class="text-sm text-gray-500 ml-2"> (Loading...)</span>
-            </p>
-        </div>
-        
-        <div class="bg-gray-100 p-6 rounded-lg mb-6 max-h-96 overflow-y-auto">
-            <h2 data-lang-key="events_title" class="text-2xl font-semibold mb-3">Recent Donations</h2>
-            <ul id="eventsLog" class="space-y-4">
-                </ul>
-        </div>
-        <div class="bg-gray-100 p-6 rounded-lg mb-6">
             <h2 data-lang-key="token_selection_title" class="text-2xl font-semibold mb-3">Select Donation Token</h2>
             <div class="flex flex-wrap gap-4 justify-center">
                 <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
@@ -292,16 +274,11 @@
         const statusEl = document.getElementById("status");
         const tokenSymbolHeader = document.getElementById("tokenSymbolHeader");
         const tokenSymbolAmount = document.getElementById("tokenSymbolAmount");
-        const rateDisplay = document.getElementById("rateDisplay");
         const connectBtn = document.getElementById("connectBtn");
         const disconnectBtn = document.getElementById("disconnectBtn");
         const walletAddressEl = document.getElementById("walletAddress");
-        const totalDonatedOverallEl = document.getElementById("totalDonatedOverallInUsdt");
-        const loadingTotalEl = document.getElementById("loadingTotal");
         const inputMap = new Map();
         let selectedToken = TOKENS.usdt;
-        
-        const eventsLogEl = document.getElementById("eventsLog");
         
         function showModal(message) {
             document.getElementById("modalMessage").innerText = message;
@@ -366,90 +343,10 @@
             const tokenSymbol = selectedToken.symbol;
             tokenSymbolHeader.textContent = tokenSymbol;
             tokenSymbolAmount.textContent = tokenSymbol;
-            rateDisplay.textContent = `1 ${tokenSymbol} = 1 NRT`;
             totalAmountEl.textContent = `${totalInTokens.toFixed(2)} ${tokenSymbol}`;
             nrtAmountEl.textContent = `${totalNrt.toFixed(2)} NRT`;
         }
         
-        function getOrgName(address) {
-            const org = ORGS.find(([name, addr]) => addr.toLowerCase() === address.toLowerCase());
-            return org ? org[0] : address.substring(0, 6) + '...';
-        }
-        
-        // 🚀 ИСПРАВЛЕНО: Объединённая функция для отображения событий
-        function addEventToLog(donor, tokenAddress, recipients, amounts, transactionHash) {
-            const tokenSymbol = Object.values(TOKENS).find(t => t.address.toLowerCase() === tokenAddress.toLowerCase())?.symbol || tokenAddress.substring(0, 6) + '...';
-            const decimals = Object.values(TOKENS).find(t => t.address.toLowerCase() === tokenAddress.toLowerCase())?.decimals || 18;
-            
-            const formattedAmounts = amounts.map((amount, index) => {
-                const formattedValue = ethers.formatUnits(amount, decimals);
-                const recipientName = getOrgName(recipients[index]);
-                return `${parseFloat(formattedValue).toFixed(2)} ${tokenSymbol} to ${recipientName}`;
-            }).join(', ');
-
-            const logItem = document.createElement("li");
-            logItem.className = "bg-white p-3 rounded-lg shadow-sm";
-            logItem.innerHTML = `
-                <p class="text-sm">
-                    <strong>From:</strong> <code>${donor.substring(0, 6)}...${donor.slice(-4)}</code>
-                </p>
-                <p class="text-sm">
-                    <strong>Donation:</strong> ${formattedAmounts}
-                </p>
-                <p class="text-xs text-gray-400 mt-1">
-                    Transaction hash: <code>${transactionHash.substring(0, 6)}...</code>
-                </p>
-            `;
-            
-            eventsLogEl.prepend(logItem);
-            if (eventsLogEl.children.length > 10) {
-                eventsLogEl.lastChild.remove();
-            }
-        }
-        
-        // 🚀 ИСПРАВЛЕНО: Функция для получения и подписки на события
-        async function fetchAndListenForEvents() {
-            try {
-                const rpcProvider = new ethers.JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
-                const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
-
-                // Fetch and display past events
-                const pastEvents = await contract.queryFilter("Donation", -10);
-                eventsLogEl.innerHTML = '';
-                pastEvents.reverse().forEach(event => {
-                    addEventToLog(event.args.donor, event.args.token, event.args.recipients, event.args.amounts, event.log.transactionHash);
-                });
-
-                // Listen for new events
-                contract.on("Donation", (donor, tokenAddress, recipients, amounts, log) => {
-                    console.log("New Donation Event:", log);
-                    addEventToLog(donor, tokenAddress, recipients, amounts, log.transactionHash);
-                    fetchTotalDonations();
-                });
-
-            } catch (error) {
-                console.error("Failed to fetch or listen for events:", error);
-            }
-        }
-
-        async function fetchTotalDonations() {
-            try {
-                const rpcProvider = new ethers.JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
-                const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, rpcProvider);
-
-                const totalAmountBigInt = await contract.totalDonatedOverallInUsdt();
-                
-                const formattedAmount = ethers.formatUnits(totalAmountBigInt, 6);
-
-                totalDonatedOverallEl.textContent = parseFloat(formattedAmount).toFixed(2);
-                loadingTotalEl.classList.add('hidden');
-            } catch (error) {
-                console.error("Failed to fetch total donations:", error);
-                totalDonatedOverallEl.textContent = "Error";
-                loadingTotalEl.classList.add('hidden');
-            }
-        }
-
         function resetWalletState() {
             signer = null;
             walletAddressEl.innerText = '';
@@ -555,7 +452,6 @@
 
                 statusEl.textContent = translations[currentLang].status_success;
 
-                await fetchTotalDonations();
             } catch (err) {
                 console.error(err);
                 statusEl.textContent = `${translations[currentLang].status_error} ${err.message}`;
@@ -563,8 +459,8 @@
         };
 
         window.onload = function() {
-            fetchTotalDonations();
-            fetchAndListenForEvents();
+            // fetchTotalDonations() and fetchAndListenForEvents() are no longer needed,
+            // but the contract address and ABI are still defined.
         };
     </script>
 </body>
