@@ -117,7 +117,7 @@
 
         <div id="presetDonation" class="bg-gray-100 p-6 rounded-lg mb-6">
             <h2 data-lang-key="preset_donations_title" class="text-2xl font-semibold mb-3">Donate by Preset</h2>
-            <p data-lang-key="preset_description" class="mb-4">Your donation will be distributed automatically: 90% to `ovdinfo` and 10% to `thisproject`.</p>
+            <p data-lang-key="preset_description" class="mb-4" id="presetDescription"></p>
             <div class="flex items-center gap-4">
                 <input type="number" min="0.01" step="0.01" value="0.00" id="presetAmountInput" class="w-full p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"/>
                 <span id="presetTokenSymbol" class="text-lg">USDT</span>
@@ -182,7 +182,7 @@
                 symbol: "USDT"
             },
             usdc: {
-                address: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
                 decimals: 6,
                 symbol: "USDC (Bridget)"
             },
@@ -195,8 +195,11 @@
 
         const ABI = [
             "function donate(address token, address[] recipients, uint256[] amounts) external",
+            "function donatePreset(string calldata name, address token, uint256 amount) external",
+            "function getPreset(string calldata name) external view returns (address[] memory recipients, uint256[] memory percentages)",
+            "function getWhitelistedRecipients() external view returns (address[] memory)",
             "function totalDonatedOverallInUsdt() external view returns (uint256)",
-            "event Donation(address indexed donor, address indexed token, address[] recipients, uint256[] amounts)"
+            "event Donation(address indexed donor, address indexed token, address indexed recipient, uint256 amount)"
         ];
         
         const ERC20_ABI = [
@@ -221,10 +224,9 @@
         ];
 
         // PRESET RECIPIENTS (for the "test" preset)
-        const PRESET_RECIPIENTS = [
-            { name: "ovdinfo", address: "0x421896bb0Dcf271a294bC7019014EE90503656Fd", percentage: 0.90 },
-            { name: "thisproject", address: "0xc0F467567570AADa929fFA115E65bB39066e3E42", percentage: 0.10 }
-        ];
+        const PRESET_NAME = "test";
+        let presetRecipients = [];
+        let presetPercentages = [];
 
         const translations = {
             en: {
@@ -308,6 +310,7 @@
         const walletAddressEl = document.getElementById("walletAddress");
         const presetDonationEl = document.getElementById("presetDonation");
         const customDonationEl = document.getElementById("customDonation");
+        const presetDescriptionEl = document.getElementById("presetDescription");
         const inputMap = new Map();
         let selectedToken = TOKENS.usdt;
         let donationType = 'preset';
@@ -384,6 +387,56 @@
             }
         }
 
+        async function getPresetFromContract() {
+            if (!provider) {
+                provider = new ethers.JsonRpcProvider("https://polygon-mainnet.g.alchemy.com/v2/" + ALCHEMY_API_KEY);
+            }
+            try {
+                const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
+                const [recipients, percentages] = await contract.getPreset(PRESET_NAME);
+                
+                if (recipients.length === 0) {
+                    console.warn("Preset not found on contract. Using fallback data.");
+                    presetDescriptionEl.textContent = "Preset 'test' not found on contract. Please use custom distribution.";
+                    return;
+                }
+                
+                presetRecipients = recipients;
+                presetPercentages = percentages;
+
+                const recipientNames = [
+                    "thisproject",
+                    "ovdinfo",
+                    "mediazona",
+                    "zhuk",
+                    "breakfastshow",
+                    "kovcheg",
+                    "findexit",
+                    "gulagunet",
+                    "meduza",
+                    "cit",
+                    "importantstories",
+                    "fbk",
+                    "iditelesom"
+                ];
+
+                const recipientMap = new Map(ORGS.map(item => [item[1].toLowerCase(), item[0]]));
+                
+                let descriptionText = "Your donation will be distributed automatically: ";
+                for (let i = 0; i < presetRecipients.length; i++) {
+                    const recipientAddr = presetRecipients[i].toLowerCase();
+                    const recipientName = recipientMap.get(recipientAddr) || recipientAddr;
+                    const percentage = presetPercentages[i] / 100;
+                    descriptionText += `${percentage}% to \`${recipientName}\`${i < presetRecipients.length - 1 ? ' and ' : ''}`;
+                }
+                presetDescriptionEl.textContent = descriptionText + ".";
+                
+            } catch (err) {
+                console.error("Error fetching preset from contract:", err);
+                presetDescriptionEl.textContent = "Error loading preset from contract. Using fallback data.";
+            }
+        }
+        
         function roundToDecimals(num, decimals) {
             return parseFloat(num.toFixed(decimals));
         }
@@ -417,6 +470,7 @@
 
         renderDonationTable();
         setLanguage('en');
+        getPresetFromContract();
         
         document.getElementById("lang-en").addEventListener('click', () => setLanguage('en'));
         document.getElementById("lang-ru").addEventListener('click', () => setLanguage('ru'));
@@ -472,59 +526,57 @@
                 return;
             }
             
-            let recipients = [];
-            let amounts = [];
-            let total = 0;
-
-            if (donationType === 'preset') {
-                const presetAmount = parseFloat(presetAmountInputEl.value) || 0;
-                if (presetAmount === 0) {
-                    showModal(translations[currentLang].modal_no_amount);
-                    return;
-                }
-                total = presetAmount;
-
-                recipients = PRESET_RECIPIENTS.map(p => ethers.getAddress(p.address));
-                amounts = PRESET_RECIPIENTS.map(p => roundToDecimals(presetAmount * p.percentage, selectedToken.decimals));
-
-            } else { // Custom distribution
-                for (const [addr, input] of inputMap.entries()) {
-                    const value = parseFloat(input.value) || 0;
-                    if (value > 0) {
-                        recipients.push(ethers.getAddress(addr));
-                        amounts.push(value);
-                    }
-                }
-                total = amounts.reduce((sum, a) => sum + a, 0);
-
-                if (recipients.length === 0) {
-                    showModal(translations[currentLang].modal_no_amount);
-                    return;
-                }
+            const total = parseFloat(presetAmountInputEl.value) || 0;
+            if (total === 0) {
+                showModal(translations[currentLang].modal_no_amount);
+                return;
             }
-            
+
             try {
                 const tokenContract = new ethers.Contract(selectedToken.address, ERC20_ABI, signer);
+                const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
                 
                 const totalAmount = ethers.parseUnits(total.toString(), selectedToken.decimals);
-                const amountBNs = amounts.map(a => ethers.parseUnits(a.toString(), selectedToken.decimals));
-
+                
                 statusEl.textContent = translations[currentLang].status_approve;
                 const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, totalAmount);
                 await approveTx.wait();
 
-                console.log("Approval successful. Attempting to send donation transaction...");
-
-                const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
                 statusEl.textContent = translations[currentLang].status_donate;
-                const donateTx = await contract.donate(selectedToken.address, recipients, amountBNs);
-                await donateTx.wait();
 
+                if (donationType === 'preset') {
+                    const donateTx = await contract.donatePreset(PRESET_NAME, selectedToken.address, totalAmount);
+                    await donateTx.wait();
+                } else {
+                    let recipients = [];
+                    let amounts = [];
+                    for (const [addr, input] of inputMap.entries()) {
+                        const value = parseFloat(input.value) || 0;
+                        if (value > 0) {
+                            recipients.push(ethers.getAddress(addr));
+                            amounts.push(ethers.parseUnits(value.toString(), selectedToken.decimals));
+                        }
+                    }
+
+                    if (recipients.length === 0) {
+                        showModal(translations[currentLang].modal_no_amount);
+                        return;
+                    }
+
+                    const donateTx = await contract.donate(selectedToken.address, recipients, amounts);
+                    await donateTx.wait();
+                }
+                
                 statusEl.textContent = translations[currentLang].status_success;
 
             } catch (err) {
                 console.error(err);
-                statusEl.textContent = `${translations[currentLang].status_error} ${err.message}`;
+                let errorMessage = err.message;
+                // Ethers.js v6 often wraps the revert reason. Try to get a more specific message.
+                if (err.reason) {
+                    errorMessage = err.reason;
+                }
+                statusEl.textContent = `${translations[currentLang].status_error} ${errorMessage}`;
             }
         };
 
