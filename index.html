@@ -106,7 +106,7 @@
             <div class="flex flex-wrap gap-4 justify-center">
                 <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
                     <input type="radio" name="donation-type" value="preset" class="h-4 w-4 text-blue-600" checked />
-                    <span data-lang-key="preset_button" class="text-lg">Use Preset (test)</span>
+                    <span data-lang-key="preset_button" class="text-lg">Donate Equally</span>
                 </label>
                 <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
                     <input type="radio" name="donation-type" value="custom" class="h-4 w-4 text-blue-600" />
@@ -252,6 +252,9 @@
             625, 625, 625, 625,
             625, 625, 625, 625
         ];
+        
+        let presetDescriptionEn = `Your donation will be distributed evenly among ${presetRecipients.length} recipients.`;
+        let presetDescriptionRu = `Распределено равномерно на ${presetRecipients.length} реципиентов.`;
 
         const translations = {
             en: {
@@ -265,7 +268,7 @@
                 preset_button: 'Donate Equally',
                 custom_button: 'Custom Distribution',
                 preset_donations_title: 'Donate by Preset',
-                preset_description: 'Your donation will be distributed evenly among 16 recipients.',
+                preset_description: presetDescriptionEn,
                 donations_title: 'Your Donations',
                 nrt_title: 'You will receive',
                 org_header: 'Organization',
@@ -297,7 +300,7 @@
                 preset_button: 'Всем поровну',
                 custom_button: 'Распределить самому',
                 preset_donations_title: 'Пожертвование по пресету',
-                preset_description: 'Распределено равномерно на 16 реципиентов.',
+                preset_description: presetDescriptionRu,
                 donations_title: 'Ваши пожертвования',
                 nrt_title: 'Вы получите',
                 org_header: 'Организация',
@@ -355,6 +358,14 @@
             }
         }
         
+        function updatePresetDescription() {
+            if (currentLang === 'en') {
+                presetDescriptionEl.textContent = presetDescriptionEn;
+            } else {
+                presetDescriptionEl.textContent = presetDescriptionRu;
+            }
+        }
+
         function setLanguage(lang) {
             currentLang = lang;
             const langKeys = document.querySelectorAll('[data-lang-key]');
@@ -373,6 +384,7 @@
                 document.getElementById('lang-ru').classList.add('border-blue-600');
                 document.getElementById('lang-en').classList.add('border-transparent');
             }
+            updatePresetDescription();
             recalc();
         }
 
@@ -451,19 +463,20 @@
                     presetPercentages = percentages;
                 }
                 
-                const recipientNames = new Map(ORGS.map(item => [item[1].toLowerCase(), item[0]]));
+                presetDescriptionEn = `Your donation will be distributed evenly among ${presetRecipients.length} recipients.`;
+                presetDescriptionRu = `Распределено равномерно на ${presetRecipients.length} реципиентов.`;
+
+                translations.en.preset_description = presetDescriptionEn;
+                translations.ru.preset_description = presetDescriptionRu;
                 
-                let descriptionText = `Your donation will be distributed evenly among ${presetRecipients.length} recipients.`;
-                let descriptionTextRu = `Распределено равномерно на ${presetRecipients.length} реципиентов.`;
-
-                translations.en.preset_description = descriptionText;
-                translations.ru.preset_description = descriptionTextRu;
-
             } catch (err) {
                 console.error("Error fetching preset from contract:", err);
-                translations.en.preset_description = "Error loading preset from contract. Using default 'equal' distribution.";
-                translations.ru.preset_description = "Ошибка загрузки пресета из контракта. Используется равномерное распределение по умолчанию.";
+                presetDescriptionEn = "Error loading preset from contract. Using default 'equal' distribution.";
+                presetDescriptionRu = "Ошибка загрузки пресета из контракта. Используется равномерное распределение по умолчанию.";
+                translations.en.preset_description = presetDescriptionEn;
+                translations.ru.preset_description = presetDescriptionRu;
             }
+            updatePresetDescription();
         }
         
         function roundToDecimals(num, decimals) {
@@ -498,8 +511,9 @@
         }
 
         renderDonationTable();
-        setLanguage('en');
-        getPresetFromContract();
+        getPresetFromContract().then(() => {
+            setLanguage('en');
+        });
         
         document.getElementById("lang-en").addEventListener('click', () => setLanguage('en'));
         document.getElementById("lang-ru").addEventListener('click', () => setLanguage('ru'));
