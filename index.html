@@ -9,7 +9,6 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Custom modal for alerts */
         .modal {
             display: none;
             position: fixed;
@@ -41,7 +40,6 @@
             text-decoration: none;
             cursor: pointer;
         }
-        /* Style for the active token radio button label */
         input[name="token"]:checked + span {
             font-weight: bold;
         }
@@ -53,10 +51,10 @@
 <body class="bg-gray-50 text-gray-800 p-4">
 
     <div id="myModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <p id="modalMessage" class="text-lg"></p>
-    </div>
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <p id="modalMessage" class="text-lg"></p>
+        </div>
     </div>
 
     <div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg mt-8 relative">
@@ -104,6 +102,29 @@
         </div>
 
         <div class="bg-gray-100 p-6 rounded-lg mb-6">
+            <h2 data-lang-key="donation_type_title" class="text-2xl font-semibold mb-3">Donation Type</h2>
+            <div class="flex flex-wrap gap-4 justify-center">
+                <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
+                    <input type="radio" name="donation-type" value="preset" class="h-4 w-4 text-blue-600" checked />
+                    <span data-lang-key="preset_button" class="text-lg">Use Preset (test)</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
+                    <input type="radio" name="donation-type" value="custom" class="h-4 w-4 text-blue-600" />
+                    <span data-lang-key="custom_button" class="text-lg">Custom Distribution</span>
+                </label>
+            </div>
+        </div>
+
+        <div id="presetDonation" class="bg-gray-100 p-6 rounded-lg mb-6">
+            <h2 data-lang-key="preset_donations_title" class="text-2xl font-semibold mb-3">Donate by Preset</h2>
+            <p data-lang-key="preset_description" class="mb-4">Your donation will be distributed automatically: 90% to `ovdinfo` and 10% to `thisproject`.</p>
+            <div class="flex items-center gap-4">
+                <input type="number" min="0.01" step="0.01" value="0.00" id="presetAmountInput" class="w-full p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"/>
+                <span id="presetTokenSymbol" class="text-lg">USDT</span>
+            </div>
+        </div>
+
+        <div id="customDonation" class="bg-gray-100 p-6 rounded-lg mb-6 hidden">
             <h2 data-lang-key="donations_title" class="text-2xl font-semibold mb-3">Your Donations (<span id="tokenSymbolHeader">USDT</span>)</h2>
             <table class="w-full text-left border-collapse">
                 <thead>
@@ -120,12 +141,15 @@
                         <td colspan="2" data-lang-key="total_amount_text" class="p-3 border border-gray-300">Total Amount</td>
                         <td id="totalAmount" class="p-3 border border-gray-300 text-right">0.00 USDT</td>
                     </tr>
-                    <tr class="bg-gray-200 font-bold">
-                        <td colspan="2" data-lang-key="nrt_received_text" class="p-3 border border-gray-300">You will receive</td>
-                        <td id="nrtAmount" class="p-3 border border-gray-300 text-right">0.00 NRT</td>
-                    </tr>
                 </tfoot>
             </table>
+        </div>
+        
+        <div class="bg-gray-100 p-6 rounded-lg mb-6">
+            <h2 data-lang-key="nrt_title" class="text-2xl font-semibold mb-3">You will receive</h2>
+            <p class="text-lg font-bold text-gray-700">
+                <span id="nrtAmount" class="text-2xl font-extrabold text-blue-600">0.00</span> NRT
+            </p>
         </div>
 
         <div class="flex justify-center">
@@ -135,7 +159,6 @@
         </div>
         <p id="status" class="mt-4 text-center font-bold text-lg"></p>
         
-
         <div class="mt-8 pt-4 border-t border-gray-300 text-sm text-gray-500">
             <h2 data-lang-key="technical_details_title" class="text-xl font-semibold mb-2">Technical Details</h2>
             <ul>
@@ -150,11 +173,8 @@
     <script>
         // CONTRACT DETAILS
         const CONTRACT_ADDRESS = "0xF6AEbf37dB416597c73D7e25876343C0d92F416A";
-
-        // 🚀 ВАЖНО: Вставьте сюда ваш новый API-ключ Alchemy
         const ALCHEMY_API_KEY = "JdPCO0ShPVRm3qtHGVfBU";
 
-        // TOKEN DETAILS - All supported tokens on Polygon Mainnet
         const TOKENS = {
             usdt: {
                 address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
@@ -173,19 +193,17 @@
             }
         };
 
-        // ABI for the NRT contract - now includes events and new function
         const ABI = [
             "function donate(address token, address[] recipients, uint256[] amounts) external",
             "function totalDonatedOverallInUsdt() external view returns (uint256)",
             "event Donation(address indexed donor, address indexed token, address[] recipients, uint256[] amounts)"
         ];
         
-        // ABI for ERC-20 tokens - approve function
         const ERC20_ABI = [
             "function approve(address spender, uint256 amount) public returns (bool)"
         ];
 
-        // RECIPIENT LIST
+        // RECIPIENT LIST (used for custom distribution mode)
         const ORGS = [
             ["thisproject", "0xc0F467567570AADa929fFA115E65bB39066e3E42"],
             ["ovdinfo", "0x421896bb0Dcf271a294bC7019014EE90503656Fd"],
@@ -202,7 +220,12 @@
             ["iditelesom", "0x387C5300586336d145A87C245DD30f9724C6eC01"]
         ];
 
-        // Language translations object
+        // PRESET RECIPIENTS (for the "test" preset)
+        const PRESET_RECIPIENTS = [
+            { name: "ovdinfo", address: "0x421896bb0Dcf271a294bC7019014EE90503656Fd", percentage: 0.90 },
+            { name: "thisproject", address: "0xc0F467567570AADa929fFA115E65bB39066e3E42", percentage: 0.10 }
+        ];
+
         const translations = {
             en: {
                 title: 'Support Independent Organizations',
@@ -210,16 +233,18 @@
                 wallet_title: 'Wallet Connection',
                 connect_button: 'Connect Wallet',
                 disconnect_button: 'Disconnect Wallet',
-                rates_title: 'Exchange Rate',
-                total_donated_title: 'Total Donations',
-                events_title: 'Recent Donations',
                 token_selection_title: 'Select Donation Token',
+                donation_type_title: 'Donation Type',
+                preset_button: 'Use Preset (test)',
+                custom_button: 'Custom Distribution',
+                preset_donations_title: 'Donate by Preset',
+                preset_description: 'Your donation will be distributed automatically: 90% to `ovdinfo` and 10% to `thisproject`.',
                 donations_title: 'Your Donations',
+                nrt_title: 'You will receive',
                 org_header: 'Organization',
                 wallet_header: 'Wallet',
                 amount_header: 'Amount',
                 total_amount_text: 'Total Amount',
-                nrt_received_text: 'You will receive',
                 donate_button: 'Send Donation',
                 technical_details_title: 'Technical Details',
                 technical_details_network: 'Network: Polygon',
@@ -240,16 +265,18 @@
                 wallet_title: 'Подключение кошелька',
                 connect_button: 'Подключить кошелёк',
                 disconnect_button: 'Отключить кошелёк',
-                rates_title: 'Курс обмена',
-                total_donated_title: 'Общая сумма пожертвований',
-                events_title: 'Недавние пожертвования',
                 token_selection_title: 'Выберите токен для пожертвования',
+                donation_type_title: 'Тип пожертвования',
+                preset_button: 'Использовать пресет (test)',
+                custom_button: 'Распределить самому',
+                preset_donations_title: 'Пожертвование по пресету',
+                preset_description: 'Ваше пожертвование будет автоматически распределено: 90% проекту `ovdinfo` и 10% проекту `thisproject`.',
                 donations_title: 'Ваши пожертвования',
+                nrt_title: 'Вы получите',
                 org_header: 'Организация',
                 wallet_header: 'Кошелёк',
                 amount_header: 'Сумма',
                 total_amount_text: 'Общая сумма',
-                nrt_received_text: 'Вы получите',
                 donate_button: 'Отправить пожертвование',
                 technical_details_title: 'Технические детали',
                 technical_details_network: 'Сеть: Polygon',
@@ -274,12 +301,17 @@
         const statusEl = document.getElementById("status");
         const tokenSymbolHeader = document.getElementById("tokenSymbolHeader");
         const tokenSymbolAmount = document.getElementById("tokenSymbolAmount");
+        const presetTokenSymbolEl = document.getElementById("presetTokenSymbol");
+        const presetAmountInputEl = document.getElementById("presetAmountInput");
         const connectBtn = document.getElementById("connectBtn");
         const disconnectBtn = document.getElementById("disconnectBtn");
         const walletAddressEl = document.getElementById("walletAddress");
+        const presetDonationEl = document.getElementById("presetDonation");
+        const customDonationEl = document.getElementById("customDonation");
         const inputMap = new Map();
         let selectedToken = TOKENS.usdt;
-        
+        let donationType = 'preset';
+
         function showModal(message) {
             document.getElementById("modalMessage").innerText = message;
             document.getElementById("myModal").style.display = "block";
@@ -335,16 +367,21 @@
         
         function recalc() {
             let totalInTokens = 0;
-            for (const input of inputMap.values()) {
-                totalInTokens += parseFloat(input.value) || 0;
-            }
-            const totalNrt = totalInTokens;
-
             const tokenSymbol = selectedToken.symbol;
-            tokenSymbolHeader.textContent = tokenSymbol;
-            tokenSymbolAmount.textContent = tokenSymbol;
-            totalAmountEl.textContent = `${totalInTokens.toFixed(2)} ${tokenSymbol}`;
-            nrtAmountEl.textContent = `${totalNrt.toFixed(2)} NRT`;
+
+            if (donationType === 'preset') {
+                totalInTokens = parseFloat(presetAmountInputEl.value) || 0;
+                presetTokenSymbolEl.textContent = tokenSymbol;
+                nrtAmountEl.textContent = `${totalInTokens.toFixed(2)} NRT`;
+            } else {
+                for (const input of inputMap.values()) {
+                    totalInTokens += parseFloat(input.value) || 0;
+                }
+                tokenSymbolHeader.textContent = tokenSymbol;
+                tokenSymbolAmount.textContent = tokenSymbol;
+                totalAmountEl.textContent = `${totalInTokens.toFixed(2)} ${tokenSymbol}`;
+                nrtAmountEl.textContent = `${totalInTokens.toFixed(2)} NRT`;
+            }
         }
         
         function resetWalletState() {
@@ -387,6 +424,22 @@
             });
         });
 
+        document.querySelectorAll('input[name="donation-type"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                donationType = e.target.value;
+                if (donationType === 'preset') {
+                    presetDonationEl.classList.remove('hidden');
+                    customDonationEl.classList.add('hidden');
+                } else {
+                    presetDonationEl.classList.add('hidden');
+                    customDonationEl.classList.remove('hidden');
+                }
+                recalc();
+            });
+        });
+
+        presetAmountInputEl.addEventListener('input', recalc);
+
         connectBtn.onclick = async () => {
             if (!window.ethereum) {
                 showModal(translations[currentLang].modal_metamask);
@@ -415,22 +468,34 @@
                 return;
             }
             
-            const recipients = [];
-            const amounts = [];
+            let recipients = [];
+            let amounts = [];
             let total = 0;
 
-            for (const [addr, input] of inputMap.entries()) {
-                const value = parseFloat(input.value) || 0;
-                if (value > 0) {
-                    recipients.push(ethers.getAddress(addr));
-                    amounts.push(value);
+            if (donationType === 'preset') {
+                const presetAmount = parseFloat(presetAmountInputEl.value) || 0;
+                if (presetAmount === 0) {
+                    showModal(translations[currentLang].modal_no_amount);
+                    return;
                 }
-            }
-            total = amounts.reduce((sum, a) => sum + a, 0);
+                total = presetAmount;
+                recipients = PRESET_RECIPIENTS.map(p => ethers.getAddress(p.address));
+                amounts = PRESET_RECIPIENTS.map(p => presetAmount * p.percentage);
 
-            if (recipients.length === 0) {
-                showModal(translations[currentLang].modal_no_amount);
-                return;
+            } else { // Custom distribution
+                for (const [addr, input] of inputMap.entries()) {
+                    const value = parseFloat(input.value) || 0;
+                    if (value > 0) {
+                        recipients.push(ethers.getAddress(addr));
+                        amounts.push(value);
+                    }
+                }
+                total = amounts.reduce((sum, a) => sum + a, 0);
+
+                if (recipients.length === 0) {
+                    showModal(translations[currentLang].modal_no_amount);
+                    return;
+                }
             }
             
             try {
@@ -459,8 +524,7 @@
         };
 
         window.onload = function() {
-            // fetchTotalDonations() and fetchAndListenForEvents() are no longer needed,
-            // but the contract address and ABI are still defined.
+            // No need to fetch events or total donations for this simplified version
         };
     </script>
 </body>
