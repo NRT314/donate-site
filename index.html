@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>NRT Donate — Simple Version</title>
+    <title data-lang-key="title">NRT Donate — Simple Version</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" data-lang-key="meta_description" content="NRT - a blockchain platform for transparent and secure support of independent organizations via crypto donations.">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -27,6 +28,7 @@
             border: 1px solid #888;
             border-radius: 10px;
             text-align: center;
+            max-width: 400px;
         }
         .close {
             color: #aaa;
@@ -46,6 +48,25 @@
         input[name="token"]:checked + span:after {
             content: ' ✅';
         }
+        .faq-item summary {
+            cursor: pointer;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .faq-item summary::-webkit-details-marker {
+            display: none;
+        }
+        .faq-item summary::after {
+            content: '►';
+            transition: transform 0.2s;
+        }
+        .faq-item[open] summary::after {
+            transform: rotate(90deg);
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 p-4">
@@ -57,20 +78,21 @@
         </div>
     </div>
 
-    <div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg mt-8 relative">
-
+    <header class="text-center mb-8">
+        <img src="logo.png" alt="NRT Logo" class="mx-auto h-20 mb-4"/>
         <div class="absolute top-4 right-4">
             <button id="lang-en" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-blue-600 transition duration-300">EN</button>
             <button id="lang-ru" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-transparent transition duration-300">RU</button>
         </div>
-
-        <h1 data-lang-key="title" class="text-3xl font-bold mb-4 text-center">Support Independent Organizations</h1>
-
-        <p data-lang-key="description" class="text-center text-lg mb-6 text-gray-600">
+        <h1 data-lang-key="title" class="text-3xl font-bold mb-4">Support Independent Organizations</h1>
+        <p data-lang-key="description" class="text-lg text-gray-600">
             Donate to verified Russian independent projects using stablecoins and receive <strong>NRT</strong> tokens in return. The exchange rate is fixed at <strong>1 stablecoin = 1 NRT</strong>.
         </p>
+    </header>
 
-        <div class="bg-gray-100 p-6 rounded-lg mb-6">
+    <main class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg mt-8 relative">
+
+        <section class="bg-gray-100 p-6 rounded-lg mb-6">
             <h2 data-lang-key="wallet_title" class="text-2xl font-semibold mb-3">Wallet Connection</h2>
             <div id="walletActions" class="flex flex-col md:flex-row gap-4 justify-center items-center">
                 <button id="connectBtn" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 shadow-md">
@@ -81,9 +103,9 @@
                 </button>
             </div>
             <p id="walletAddress" class="mt-3 text-center text-gray-700 font-mono"></p>
-        </div>
+        </section>
         
-        <div class="bg-gray-100 p-6 rounded-lg mb-6">
+        <section class="bg-gray-100 p-6 rounded-lg mb-6">
             <h2 data-lang-key="token_selection_title" class="text-2xl font-semibold mb-3">Select Donation Token</h2>
             <div class="flex flex-wrap gap-4 justify-center">
                 <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
@@ -99,9 +121,9 @@
                     <span class="text-lg">DAI</span>
                 </label>
             </div>
-        </div>
+        </section>
 
-        <div class="bg-gray-100 p-6 rounded-lg mb-6">
+        <section class="bg-gray-100 p-6 rounded-lg mb-6">
             <h2 data-lang-key="donation_type_title" class="text-2xl font-semibold mb-3">Donation Type</h2>
             <div class="flex flex-wrap gap-4 justify-center">
                 <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
@@ -113,7 +135,7 @@
                     <span data-lang-key="preset_button" class="text-lg">Donate Equally</span>
                 </label>
             </div>
-        </div>
+        </section>
 
         <div id="presetDonation" class="bg-gray-100 p-6 rounded-lg mb-6 hidden">
             <h2 data-lang-key="preset_donations_title" class="text-2xl font-semibold mb-3">Donate by Preset</h2>
@@ -145,12 +167,12 @@
             </table>
         </div>
         
-        <div class="bg-gray-100 p-6 rounded-lg mb-6">
+        <section class="bg-gray-100 p-6 rounded-lg mb-6">
             <h2 data-lang-key="nrt_title" class="text-2xl font-semibold mb-3">You will receive</h2>
             <p class="text-lg font-bold text-gray-700">
                 <span id="nrtAmount" class="text-2xl font-extrabold text-blue-600">0.00</span> NRT
             </p>
-        </div>
+        </section>
 
         <div class="flex justify-center">
             <button id="donateBtn" class="bg-green-600 text-white font-bold text-xl py-4 px-8 rounded-lg hover:bg-green-700 transition duration-300 shadow-xl">
@@ -158,401 +180,53 @@
             </button>
         </div>
         <p id="status" class="mt-4 text-center font-bold text-lg"></p>
-        
-        <div class="mt-8 pt-4 border-t border-gray-300 text-sm text-gray-500">
+
+        <section class="mt-8 pt-4 border-t border-gray-300">
+            <h2 data-lang-key="about_title" class="text-2xl font-semibold mb-3">About NRT Project</h2>
+            <div id="about-content"></div>
+        </section>
+
+        <section class="mt-8 pt-4 border-t border-gray-300">
+            <h2 data-lang-key="plans_title" class="text-2xl font-semibold mb-3">Our Plans</h2>
+            <div id="plans-content"></div>
+        </section>
+
+        <section class="mt-8 pt-4 border-t border-gray-300">
+            <h2 data-lang-key="faq_title" class="text-2xl font-semibold mb-3">Frequently Asked Questions</h2>
+            <div id="faq-content"></div>
+        </section>
+
+        <section class="mt-8 pt-4 border-t border-gray-300">
+            <h2 data-lang-key="contact_title" class="text-2xl font-semibold mb-3">Contact Us</h2>
+            <form id="contactForm" action="https://formspree.io/f/xbjnzzqw" method="POST" class="bg-gray-100 p-6 rounded-lg">
+                <div class="mb-4">
+                    <label for="email" class="block text-gray-700 text-sm font-bold mb-2" data-lang-key="contact_label_email">Your Email (optional)</label>
+                    <input type="email" id="email" name="_replyto" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" data-lang-key="contact_placeholder_email" placeholder="you@example.com">
+                </div>
+                <div class="mb-4">
+                    <label for="message" class="block text-gray-700 text-sm font-bold mb-2" data-lang-key="contact_label_message">Your Message</label>
+                    <textarea id="message" name="message" rows="4" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" data-lang-key="contact_placeholder_message" placeholder="Type your message here..."></textarea>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline" data-lang-key="contact_submit_button">Send Message</button>
+                    <p id="contactStatus" class="text-sm font-semibold"></p>
+                </div>
+            </form>
+        </section>
+
+        <footer class="mt-8 pt-4 border-t border-gray-300 text-sm text-gray-500">
             <h2 data-lang-key="technical_details_title" class="text-xl font-semibold mb-2">Technical Details</h2>
-            <ul>
+            <ul class="space-y-1">
                 <li data-lang-key="technical_details_network">Network: Polygon</li>
-                <li data-lang-key="technical_details_contract">NRT Contract: <code>0xF6AEbf37dB416597c73D7e25876343C0d92F416A</code></li>
+                <li><span data-lang-key="technical_details_contract">NRT Contract</span>: <a href="https://polygonscan.com/address/0xf6aebf37db416597c73d7e25876343c0d92f416a" target="_blank" class="text-blue-500 hover:underline"><code>0xF6AEbf37dB416597c73D7e25876343C0d92F416A</code></a></li>
                 <li data-lang-key="technical_details_token">Tokens: USDT (6), USDC (Bridget) (6), DAI (18)</li>
+                <li><span data-lang-key="technical_details_source_code">Source Code</span>: <a href="https://github.com/NRT314/assets/blob/main/contract.sol" target="_blank" class="text-blue-500 hover:underline"><code>github.com/NRT314/assets</code></a></li>
             </ul>
-        </div>
-    </div>
+        </footer>
 
+    </main>
+    
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
-    <script>
-        // CONTRACT DETAILS
-        const CONTRACT_ADDRESS = "0xF6AEbf37dB416597c73D7e25876343C0d92F416A";
-        const ALCHEMY_API_KEY = "JdPCO0ShPVRm3qtHGVfBU";
-
-        const TOKENS = {
-            usdt: {
-                address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
-                decimals: 6,
-                symbol: "USDT"
-            },
-            usdc: {
-                address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-                decimals: 6,
-                symbol: "USDC (Bridget)"
-            },
-            dai: {
-                address: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
-                decimals: 18,
-                symbol: "DAI"
-            }
-        };
-
-        const ABI = [
-            "function donate(address token, address[] recipients, uint256[] amounts) external",
-            "function donatePreset(string calldata name, address token, uint256 amount) external",
-            "function getPreset(string calldata name) external view returns (address[] memory recipients, uint256[] memory percentages)",
-            "function getWhitelistedRecipients() external view returns (address[] memory)",
-            "function totalDonatedOverallInUsdt() external view returns (uint256)",
-            "event Donation(address indexed donor, address indexed token, address indexed recipient, uint256 amount)"
-        ];
-        
-        const ERC20_ABI = [
-            "function approve(address spender, uint256 amount) public returns (bool)"
-        ];
-
-        // RECIPIENT LIST (used for custom distribution mode)
-        const ORGS = [
-            ["thisproject", "0xc0F467567570AADa929fFA115E65bB39066e3E42"],
-            ["ovdinfo", "0x421896bb0Dcf271a294bC7019014EE90503656Fd"],
-            ["mediazona", "0xE86D7D922DeF8a8FEB21f1702C9AaEEDBec32DDC"],
-            ["zhuk", "0x1913A02BB3836AF224aEF136461F43189A0cEcd0"],
-            ["breakfastshow", "0xdB4BB555a15bC8bB3b07E57452a8E6E24b358e7F"],
-            ["kovcheg", "0xBf178F99b8790db1BD2194D80c3a268AE4AcE804"],
-            ["findexit", "0xADb524cE8c2009e727f6dF4b6a443D455c700244"],
-            ["gulagunet", "0x6051F40d4eF5d5E5BC2B6F4155AcCF57Be6B8F58"],
-            ["meduza", "0x00B9d7Fe4a2d3aCdd4102Cfb55b98d193B94C0fa"],
-            ["cit", "0xfBcc8904ce75fF90CC741DA80703202faf5b2FcF"],
-            ["importantstories", "0x5433CE0E05D117C54f814cc6697244eA0b902DBF"],
-            ["fbk", "0x314aC71aEB2feC4D60Cc50Eb46e64980a27F2680"],
-            ["iditelesom", "0x387C5300586336d145A87C245DD30f9724C6eC01"],
-            ["memorial", "0x0a4aB5D641f63cd7a2d44d0a643424f5d0df376b"],
-            ["insider", "0xad8221D4A4feb023156b9E09917Baa4ff81A65F8"],
-            ["rain", "0x552dAfED221689e44676477881B6947074a5C342"]
-        ];
-
-        // PRESET RECIPIENTS (for the "equal" preset)
-        const PRESET_NAME = "equal";
-        const presetRecipients = ORGS.map(org => org[1]);
-        const presetDescriptionEn = `Your donation will be distributed evenly among ${presetRecipients.length} recipients.`;
-        const presetDescriptionRu = `Распределено равномерно на ${presetRecipients.length} реципиентов.`;
-
-        const translations = {
-            en: {
-                title: 'Support Independent Organizations',
-                description: 'Donate to verified Russian independent projects using stablecoins and receive <strong>NRT</strong> tokens in return. The exchange rate is fixed at <strong>1 stablecoin = 1 NRT</strong>.',
-                wallet_title: 'Wallet Connection',
-                connect_button: 'Connect Wallet',
-                disconnect_button: 'Disconnect Wallet',
-                token_selection_title: 'Select Donation Token',
-                donation_type_title: 'Donation Type',
-                preset_button: 'Donate Equally',
-                custom_button: 'Custom Distribution',
-                preset_donations_title: 'Donate by Preset',
-                preset_description: presetDescriptionEn,
-                donations_title: 'Your Donations',
-                nrt_title: 'You will receive',
-                org_header: 'Organization',
-                wallet_header: 'Wallet',
-                amount_header: 'Amount',
-                total_amount_text: 'Total Amount',
-                donate_button: 'Send Donation',
-                technical_details_title: 'Technical Details',
-                technical_details_network: 'Network: Polygon',
-                technical_details_contract: 'NRT Contract: <code>0xF6AEbf37dB416597c73D7e25876343C0d92F416A</code>',
-                technical_details_token: 'Tokens: USDT (6), USDC (Bridget) (6), DAI (18)',
-                modal_connect: 'Please connect your wallet first.',
-                modal_metamask: 'Please install MetaMask or Rabby.',
-                modal_error: 'Connection Error: ',
-                modal_no_amount: 'Please enter at least one donation amount.',
-                status_approve: '⏳ Confirm approval...',
-                status_donate: '⏳ Confirm donation...',
-                status_success: '✅ Thank you for your donation!',
-                status_error: '❌ Error: '
-            },
-            ru: {
-                title: 'Поддержите независимые организации',
-                description: 'Пожертвуйте в проверенные российские независимые проекты, используя стейблкоины, и получите токены <strong>NRT</strong> в ответ. Курс обмена фиксирован: <strong>1 стейблкоин = 1 NRT</strong>.',
-                wallet_title: 'Подключение кошелька',
-                connect_button: 'Подключить кошелёк',
-                disconnect_button: 'Отключить кошелёк',
-                token_selection_title: 'Выберите токен для пожертвования',
-                donation_type_title: 'Тип пожертвования',
-                preset_button: 'Всем поровну',
-                custom_button: 'Распределить самому',
-                preset_donations_title: 'Пожертвование по пресету',
-                preset_description: presetDescriptionRu,
-                donations_title: 'Ваши пожертвования',
-                nrt_title: 'Вы получите',
-                org_header: 'Организация',
-                wallet_header: 'Кошелёк',
-                amount_header: 'Сумма',
-                total_amount_text: 'Общая сумма',
-                donate_button: 'Отправить пожертвование',
-                technical_details_title: 'Технические детали',
-                technical_details_network: 'Сеть: Polygon',
-                technical_details_contract: 'Контракт NRT: <code>0xF6AEbf37dB416597c73D7e25876343C0d92F416A</code>',
-                technical_details_token: 'Токены: USDT (6), USDC (Bridget) (6), DAI (18)',
-                modal_connect: 'Сначала подключите кошелёк.',
-                modal_metamask: 'Установите MetaMask или Rabby.',
-                modal_error: 'Ошибка подключения: ',
-                modal_no_amount: 'Укажите хотя бы одну сумму для пожертвования.',
-                status_approve: '⏳ Подтвердите одобрение...',
-                status_donate: '⏳ Подтвердите пожертвование...',
-                status_success: '✅ Спасибо за донат!',
-                status_error: '❌ Ошибка: '
-            }
-        };
-
-        let currentLang = 'en';
-        let provider, signer;
-        const donationTable = document.getElementById("donationTable");
-        const totalAmountEl = document.getElementById("totalAmount");
-        const nrtAmountEl = document.getElementById("nrtAmount");
-        const statusEl = document.getElementById("status");
-        const tokenSymbolHeader = document.getElementById("tokenSymbolHeader");
-        const tokenSymbolAmount = document.getElementById("tokenSymbolAmount");
-        const presetTokenSymbolEl = document.getElementById("presetTokenSymbol");
-        const presetAmountInputEl = document.getElementById("presetAmountInput");
-        const connectBtn = document.getElementById("connectBtn");
-        const disconnectBtn = document.getElementById("disconnectBtn");
-        const walletAddressEl = document.getElementById("walletAddress");
-        const presetDonationEl = document.getElementById("presetDonation");
-        const customDonationEl = document.getElementById("customDonation");
-        const presetDescriptionEl = document.getElementById("presetDescription");
-        const inputMap = new Map();
-        let selectedToken = TOKENS.usdt;
-        let donationType = 'custom'; // DEFAULT TO CUSTOM
-
-        function showModal(message) {
-            document.getElementById("modalMessage").innerText = message;
-            document.getElementById("myModal").style.display = "block";
-        }
-
-        function closeModal() {
-            document.getElementById("myModal").style.display = "none";
-        }
-        
-        window.onclick = function(event) {
-            if (event.target == document.getElementById("myModal")) {
-                closeModal();
-            }
-        }
-        
-        function updatePresetDescription() {
-            if (currentLang === 'en') {
-                presetDescriptionEl.textContent = presetDescriptionEn;
-            } else {
-                presetDescriptionEl.textContent = presetDescriptionRu;
-            }
-        }
-
-        function setLanguage(lang) {
-            currentLang = lang;
-            const langKeys = document.querySelectorAll('[data-lang-key]');
-            langKeys.forEach(element => {
-                const key = element.getAttribute('data-lang-key');
-                if (translations[lang][key]) {
-                    element.innerHTML = translations[lang][key];
-                }
-            });
-            document.getElementById('lang-en').classList.remove('border-blue-600', 'border-transparent');
-            document.getElementById('lang-ru').classList.remove('border-blue-600', 'border-transparent');
-            if (lang === 'en') {
-                document.getElementById('lang-en').classList.add('border-blue-600');
-                document.getElementById('lang-ru').classList.add('border-transparent');
-            } else {
-                document.getElementById('lang-ru').classList.add('border-blue-600');
-                document.getElementById('lang-en').classList.add('border-transparent');
-            }
-            updatePresetDescription();
-            recalc();
-        }
-
-        function renderDonationTable() {
-            donationTable.innerHTML = '';
-            ORGS.forEach(([name, addr]) => {
-                const row = document.createElement("tr");
-                row.className = "hover:bg-gray-50 transition-colors duration-200";
-                row.innerHTML = `<td class="p-3 border border-gray-300">${name}</td>
-                    <td class="p-3 border border-gray-300 font-mono text-xs hidden md:table-cell"><code>${addr}</code></td>
-                    <td class="p-3 border border-gray-300">
-                        <input type="number" min="0" step="0.01" value="0" class="w-full md:w-32 p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-                    </td>`;
-                const input = row.querySelector("input");
-                input.addEventListener("input", recalc);
-                inputMap.set(addr, input);
-                donationTable.appendChild(row);
-            });
-        }
-        
-        function recalc() {
-            let totalInTokens = 0;
-            const tokenSymbol = selectedToken.symbol;
-
-            if (donationType === 'preset') {
-                totalInTokens = parseFloat(presetAmountInputEl.value) || 0;
-                presetTokenSymbolEl.textContent = tokenSymbol;
-                nrtAmountEl.textContent = `${totalInTokens.toFixed(2)}`;
-            } else {
-                for (const input of inputMap.values()) {
-                    totalInTokens += parseFloat(input.value) || 0;
-                }
-                tokenSymbolHeader.textContent = tokenSymbol;
-                tokenSymbolAmount.textContent = tokenSymbol;
-                totalAmountEl.textContent = `${totalInTokens.toFixed(2)} ${tokenSymbol}`;
-                nrtAmountEl.textContent = `${totalInTokens.toFixed(2)}`;
-            }
-        }
-        
-        function resetWalletState() {
-            signer = null;
-            walletAddressEl.innerText = '';
-            connectBtn.classList.remove('hidden');
-            disconnectBtn.classList.add('hidden');
-            console.log("Wallet connection reset.");
-        }
-
-        function setupWalletListeners() {
-            if (window.ethereum) {
-                window.ethereum.on('accountsChanged', (accounts) => {
-                    if (accounts.length === 0) {
-                        console.log('Wallet disconnected.');
-                        resetWalletState();
-                    } else {
-                        console.log('Account changed to:', accounts[0]);
-                        signer = (new ethers.BrowserProvider(window.ethereum)).getSigner(accounts[0]);
-                        walletAddressEl.innerText = `Wallet: ${accounts[0]}`;
-                    }
-                });
-                window.ethereum.on('chainChanged', (chainId) => {
-                    console.log('Chain changed. Reloading page...');
-                    window.location.reload();
-                });
-            }
-        }
-
-        renderDonationTable();
-        setLanguage('en');
-        
-        document.getElementById("lang-en").addEventListener('click', () => setLanguage('en'));
-        document.getElementById("lang-ru").addEventListener('click', () => setLanguage('ru'));
-        
-        document.querySelectorAll('input[name="token"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                selectedToken = TOKENS[e.target.value];
-                recalc();
-            });
-        });
-
-        document.querySelectorAll('input[name="donation-type"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                donationType = e.target.value;
-                if (donationType === 'preset') {
-                    presetDonationEl.classList.remove('hidden');
-                    customDonationEl.classList.add('hidden');
-                } else {
-                    presetDonationEl.classList.add('hidden');
-                    customDonationEl.classList.remove('hidden');
-                }
-                recalc();
-            });
-        });
-
-        presetAmountInputEl.addEventListener('input', recalc);
-
-        connectBtn.onclick = async () => {
-            if (!window.ethereum) {
-                showModal(translations[currentLang].modal_metamask);
-                return;
-            }
-            try {
-                provider = new ethers.BrowserProvider(window.ethereum);
-                const accounts = await provider.send("eth_requestAccounts", []);
-                signer = await provider.getSigner();
-                walletAddressEl.innerText = `Wallet: ${accounts[0]}`;
-                connectBtn.classList.add('hidden');
-                disconnectBtn.classList.remove('hidden');
-                setupWalletListeners();
-            } catch (e) {
-                showModal(`${translations[currentLang].modal_error} ${e.message}`);
-            }
-        };
-
-        disconnectBtn.onclick = () => {
-            resetWalletState();
-        };
-
-        document.getElementById("donateBtn").onclick = async () => {
-            if (!signer) {
-                showModal(translations[currentLang].modal_connect);
-                return;
-            }
-            
-            let total = 0;
-            if (donationType === 'preset') {
-                 total = parseFloat(presetAmountInputEl.value) || 0;
-            } else {
-                for (const input of inputMap.values()) {
-                    total += parseFloat(input.value) || 0;
-                }
-            }
-
-            if (total === 0) {
-                showModal(translations[currentLang].modal_no_amount);
-                return;
-            }
-
-            try {
-                const tokenContract = new ethers.Contract(selectedToken.address, ERC20_ABI, signer);
-                const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-                
-                const totalAmount = ethers.parseUnits(total.toString(), selectedToken.decimals);
-                
-                statusEl.textContent = translations[currentLang].status_approve;
-                const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, totalAmount);
-                await approveTx.wait();
-
-                statusEl.textContent = translations[currentLang].status_donate;
-
-                if (donationType === 'preset') {
-                    const donateTx = await contract.donatePreset(PRESET_NAME, selectedToken.address, totalAmount);
-                    await donateTx.wait();
-                } else {
-                    let recipients = [];
-                    let amounts = [];
-                    for (const [addr, input] of inputMap.entries()) {
-                        const value = parseFloat(input.value) || 0;
-                        if (value > 0) {
-                            recipients.push(ethers.getAddress(addr));
-                            amounts.push(ethers.parseUnits(value.toString(), selectedToken.decimals));
-                        }
-                    }
-
-                    if (recipients.length === 0) {
-                        showModal(translations[currentLang].modal_no_amount);
-                        return;
-                    }
-
-                    const donateTx = await contract.donate(selectedToken.address, recipients, amounts);
-                    await donateTx.wait();
-                }
-                
-                statusEl.textContent = translations[currentLang].status_success;
-
-            } catch (err) {
-                console.error(err);
-                let errorMessage = err.message;
-                // Ethers.js v6 often wraps the revert reason. Try to get a more specific message.
-                if (err.reason) {
-                    errorMessage = err.reason;
-                }
-                statusEl.textContent = `${translations[currentLang].status_error} ${errorMessage}`;
-            }
-        };
-
-        window.onload = function() {
-            // Устанавливаем начальное состояние
-            const customRadio = document.querySelector('input[name="donation-type"][value="custom"]');
-            customRadio.checked = true;
-            presetDonationEl.classList.add('hidden');
-            customDonationEl.classList.remove('hidden');
-        };
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
