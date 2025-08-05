@@ -1,26 +1,25 @@
+// === НОВЫЙ БЛОК: ИМПОРТИРУЕМ НУЖНЫЕ ИНСТРУМЕНТЫ ===
+import { createWeb3Modal, defaultConfig } from '@web3modal/ethers';
+import { BrowserProvider, Contract, getAddress, parseUnits } from 'ethers';
+// === КОНЕЦ НОВОГО БЛОКА ===
+
 // --- КОНФИГУРАЦИЯ ---
-
-// 1. Ваш Project ID из WalletConnect Cloud
 const projectId = 'c2ddfb7c663b6494c5c0cfdb7e0f9e6a';
-
-// 2. Метаданные вашего проекта
 const metadata = {
     name: 'NRT Donate',
     description: 'NRT - a blockchain platform for transparent and secure support of independent organizations via crypto donations.',
-    url: window.location.href, // Адрес вашего сайта
-    icons: [window.location.origin + '/logo.png'] // Ссылка на ваш логотип
+    url: window.location.href,
+    icons: [window.location.origin + '/logo.png']
 };
-
-// 3. Сеть, с которой работаем (Polygon)
 const polygon = {
     chainId: 137,
     name: 'Polygon',
     currency: 'MATIC',
     explorerUrl: 'https://polygonscan.com',
-    rpcUrl: 'https://polygon-rpc.com' // Публичный RPC
+    rpcUrl: 'https://polygon-rpc.com'
 };
 
-// --- КОНСТАНТЫ ПРОЕКТА (без изменений) ---
+// --- КОНСТАНТЫ ПРОЕКТА ---
 const CONTRACT_ADDRESS = "0xF6AEbf37dB416597c73D7e25876343C0d92F416A";
 const TOKENS = {
     usdt: { address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F", decimals: 6, symbol: "USDT" },
@@ -29,7 +28,7 @@ const TOKENS = {
 };
 const ABI = ["function donate(address token, address[] recipients, uint256[] amounts) external", "function donatePreset(string calldata name, address token, uint256 amount) external", "event Donation(address indexed donor, address indexed token, address indexed recipient, uint256 amount)"];
 const ERC20_ABI = ["function approve(address spender, uint256 amount) public returns (bool)"];
-const ORGS = [["thisproject", "0xc0F467567570AADa929fFA115E65bB39066e3E42"], ["ovdinfo", "0x421896bb0Dcf271a294bC7019014EE90503656Fd"], ["mediazona", "0xE86D7D922DeF8a8FEB21f1702C9AaEEDBec32DDC"], ["zhuk", "0x1913A02BB3836AF224aEF136461F43189A0cEcd0"], ["breakfastshow", "0xdB4BB555a15bC8bB3b07E57452a8E6E24b358e7F"], ["kovcheg", "0xBf178F99b8790db1BD2194D80c3a268AE4AcE804"], ["findexit", "0xADb524cE8c2009e727f6dF4b6a443D455c700244"], ["gulagunet", "0x6051F40d4eF5d5E5BC2B6F4155AcCF57Be6B8F58"], ["meduza", "0x00B9d7Fe4a2d3aCdd4102Cfb55b98d193B94C0fa"], ["cit", "0xfBcc8904ce75fF90CC741DA80703202faf5b2FcF"], ["importantstories", "0x5433CE0E05D117C54f814cc6697244eA0b902DBF"], ["fbk", "0x314aC71aEB2feC4D60Cc50Eb46e64980a27F2680"], ["iditelesom", "0x387C5300586336d145A87C245DD30f9724C6eC01"], ["memorial", "0x0a4aB5D641f63cd7a2d44d0a643424f5d0df376b"], ["insider", "0xad8221D4A4feb023156b9E09917Baa4ff81A65F8"], ["rain", "0x552dAfED221689e44676477881B6947074a5C342"]];
+const ORGS = [["thisproject", "0xc0F467567570AADa929fFA115E65bB39066e3E42"],["ovdinfo","0x421896bb0Dcf271a294bC7019014EE90503656Fd"],["mediazona","0xE86D7D922DeF8a8FEB21f1702C9AaEEDBec32DDC"],["zhuk","0x1913A02BB3836AF224aEF136461F43189A0cEcd0"],["breakfastshow","0xdB4BB555a15bC8bB3b07E57452a8E6E24b358e7F"],["kovcheg","0xBf178F99b8790db1BD2194D80c3a268AE4AcE804"],["findexit","0xADb524cE8c2009e727f6dF4b6a443D455c700244"],["gulagunet","0x6051F40d4eF5d5E5BC2B6F4155AcCF57Be6B8F58"],["meduza","0x00B9d7Fe4a2d3aCdd4102Cfb55b98d193B94C0fa"],["cit","0xfBcc8904ce75fF90CC741DA80703202faf5b2FcF"],["importantstories","0x5433CE0E05D117C54f814cc6697244eA0b902DBF"],["fbk","0x314aC71aEB2feC4D60Cc50Eb46e64980a27F2680"],["iditelesom","0x387C5300586336d145A87C245DD30f9724C6eC01"],["memorial","0x0a4aB5D641f63cd7a2d44d0a643424f5d0df376b"],["insider","0xad8221D4A4feb023156b9E09917Baa4ff81A65F8"],["rain","0x552dAfED221689e44676477881B6947074a5C342"]];
 const PRESET_NAME = "equal";
 
 // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ И ЭЛЕМЕНТЫ ---
@@ -41,10 +40,9 @@ let currentLang = 'en';
 const inputMap = new Map();
 let selectedToken = TOKENS.usdt;
 let donationType = 'custom';
-let signer = null; // Глобальная переменная для подписчика
+let signer = null;
 
 // --- ИНИЦИАЛИЗАЦИЯ WEB3MODAL ---
-const { createWeb3Modal, defaultConfig } = window.Web3ModalEthers;
 const modal = createWeb3Modal({
     ethersConfig: defaultConfig({ metadata }),
     chains: [polygon],
@@ -56,7 +54,7 @@ const modal = createWeb3Modal({
 // --- ЛОГИКА ПОДКЛЮЧЕНИЯ КОШЕЛЬКА ---
 modal.subscribeProvider(async ({ provider, isConnected, address, chainId }) => {
     if (isConnected) {
-        const ethersProvider = new window.ethers.BrowserProvider(provider);
+        const ethersProvider = new BrowserProvider(provider);
         signer = await ethersProvider.getSigner();
         if (chainId !== polygon.chainId) {
             updateWalletUI(address, true);
@@ -86,7 +84,6 @@ function updateWalletUI(address, isWrongNetwork = false) {
     }
 }
 
-// Функции для кнопок
 function connectWallet() { modal.open(); }
 function disconnectWallet() { modal.disconnect(); }
 
@@ -112,9 +109,9 @@ document.getElementById("donateBtn").onclick = async () => {
         return;
     }
     try {
-        const tokenContract = new window.ethers.Contract(selectedToken.address, ERC20_ABI, signer);
-        const contract = new window.ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-        const totalAmount = window.ethers.parseUnits(total.toString(), selectedToken.decimals);
+        const tokenContract = new Contract(selectedToken.address, ERC20_ABI, signer);
+        const contract = new Contract(CONTRACT_ADDRESS, ABI, signer);
+        const totalAmount = parseUnits(total.toString(), selectedToken.decimals);
         ELEMENTS.statusEl.textContent = translations[currentLang]?.status_approve || "Approving transaction...";
         const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, totalAmount);
         await approveTx.wait();
@@ -127,8 +124,8 @@ document.getElementById("donateBtn").onclick = async () => {
             for (const [addr, input] of inputMap.entries()) {
                 const value = parseFloat(input.value) || 0;
                 if (value > 0) {
-                    recipients.push(window.ethers.getAddress(addr));
-                    amounts.push(window.ethers.parseUnits(value.toString(), selectedToken.decimals));
+                    recipients.push(getAddress(addr));
+                    amounts.push(parseUnits(value.toString(), selectedToken.decimals));
                 }
             }
             if (recipients.length === 0) {
