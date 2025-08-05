@@ -7,16 +7,16 @@
     <meta name="description" data-lang-key="meta_description" content="NRT - a blockchain platform for transparent and secure support of independent organizations via crypto donations.">
     <script src="https://cdn.tailwindcss.com"></script>
 
-  <script type="importmap">
-{
-  "imports": {
-    "@web3modal/ethers": "https://cdn.jsdelivr.net/npm/@web3modal/ethers@4.1.13/dist/esm/ethers.js",
-    "ethers": "https://cdn.jsdelivr.net/npm/ethers@6.11.1/dist/ethers.js"   // <-- ЗАПЯТОЙ НЕТ
-  }
-}
-</script>
+    <script type="importmap">
+    {
+      "imports": {
+        "@web3modal/ethers": "https://cdn.jsdelivr.net/npm/@web3modal/ethers@4.1.13/dist/esm/ethers.js",
+        "ethers": "https://cdn.jsdelivr.net/npm/ethers@6.11.1/dist/ethers.js"
+      }
+    }
+    </script>
+
     <style>
-        /* ... ваши стили без изменений ... */
         body { font-family: 'Inter', sans-serif; }
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
         .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; border-radius: 10px; text-align: center; max-width: 400px; }
@@ -35,7 +35,7 @@
     <div id="myModal" class="modal"> <div class="modal-content"> <span class="close" onclick="closeModal()">&times;</span> <p id="modalMessage" class="text-lg"></p> </div> </div>
     <header class="text-center mb-6"> <img src="logo.png" alt="NRT Logo" class="mx-auto h-20 mb-4"/> <div class="absolute top-4 right-4"> <button id="lang-en" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-blue-600 transition duration-300">EN</button> <button id="lang-ru" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-transparent transition duration-300">RU</button> </div> <h1 data-lang-key="title" class="text-3xl font-bold mb-3">Support Independent Organizations</h1> <p data-lang-key="description" class="text-lg text-gray-600"> Donate to verified Russian independent projects using stablecoins and receive <strong>NRT</strong> tokens in return. The exchange rate is fixed at <strong>1 stablecoin = 1 NRT</strong>. </p> </header>
     <main class="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow-lg mt-6 relative">
-        <section class="bg-gray-100 p-4 rounded-lg mb-4"> <h2 data-lang-key="wallet_title" class="text-2xl font-semibold mb-3">Wallet Connection</h2> <div id="walletActions" class="flex flex-row gap-4 justify-center items-center"> <div id="connectButtons"> <button id="connectBrowserBtn" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 shadow-md"> 🔗 <span>Connect Wallet</span> </button> <button id="connectMobileBtn" class="hidden"></button> </div> <button id="disconnectBtn" class="bg-green-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-900 transition duration-300 shadow-md" style="display: none;"> <span data-lang-key="disconnect_button">Disconnect Wallet</span> </button> </div> <p id="walletAddress" class="mt-3 text-center text-gray-700 font-mono"></p> </section>
+        <section class="bg-gray-100 p-4 rounded-lg mb-4"> <h2 data-lang-key="wallet_title" class="text-2xl font-semibold mb-3">Wallet Connection</h2> <div id="walletActions" class="flex flex-row gap-4 justify-center items-center"> <div id="connectButtons"> <button id="connectBrowserBtn" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 shadow-md"> 🔗 <span>Connect Wallet</span> </button> </div> <button id="disconnectBtn" class="bg-green-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-900 transition duration-300 shadow-md" style="display: none;"> <span data-lang-key="disconnect_button">Disconnect Wallet</span> </button> </div> <p id="walletAddress" class="mt-3 text-center text-gray-700 font-mono"></p> </section>
         <section class="bg-gray-100 p-4 rounded-lg mb-4"> <h2 data-lang-key="token_selection_title" class="text-2xl font-semibold mb-3">Select Donation Token</h2> <div class="flex gap-4 justify-center"> <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200"> <input type="radio" name="token" id="radio-usdt" value="usdt" class="h-4 w-4 text-blue-600" checked /> <span class="text-lg">USDT</span> </label> <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200"> <input type="radio" name="token" id="radio-usdc" value="usdc" class="h-4 w-4 text-blue-600" /> <span class="text-lg">USDC (Bridget)</span> </label> <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200"> <input type="radio" name="token" id="radio-dai" value="dai" class="h-4 w-4 text-blue-600" /> <span class="text-lg">DAI</span> </label> </div> </section>
         <section class="bg-gray-100 p-4 rounded-lg mb-4"> <h2 data-lang-key="donation_type_title" class="text-2xl font-semibold mb-3">Donation Type</h2> <div class="flex gap-4 justify-center"> <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200"> <input type="radio" name="donation-type" value="custom" class="h-4 w-4 text-blue-600" checked /> <span data-lang-key="custom_button" class="text-lg">Custom Distribution</span> </label> <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200"> <input type="radio" name="donation-type" value="preset" class="h-4 w-4 text-blue-600" /> <span data-lang-key="preset_button" class="text-lg">Donate Equally</span> </label> </div> </section>
         <div id="presetDonation" class="bg-gray-100 p-4 rounded-lg mb-4 hidden"> <h2 data-lang-key="preset_donations_title" class="text-2xl font-semibold mb-3">Donate by Preset</h2> <p data-lang-key="preset_description" class="mb-4" id="presetDescription"></p> <div class="flex items-center gap-4"> <input type="number" min="0.01" step="0.01" value="0.00" id="presetAmountInput" class="w-full p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"/> <span id="presetTokenSymbol" class="text-lg">USDT</span> </div> </div>
@@ -53,5 +53,3 @@
     
 </body>
 </html>
-
-
