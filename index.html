@@ -8,13 +8,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script type="importmap">
-{
-  "imports": {
-    "@web3modal/ethers": "https://cdn.jsdelivr.net/npm/@web3modal/ethers@4.1.13/dist/esm/index.js",
-    "ethers": "https://cdn.jsdelivr.net/npm/ethers@6.11.1/dist/ethers.js"
-  }
-}
-</script>
+    {
+      "imports": {
+        "@web3modal/ethers": "https://cdn.jsdelivr.net/npm/@web3modal/ethers@4.1.13/dist/esm/index.js",
+        "ethers": "https://cdn.jsdelivr.net/npm/ethers@6.11.1/dist/ethers.esm.js"
+      }
+    }
+    </script>
 
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -48,10 +48,8 @@
         <section class="mt-6 pt-4 border-t border-gray-300"> <h2 data-lang-key="contact_title" class="text-2xl font-semibold mb-3">Contact Us</h2> <form id="contactForm" action="https://formspree.io/f/xrblykve" method="POST" class="bg-gray-100 p-4 rounded-lg"> <div class="mb-4"> <label for="email" class="block text-gray-700 text-sm font-bold mb-2" data-lang-key="contact_label_email">Your Email (optional)</label> <input type="email" id="email" name="_replyto" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" data-lang-key="contact_placeholder_email" placeholder="you@example.com"> </div> <div class="mb-4"> <label for="message" class="block text-gray-700 text-sm font-bold mb-2" data-lang-key="contact_label_message">Your Message</label> <textarea id="message" name="message" rows="4" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" data-lang-key="contact_placeholder_message" placeholder="Type your message here..."></textarea> </div> <div class="flex items-center justify-between"> <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline" data-lang-key="contact_submit_button">Send Message</button> <p id="contactStatus" class="text-sm font-semibold"></p> </div> </form> </section>
         <footer class="mt-6 pt-4 border-t border-gray-300 text-sm text-gray-500"> <h2 data-lang-key="technical_details_title" class="text-xl font-semibold mb-2">Technical Details</h2> <ul class="space-y-1"> <li data-lang-key="technical_details_network">Network: Polygon</li> <li><span data-lang-key="technical_details_contract">NRT Contract</span>: <a href="https://polygonscan.com/address/0xf6aebf37db416597c73d7e25876343c0d92f416a" target="_blank" class="text-blue-500 hover:underline"><code>0xF6AEbf37dB416597c73D7e25876343C0d92F416A</code></a></li> <li data-lang-key="technical_details_token">Tokens: USDT (6), USDC (Bridget) (6), DAI (18)</li> <li><span data-lang-key="technical_details_source_code">Source Code</span>: <a href="https://github.com/NRT314/assets/blob/main/contract.sol" target="_blank" class="text-blue-500 hover:underline"><code>github.com/NRT314/assets</code></a></li> </ul> </footer>
     </main>
-    
+
     <script type="module" src="script.js"></script>
-    
+
 </body>
 </html>
-
-
