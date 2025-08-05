@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title data-lang-key="title">NRT Donate — Simple Version</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" data-lang-key="meta_description" content="NRT - a blockchain platform for transparent and secure support of independent organizations via crypto donations.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 400px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        input[name="token"]:checked + span {
+            font-weight: bold;
+        }
+        input[name="token"]:checked + span:after {
+            content: ' ✅';
+        }
+        .faq-item summary {
+            cursor: pointer;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .faq-item summary::-webkit-details-marker {
+            display: none;
+        }
+        .faq-item summary::after {
+            content: '►';
+            transition: transform 0.2s;
+        }
+        .faq-item[open] summary::after {
+            transform: rotate(90deg);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 p-4">
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <p id="modalMessage" class="text-lg"></p>
+        </div>
+    </div>
+
+    <header class="text-center mb-8">
+        <img src="logo.png" alt="NRT Logo" class="mx-auto h-20 mb-4"/>
+        <div class="absolute top-4 right-4">
+            <button id="lang-en" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-blue-600 transition duration-300">EN</button>
+            <button id="lang-ru" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-transparent transition duration-300">RU</button>
+        </div>
+        <h1 data-lang-key="title" class="text-3xl font-bold mb-4">Support Independent Organizations</h1>
+        <p data-lang-key="description" class="text-lg text-gray-600">
+            Donate to verified Russian independent projects using stablecoins and receive <strong>NRT</strong> tokens in return. The exchange rate is fixed at <strong>1 stablecoin = 1 NRT</strong>.
+        </p>
+    </header>
+
+    <main class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg mt-8 relative">
+
+        <section class="bg-gray-100 p-6 rounded-lg mb-6">
+            <h2 data-lang-key="wallet_title" class="text-2xl font-semibold mb-3">Wallet Connection</h2>
+            <div id="walletActions" class="flex flex-col md:flex-row gap-4 justify-center items-center">
+                <button id="connectBtn" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 shadow-md">
+                    🔗 <span data-lang-key="connect_button">Connect Wallet</span>
+                </button>
+                <button id="disconnectBtn" class="bg-green-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-900 transition duration-300 shadow-md hidden">
+                    <span data-lang-key="disconnect_button">Disconnect Wallet</span>
+                </button>
+            </div>
+            <p id="walletAddress" class="mt-3 text-center text-gray-700 font-mono"></p>
+        </section>
+        
+        <section class="bg-gray-100 p-6 rounded-lg mb-6">
+            <h2 data-lang-key="token_selection_title" class="text-2xl font-semibold mb-3">Select Donation Token</h2>
+            <div class="flex flex-wrap gap-4 justify-center">
+                <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
+                    <input type="radio" name="token" id="radio-usdt" value="usdt" class="h-4 w-4 text-blue-600" checked />
+                    <span class="text-lg">USDT</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
+                    <input type="radio" name="token" id="radio-usdc" value="usdc" class="h-4 w-4 text-blue-600" />
+                    <span class="text-lg">USDC (Bridget)</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
+                    <input type="radio" name="token" id="radio-dai" value="dai" class="h-4 w-4 text-blue-600" />
+                    <span class="text-lg">DAI</span>
+                </label>
+            </div>
+        </section>
+
+        <section class="bg-gray-100 p-6 rounded-lg mb-6">
+            <h2 data-lang-key="donation_type_title" class="text-2xl font-semibold mb-3">Donation Type</h2>
+            <div class="flex flex-wrap gap-4 justify-center">
+                <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
+                    <input type="radio" name="donation-type" value="custom" class="h-4 w-4 text-blue-600" checked />
+                    <span data-lang-key="custom_button" class="text-lg">Custom Distribution</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
+                    <input type="radio" name="donation-type" value="preset" class="h-4 w-4 text-blue-600" />
+                    <span data-lang-key="preset_button" class="text-lg">Donate Equally</span>
+                </label>
+            </div>
+        </section>
+
+        <div id="presetDonation" class="bg-gray-100 p-6 rounded-lg mb-6 hidden">
+            <h2 data-lang-key="preset_donations_title" class="text-2xl font-semibold mb-3">Donate by Preset</h2>
+            <p data-lang-key="preset_description" class="mb-4" id="presetDescription"></p>
+            <div class="flex items-center gap-4">
+                <input type="number" min="0.01" step="0.01" value="0.00" id="presetAmountInput" class="w-full p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"/>
+                <span id="presetTokenSymbol" class="text-lg">USDT</span>
+            </div>
+        </div>
+
+        <div id="customDonation" class="bg-gray-100 p-6 rounded-lg mb-6">
+            <h2 data-lang-key="donations_title" class="text-2xl font-semibold mb-3">Your Donations (<span id="tokenSymbolHeader">USDT</span>)</h2>
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th data-lang-key="org_header" class="p-3 border border-gray-300">Organization</th>
+                        <th data-lang-key="wallet_header" class="p-3 border border-gray-300 hidden md:table-cell">Wallet</th>
+                        <th data-lang-key="amount_header" class="p-3 border border-gray-300">Amount (<span id="tokenSymbolAmount">USDT</span>)</th>
+                    </tr>
+                </thead>
+                <tbody id="donationTable">
+                </tbody>
+                <tfoot>
+                    <tr class="bg-gray-200 font-bold">
+                        <td colspan="2" data-lang-key="total_amount_text" class="p-3 border border-gray-300">Total Amount</td>
+                        <td id="totalAmount" class="p-3 border border-gray-300 text-right">0.00 USDT</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        
+        <section class="bg-gray-100 p-6 rounded-lg mb-6">
+            <h2 data-lang-key="nrt_title" class="text-2xl font-semibold mb-3">You will receive</h2>
+            <p class="text-lg font-bold text-gray-700">
+                <span id="nrtAmount" class="text-2xl font-extrabold text-blue-600">0.00</span> NRT
+            </p>
+        </section>
+
+        <div class="flex justify-center">
+            <button id="donateBtn" class="bg-green-600 text-white font-bold text-xl py-4 px-8 rounded-lg hover:bg-green-700 transition duration-300 shadow-xl">
+                💸 <span data-lang-key="donate_button">Send Donation</span>
+            </button>
+        </div>
+        <p id="status" class="mt-4 text-center font-bold text-lg"></p>
+
+        <section class="mt-8 pt-4 border-t border-gray-300">
+            <h2 data-lang-key="about_title" class="text-2xl font-semibold mb-3">About NRT Project</h2>
+            <div id="about-content"></div>
+        </section>
+
+        <section class="mt-8 pt-4 border-t border-gray-300">
+            <h2 data-lang-key="plans_title" class="text-2xl font-semibold mb-3">Our Plans</h2>
+            <div id="plans-content"></div>
+        </section>
+
+        <section class="mt-8 pt-4 border-t border-gray-300">
+            <h2 data-lang-key="faq_title" class="text-2xl font-semibold mb-3">Frequently Asked Questions</h2>
+            <div id="faq-content"></div>
+        </section>
+
+        <section class="mt-8 pt-4 border-t border-gray-300">
+            <h2 data-lang-key="contact_title" class="text-2xl font-semibold mb-3">Contact Us</h2>
+            <form id="contactForm" action="https://formspree.io/f/xrblykve" method="POST" class="bg-gray-100 p-6 rounded-lg">
+                <div class="mb-4">
+                    <label for="email" class="block text-gray-700 text-sm font-bold mb-2" data-lang-key="contact_label_email">Your Email (optional)</label>
+                    <input type="email" id="email" name="_replyto" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" data-lang-key="contact_placeholder_email" placeholder="you@example.com">
+                </div>
+                <div class="mb-4">
+                    <label for="message" class="block text-gray-700 text-sm font-bold mb-2" data-lang-key="contact_label_message">Your Message</label>
+                    <textarea id="message" name="message" rows="4" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" data-lang-key="contact_placeholder_message" placeholder="Type your message here..."></textarea>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline" data-lang-key="contact_submit_button">Send Message</button>
+                    <p id="contactStatus" class="text-sm font-semibold"></p>
+                </div>
+            </form>
+        </section>
+
+        <footer class="mt-8 pt-4 border-t border-gray-300 text-sm text-gray-500">
+            <h2 data-lang-key="technical_details_title" class="text-xl font-semibold mb-2">Technical Details</h2>
+            <ul class="space-y-1">
+                <li data-lang-key="technical_details_network">Network: Polygon</li>
+                <li><span data-lang-key="technical_details_contract">NRT Contract</span>: <a href="https://polygonscan.com/address/0xf6aebf37db416597c73d7e25876343c0d92f416a" target="_blank" class="text-blue-500 hover:underline"><code>0xF6AEbf37dB416597c73D7e25876343C0d92F416A</code></a></li>
+                <li data-lang-key="technical_details_token">Tokens: USDT (6), USDC (Bridget) (6), DAI (18)</li>
+                <li><span data-lang-key="technical_details_source_code">Source Code</span>: <a href="https://github.com/NRT314/assets/blob/main/contract.sol" target="_blank" class="text-blue-500 hover:underline"><code>github.com/NRT314/assets</code></a></li>
+            </ul>
+        </footer>
+
+    </main>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3modal@1.9.12/dist/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
