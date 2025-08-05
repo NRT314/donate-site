@@ -102,7 +102,8 @@
                     </button>
                     <button id="connectMobileBtn" class="hidden"></button>
                 </div>
-                <button id="disconnectBtn" class="bg-green-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-900 transition duration-300 shadow-md hidden">
+
+                <button id="disconnectBtn" class="bg-green-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-900 transition duration-300 shadow-md" style="display: none;">
                     <span data-lang-key="disconnect_button">Disconnect Wallet</span>
                 </button>
             </div>
@@ -230,9 +231,8 @@
 
     </main>
     
-    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/web3modal@1.9.12/dist/index.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@web3modal/ethers@4.1.13/dist/ethers.min.js"></script>
     <script src="script.js"></script>
+    
 </body>
 </html>
