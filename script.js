@@ -1,6 +1,6 @@
 // CONTRACT DETAILS
 const CONTRACT_ADDRESS = "0xF6AEbf37dB416597c73D7e25876343C0d92F416A";
-const ALCHEMY_API_KEY = "JdPCO0ShPVRm3qtHGVfBU";
+const INFURA_ID = "3fb4d68746e946199f48dc037cc38e61"; // Ваш Infura ID
 
 const TOKENS = {
     usdt: {
@@ -83,10 +83,26 @@ const ELEMENTS = {
 
 let translations = {};
 let currentLang = 'en';
-let provider, signer;
+let web3Provider, ethersProvider, signer;
 const inputMap = new Map();
 let selectedToken = TOKENS.usdt;
 let donationType = 'custom';
+
+// Web3Modal configuration
+const providerOptions = {
+    walletconnect: {
+        package: WalletConnectProvider,
+        options: {
+            infuraId: INFURA_ID
+        }
+    }
+};
+
+let web3Modal = new Web3Modal({
+    cacheProvider: true,
+    providerOptions,
+    disableInjectedProvider: false
+});
 
 // --- General Functions ---
 async function fetchTranslations() {
@@ -200,6 +216,15 @@ function recalc() {
 }
 
 // --- Wallet & Connection Logic ---
+async function onConnect() {
+    ELEMENTS.connectBtn.classList.add('hidden');
+    ELEMENTS.disconnectBtn.classList.remove('hidden');
+    const accounts = await ethersProvider.send("eth_accounts", []);
+    const address = accounts[0];
+    ELEMENTS.walletAddressEl.innerText = `Wallet: ${address}`;
+    signer = await ethersProvider.getSigner(address);
+}
+
 function resetWalletState() {
     signer = null;
     ELEMENTS.walletAddressEl.innerText = '';
@@ -209,70 +234,48 @@ function resetWalletState() {
 }
 
 function setupWalletListeners() {
-    if (window.ethereum) {
-        window.ethereum.on('accountsChanged', (accounts) => {
+    if (web3Provider.on) {
+        web3Provider.on("accountsChanged", (accounts) => {
             if (accounts.length === 0) {
-                console.log('Wallet disconnected.');
+                console.log("Wallet disconnected");
                 resetWalletState();
             } else {
-                console.log('Account changed to:', accounts[0]);
-                signer = (new ethers.BrowserProvider(window.ethereum)).getSigner(accounts[0]);
-                ELEMENTS.walletAddressEl.innerText = `Wallet: ${accounts[0]}`;
+                onConnect();
             }
         });
-        window.ethereum.on('chainChanged', () => {
+        web3Provider.on("chainChanged", () => {
             console.log('Chain changed. Reloading page...');
             window.location.reload();
+        });
+        web3Provider.on("disconnect", () => {
+            console.log("Wallet disconnected");
+            resetWalletState();
         });
     }
 }
 
-// --- Event Listeners ---
-ELEMENTS.langEnBtn.addEventListener('click', () => setLanguage('en'));
-ELEMENTS.langRuBtn.addEventListener('click', () => setLanguage('ru'));
-
-ELEMENTS.tokenRadios.forEach(radio => {
-    radio.addEventListener('change', (e) => {
-        selectedToken = TOKENS[e.target.value];
-        recalc();
-    });
-});
-
-ELEMENTS.donationTypeRadios.forEach(radio => {
-    radio.addEventListener('change', (e) => {
-        donationType = e.target.value;
-        if (donationType === 'preset') {
-            ELEMENTS.presetDonationEl.classList.remove('hidden');
-            ELEMENTS.customDonationEl.classList.add('hidden');
-        } else {
-            ELEMENTS.presetDonationEl.classList.add('hidden');
-            ELEMENTS.customDonationEl.classList.remove('hidden');
-        }
-        recalc();
-    });
-});
-
-ELEMENTS.presetAmountInputEl.addEventListener('input', recalc);
-
 ELEMENTS.connectBtn.onclick = async () => {
-    if (!window.ethereum) {
-        showModal(translations[currentLang].modal_metamask);
-        return;
-    }
     try {
-        provider = new ethers.BrowserProvider(window.ethereum);
-        const accounts = await provider.send("eth_requestAccounts", []);
-        signer = await provider.getSigner();
-        ELEMENTS.walletAddressEl.innerText = `Wallet: ${accounts[0]}`;
-        ELEMENTS.connectBtn.classList.add('hidden');
-        ELEMENTS.disconnectBtn.classList.remove('hidden');
+        web3Provider = await web3Modal.connect();
+        ethersProvider = new ethers.BrowserProvider(web3Provider);
+        await onConnect();
         setupWalletListeners();
     } catch (e) {
-        showModal(`${translations[currentLang].modal_error} ${e.message}`);
+        if (e.message !== "User closed modal") {
+            showModal(`${translations[currentLang].modal_error} ${e.message}`);
+        } else {
+            console.log("Modal closed by user.");
+        }
     }
 };
 
-ELEMENTS.disconnectBtn.onclick = () => {
+ELEMENTS.disconnectBtn.onclick = async () => {
+    if (web3Modal.clearCachedProvider) {
+        web3Modal.clearCachedProvider();
+    }
+    if (web3Provider && web3Provider.close) {
+        await web3Provider.close();
+    }
     resetWalletState();
 };
 
@@ -284,7 +287,7 @@ document.getElementById("donateBtn").onclick = async () => {
     
     let total = 0;
     if (donationType === 'preset') {
-         total = parseFloat(ELEMENTS.presetAmountInputEl.value) || 0;
+        total = parseFloat(ELEMENTS.presetAmountInputEl.value) || 0;
     } else {
         for (const input of inputMap.values()) {
             total += parseFloat(input.value) || 0;
@@ -363,12 +366,44 @@ ELEMENTS.contactForm.addEventListener("submit", async function(event) {
     }
 });
 
+ELEMENTS.langEnBtn.addEventListener('click', () => setLanguage('en'));
+ELEMENTS.langRuBtn.addEventListener('click', () => setLanguage('ru'));
+
+ELEMENTS.tokenRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        selectedToken = TOKENS[e.target.value];
+        recalc();
+    });
+});
+
+ELEMENTS.donationTypeRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        donationType = e.target.value;
+        if (donationType === 'preset') {
+            ELEMENTS.presetDonationEl.classList.remove('hidden');
+            ELEMENTS.customDonationEl.classList.add('hidden');
+        } else {
+            ELEMENTS.presetDonationEl.classList.add('hidden');
+            ELEMENTS.customDonationEl.classList.remove('hidden');
+        }
+        recalc();
+    });
+});
+
+ELEMENTS.presetAmountInputEl.addEventListener('input', recalc);
+
 // --- Initialization ---
-window.onload = function() {
-    fetchTranslations();
+async function init() {
+    await fetchTranslations();
     renderDonationTable();
     const customRadio = document.querySelector('input[name="donation-type"][value="custom"]');
     customRadio.checked = true;
     ELEMENTS.presetDonationEl.classList.add('hidden');
     ELEMENTS.customDonationEl.classList.remove('hidden');
-};
+    
+    if (web3Modal.cachedProvider) {
+        ELEMENTS.connectBtn.click();
+    }
+}
+
+window.onload = init;
