@@ -95,13 +95,12 @@
         <section class="bg-gray-100 p-4 rounded-lg mb-4">
             <h2 data-lang-key="wallet_title" class="text-2xl font-semibold mb-3">Wallet Connection</h2>
             <div id="walletActions" class="flex flex-row gap-4 justify-center items-center">
+                
                 <div id="connectButtons">
                     <button id="connectBrowserBtn" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 shadow-md">
-                        🔗 <span data-lang-key="connect_browser_button">Connect Wallet (Browser)</span>
+                        🔗 <span>Connect Wallet</span>
                     </button>
-                    <button id="connectMobileBtn" class="bg-blue-300 text-white font-bold py-3 px-6 rounded-lg cursor-not-allowed shadow-md">
-                        🔗 <span data-lang-key="connect_mobile_button">Connect Wallet (Mobile, WIP)</span>
-                    </button>
+                    <button id="connectMobileBtn" class="hidden"></button>
                 </div>
                 <button id="disconnectBtn" class="bg-green-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-900 transition duration-300 shadow-md hidden">
                     <span data-lang-key="disconnect_button">Disconnect Wallet</span>
