@@ -64,7 +64,9 @@ const ELEMENTS = {
     tokenSymbolAmount: document.getElementById("tokenSymbolAmount"),
     presetTokenSymbolEl: document.getElementById("presetTokenSymbol"),
     presetAmountInputEl: document.getElementById("presetAmountInput"),
-    connectBtn: document.getElementById("connectBtn"),
+    connectMetamaskBtn: document.getElementById("connectMetamaskBtn"),
+    connectWalletConnectBtn: document.getElementById("connectWalletConnectBtn"),
+    connectButtons: document.getElementById("connectButtons"),
     disconnectBtn: document.getElementById("disconnectBtn"),
     walletAddressEl: document.getElementById("walletAddress"),
     presetDonationEl: document.getElementById("presetDonation"),
@@ -100,8 +102,7 @@ const providerOptions = {
 
 let web3Modal = new Web3Modal({
     cacheProvider: true,
-    providerOptions,
-    disableInjectedProvider: false
+    providerOptions
 });
 
 // --- General Functions ---
@@ -140,7 +141,6 @@ function updateContent() {
         }
     });
 
-    // Handle dynamic content
     ELEMENTS.aboutContentEl.innerHTML = `
         <h3 class="font-semibold text-xl mb-2">${texts.about_section_idea_title}</h3>
         <p class="mb-4">${texts.about_section_idea_text}</p>
@@ -217,7 +217,7 @@ function recalc() {
 
 // --- Wallet & Connection Logic ---
 async function onConnect() {
-    ELEMENTS.connectBtn.classList.add('hidden');
+    ELEMENTS.connectButtons.classList.add('hidden');
     ELEMENTS.disconnectBtn.classList.remove('hidden');
     const accounts = await ethersProvider.send("eth_accounts", []);
     const address = accounts[0];
@@ -228,7 +228,7 @@ async function onConnect() {
 function resetWalletState() {
     signer = null;
     ELEMENTS.walletAddressEl.innerText = '';
-    ELEMENTS.connectBtn.classList.remove('hidden');
+    ELEMENTS.connectButtons.classList.remove('hidden');
     ELEMENTS.disconnectBtn.classList.add('hidden');
     console.log("Wallet connection reset.");
 }
@@ -254,10 +254,33 @@ function setupWalletListeners(provider) {
     }
 }
 
-ELEMENTS.connectBtn.onclick = async () => {
+ELEMENTS.connectMetamaskBtn.onclick = async () => {
+    if (!window.ethereum) {
+        showModal(translations[currentLang].modal_metamask);
+        return;
+    }
     try {
-        web3Provider = await web3Modal.connect();
-        ethersProvider = new ethers.BrowserProvider(web3Provider);
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const accounts = await provider.send("eth_requestAccounts", []);
+        
+        web3Provider = window.ethereum;
+        ethersProvider = provider;
+
+        await onConnect();
+        setupWalletListeners(web3Provider);
+    } catch (e) {
+        showModal(`${translations[currentLang].modal_error} ${e.message}`);
+    }
+};
+
+ELEMENTS.connectWalletConnectBtn.onclick = async () => {
+    try {
+        const rawProvider = await web3Modal.connect();
+        const provider = new ethers.BrowserProvider(rawProvider);
+        
+        web3Provider = rawProvider;
+        ethersProvider = provider;
+
         await onConnect();
         setupWalletListeners(web3Provider);
     } catch (e) {
@@ -271,7 +294,11 @@ ELEMENTS.connectBtn.onclick = async () => {
 
 ELEMENTS.disconnectBtn.onclick = async () => {
     if (web3Provider && web3Provider.close) {
-        await web3Provider.close();
+        try {
+            await web3Provider.close();
+        } catch (e) {
+            console.error("Error closing provider:", e);
+        }
     }
     if (web3Modal.clearCachedProvider) {
         web3Modal.clearCachedProvider();
@@ -374,19 +401,6 @@ async function init() {
     customRadio.checked = true;
     ELEMENTS.presetDonationEl.classList.add('hidden');
     ELEMENTS.customDonationEl.classList.remove('hidden');
-    
-    if (web3Modal.cachedProvider) {
-        try {
-            web3Provider = await web3Modal.connect();
-            ethersProvider = new ethers.BrowserProvider(web3Provider);
-            await onConnect();
-            setupWalletListeners(web3Provider);
-        } catch (e) {
-            console.error("Failed to connect with cached provider:", e);
-            web3Modal.clearCachedProvider();
-            resetWalletState();
-        }
-    }
 }
 
 window.onload = init;
