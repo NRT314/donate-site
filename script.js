@@ -64,7 +64,9 @@ const ELEMENTS = {
     tokenSymbolAmount: document.getElementById("tokenSymbolAmount"),
     presetTokenSymbolEl: document.getElementById("presetTokenSymbol"),
     presetAmountInputEl: document.getElementById("presetAmountInput"),
-    connectBtn: document.getElementById("connectBtn"),
+    connectBrowserBtn: document.getElementById("connectBrowserBtn"),
+    connectMobileBtn: document.getElementById("connectMobileBtn"),
+    connectButtons: document.getElementById("connectButtons"),
     disconnectBtn: document.getElementById("disconnectBtn"),
     walletAddressEl: document.getElementById("walletAddress"),
     presetDonationEl: document.getElementById("presetDonation"),
@@ -203,7 +205,7 @@ function recalc() {
 function resetWalletState() {
     signer = null;
     ELEMENTS.walletAddressEl.innerText = '';
-    ELEMENTS.connectBtn.classList.remove('hidden');
+    ELEMENTS.connectButtons.classList.remove('hidden');
     ELEMENTS.disconnectBtn.classList.add('hidden');
     console.log("Wallet connection reset.");
 }
@@ -254,7 +256,7 @@ ELEMENTS.donationTypeRadios.forEach(radio => {
 
 ELEMENTS.presetAmountInputEl.addEventListener('input', recalc);
 
-ELEMENTS.connectBtn.onclick = async () => {
+ELEMENTS.connectBrowserBtn.onclick = async () => {
     if (!window.ethereum) {
         showModal(translations[currentLang].modal_metamask);
         return;
@@ -263,14 +265,19 @@ ELEMENTS.connectBtn.onclick = async () => {
         provider = new ethers.BrowserProvider(window.ethereum);
         const accounts = await provider.send("eth_requestAccounts", []);
         signer = await provider.getSigner();
-        ELEMENTS.walletAddressEl.innerText = `Wallet: ${accounts[0]}`;
-        ELEMENTS.connectBtn.classList.add('hidden');
+        ELEMENTS.walletAddressEl.innerText = `Wallet: ${accounts[0].substring(0, 6)}...${accounts[0].substring(accounts[0].length - 4)}`;
+        ELEMENTS.connectButtons.classList.add('hidden');
         ELEMENTS.disconnectBtn.classList.remove('hidden');
         setupWalletListeners();
     } catch (e) {
         showModal(`${translations[currentLang].modal_error} ${e.message}`);
     }
 };
+
+ELEMENTS.connectMobileBtn.onclick = () => {
+    showModal(translations[currentLang].modal_wip);
+};
+
 
 ELEMENTS.disconnectBtn.onclick = () => {
     resetWalletState();
@@ -284,7 +291,7 @@ document.getElementById("donateBtn").onclick = async () => {
     
     let total = 0;
     if (donationType === 'preset') {
-         total = parseFloat(ELEMENTS.presetAmountInputEl.value) || 0;
+        total = parseFloat(ELEMENTS.presetAmountInputEl.value) || 0;
     } else {
         for (const input of inputMap.values()) {
             total += parseFloat(input.value) || 0;
