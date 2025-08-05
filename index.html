@@ -81,9 +81,11 @@
     <header class="text-center mb-8">
         <img src="logo.png" alt="NRT Logo" class="mx-auto h-20 mb-4"/>
         <div class="absolute top-4 right-4">
-            <button id="lang-en" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-blue-600 transition duration-300">EN</button>
-            <button id="lang-ru" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-transparent transition duration-300">RU</button>
-        </div>
+<div id="connectButtons" class="space-x-2">
+    <button id="connectMetamaskBtn" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300">Подключить MetaMask</button>
+    <button id="connectWalletConnectBtn" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300">Подключить WalletConnect</button>
+</div>
+<button id="disconnectBtn" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition duration-300 hidden">Отключиться</button>        </div>
         <h1 data-lang-key="title" class="text-3xl font-bold mb-4">Support Independent Organizations</h1>
         <p data-lang-key="description" class="text-lg text-gray-600">
             Donate to verified Russian independent projects using stablecoins and receive <strong>NRT</strong> tokens in return. The exchange rate is fixed at <strong>1 stablecoin = 1 NRT</strong>.
@@ -232,3 +234,4 @@
     <script src="script.js"></script>
 </body>
 </html>
+
