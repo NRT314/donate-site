@@ -1,5 +1,5 @@
 // CONTRACT DETAILS
-const CONTRACT_ADDRESS = "0xF6AEbf37dB416597c73D7e25876343C0d92F416A";
+const CONTRACT_ADDRESS = "0xF6AEbf37dB416597c73d7e25876343C0d92F416A";
 const INFURA_ID = "3fb4d68746e946199f48dc037cc38e61"; // Ваш Infura ID
 
 const TOKENS = {
@@ -221,7 +221,7 @@ async function onConnect() {
     ELEMENTS.disconnectBtn.classList.remove('hidden');
     const accounts = await ethersProvider.send("eth_accounts", []);
     const address = accounts[0];
-    ELEMENTS.walletAddressEl.innerText = `Wallet: ${address}`;
+    ELEMENTS.walletAddressEl.innerText = `Wallet: ${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
     signer = await ethersProvider.getSigner(address);
 }
 
@@ -233,9 +233,9 @@ function resetWalletState() {
     console.log("Wallet connection reset.");
 }
 
-function setupWalletListeners() {
-    if (web3Provider.on) {
-        web3Provider.on("accountsChanged", (accounts) => {
+function setupWalletListeners(provider) {
+    if (provider.on) {
+        provider.on("accountsChanged", (accounts) => {
             if (accounts.length === 0) {
                 console.log("Wallet disconnected");
                 resetWalletState();
@@ -243,11 +243,11 @@ function setupWalletListeners() {
                 onConnect();
             }
         });
-        web3Provider.on("chainChanged", () => {
+        provider.on("chainChanged", () => {
             console.log('Chain changed. Reloading page...');
             window.location.reload();
         });
-        web3Provider.on("disconnect", () => {
+        provider.on("disconnect", () => {
             console.log("Wallet disconnected");
             resetWalletState();
         });
@@ -259,7 +259,7 @@ ELEMENTS.connectBtn.onclick = async () => {
         web3Provider = await web3Modal.connect();
         ethersProvider = new ethers.BrowserProvider(web3Provider);
         await onConnect();
-        setupWalletListeners();
+        setupWalletListeners(web3Provider);
     } catch (e) {
         if (e.message !== "User closed modal") {
             showModal(`${translations[currentLang].modal_error} ${e.message}`);
@@ -270,11 +270,11 @@ ELEMENTS.connectBtn.onclick = async () => {
 };
 
 ELEMENTS.disconnectBtn.onclick = async () => {
-    if (web3Modal.clearCachedProvider) {
-        web3Modal.clearCachedProvider();
-    }
     if (web3Provider && web3Provider.close) {
         await web3Provider.close();
+    }
+    if (web3Modal.clearCachedProvider) {
+        web3Modal.clearCachedProvider();
     }
     resetWalletState();
 };
@@ -366,32 +366,6 @@ ELEMENTS.contactForm.addEventListener("submit", async function(event) {
     }
 });
 
-ELEMENTS.langEnBtn.addEventListener('click', () => setLanguage('en'));
-ELEMENTS.langRuBtn.addEventListener('click', () => setLanguage('ru'));
-
-ELEMENTS.tokenRadios.forEach(radio => {
-    radio.addEventListener('change', (e) => {
-        selectedToken = TOKENS[e.target.value];
-        recalc();
-    });
-});
-
-ELEMENTS.donationTypeRadios.forEach(radio => {
-    radio.addEventListener('change', (e) => {
-        donationType = e.target.value;
-        if (donationType === 'preset') {
-            ELEMENTS.presetDonationEl.classList.remove('hidden');
-            ELEMENTS.customDonationEl.classList.add('hidden');
-        } else {
-            ELEMENTS.presetDonationEl.classList.add('hidden');
-            ELEMENTS.customDonationEl.classList.remove('hidden');
-        }
-        recalc();
-    });
-});
-
-ELEMENTS.presetAmountInputEl.addEventListener('input', recalc);
-
 // --- Initialization ---
 async function init() {
     await fetchTranslations();
@@ -402,7 +376,16 @@ async function init() {
     ELEMENTS.customDonationEl.classList.remove('hidden');
     
     if (web3Modal.cachedProvider) {
-        ELEMENTS.connectBtn.click();
+        try {
+            web3Provider = await web3Modal.connect();
+            ethersProvider = new ethers.BrowserProvider(web3Provider);
+            await onConnect();
+            setupWalletListeners(web3Provider);
+        } catch (e) {
+            console.error("Failed to connect with cached provider:", e);
+            web3Modal.clearCachedProvider();
+            resetWalletState();
+        }
     }
 }
 
