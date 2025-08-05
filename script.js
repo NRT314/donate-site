@@ -155,19 +155,19 @@ function renderDonationTable() { ELEMENTS.donationTable.innerHTML = ''; ORGS.for
 function recalc() { let totalInTokens = 0; const tokenSymbol = selectedToken.symbol; if (donationType === 'preset') { totalInTokens = parseFloat(ELEMENTS.presetAmountInputEl.value) || 0; ELEMENTS.presetTokenSymbolEl.textContent = tokenSymbol; ELEMENTS.nrtAmountEl.textContent = `${totalInTokens.toFixed(2)}`; } else { for (const input of inputMap.values()) { totalInTokens += parseFloat(input.value) || 0; } ELEMENTS.tokenSymbolHeader.textContent = tokenSymbol; ELEMENTS.tokenSymbolAmount.textContent = tokenSymbol; ELEMENTS.totalAmountEl.textContent = `${totalInTokens.toFixed(2)} ${tokenSymbol}`; ELEMENTS.nrtAmountEl.textContent = `${totalInTokens.toFixed(2)}`; } }
 ELEMENTS.contactForm.addEventListener("submit", async function(event) { event.preventDefault(); ELEMENTS.contactStatus.textContent = translations[currentLang]?.contact_status_sending || 'Sending...'; const response = await fetch(this.action, { method: this.method, body: new FormData(this), headers: { 'Accept': 'application/json' } }); if (response.ok) { ELEMENTS.contactStatus.textContent = translations[currentLang]?.contact_status_success || 'Message sent!'; ELEMENTS.contactForm.reset(); } else { ELEMENTS.contactStatus.textContent = translations[currentLang]?.contact_status_error || 'Oops! There was a problem.'; } });
 
-// --- ЗАПУСК ПРИЛОЖЕНИЯ ---
-window.onload = function() {
-    ELEMENTS.connectBtn.onclick = connectWallet;
-    ELEMENTS.disconnectBtn.onclick = disconnectWallet;
-    ELEMENTS.langEnBtn.addEventListener('click', () => setLanguage('en'));
-    ELEMENTS.langRuBtn.addEventListener('click', () => setLanguage('ru'));
-    ELEMENTS.tokenRadios.forEach(radio => { radio.addEventListener('change', (e) => { selectedToken = TOKENS[e.target.value]; recalc(); }); });
-    ELEMENTS.donationTypeRadios.forEach(radio => { radio.addEventListener('change', (e) => { donationType = e.target.value; ELEMENTS.presetDonationEl.classList.toggle('hidden', donationType !== 'preset'); ELEMENTS.customDonationEl.classList.toggle('hidden', donationType === 'preset'); recalc(); }); });
-    ELEMENTS.presetAmountInputEl.addEventListener('input', recalc);
-    fetchTranslations();
-    renderDonationTable();
-    const customRadio = document.querySelector('input[name="donation-type"][value="custom"]');
-    customRadio.checked = true;
-    ELEMENTS.presetDonationEl.classList.add('hidden');
-    ELEMENTS.customDonationEl.classList.remove('hidden');
-};
+
+// --- ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ (БЕЗ WRAPPER-а `window.onload`) ---
+
+ELEMENTS.connectBtn.onclick = connectWallet;
+ELEMENTS.disconnectBtn.onclick = disconnectWallet;
+ELEMENTS.langEnBtn.addEventListener('click', () => setLanguage('en'));
+ELEMENTS.langRuBtn.addEventListener('click', () => setLanguage('ru'));
+ELEMENTS.tokenRadios.forEach(radio => { radio.addEventListener('change', (e) => { selectedToken = TOKENS[e.target.value]; recalc(); }); });
+ELEMENTS.donationTypeRadios.forEach(radio => { radio.addEventListener('change', (e) => { donationType = e.target.value; ELEMENTS.presetDonationEl.classList.toggle('hidden', donationType !== 'preset'); ELEMENTS.customDonationEl.classList.toggle('hidden', donationType === 'preset'); recalc(); }); });
+ELEMENTS.presetAmountInputEl.addEventListener('input', recalc);
+fetchTranslations();
+renderDonationTable();
+const customRadio = document.querySelector('input[name="donation-type"][value="custom"]');
+customRadio.checked = true;
+ELEMENTS.presetDonationEl.classList.add('hidden');
+ELEMENTS.customDonationEl.classList.remove('hidden');
