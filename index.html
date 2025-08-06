@@ -11,59 +11,34 @@
             font-family: 'Inter', sans-serif;
         }
         .modal {
-            display: none;
-            position: fixed;
-            z-index: 100;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            display: none; position: fixed; z-index: 100;
+            left: 0; top: 0; width: 100%; height: 100%;
+            overflow: auto; background-color: rgba(0,0,0,0.4);
         }
         .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            border-radius: 10px;
-            text-align: center;
-            max-width: 400px;
+            background-color: #fefefe; margin: 15% auto; padding: 20px;
+            border: 1px solid #888; border-radius: 10px;
+            text-align: center; max-width: 400px;
         }
         .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
+            color: #aaa; float: right; font-size: 28px; font-weight: bold;
         }
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
+        .close:hover, .close:focus {
+            color: black; text-decoration: none; cursor: pointer;
         }
         .faq-item summary {
-            cursor: pointer;
-            padding: 1rem;
-            border-bottom: 1px solid #e5e7eb;
-            list-style: none;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            cursor: pointer; padding: 1rem; border-bottom: 1px solid #e5e7eb;
+            list-style: none; display: flex; justify-content: space-between; align-items: center;
         }
         .faq-item summary::-webkit-details-marker { display: none; }
-        .faq-item summary::after {
-            content: '►';
-            transition: transform 0.2s;
-        }
+        .faq-item summary::after { content: '►'; transition: transform 0.2s; }
         .faq-item[open] summary::after { transform: rotate(90deg); }
 
-        /* 💡 Новый стиль для уменьшения адресов */
+        /* Стиль для уменьшения адресов */
         .address-display {
-            font-size: 0.75rem; /* Tailwind 'text-xs' */
+            font-size: 0.75rem; /* text-xs */
             word-break: break-all;
         }
-        /* Стиль для динамически создаваемых адресов в таблице */
         #donationTable td code {
             font-size: 0.75rem;
             word-break: break-all;
@@ -83,18 +58,18 @@
     <header class="text-center mb-8 max-w-3xl mx-auto">
         <img src="logo.png" alt="NRT Logo" class="mx-auto h-20 mb-4"/>
         <div class="flex justify-center gap-2 mb-4">
-            <button id="lang-en" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-blue-600 transition">EN</button>
-            <button id="lang-ru" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-transparent transition">RU</button>
+             <button id="lang-en" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-blue-600 transition">EN</button>
+             <button id="lang-ru" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-transparent transition">RU</button>
         </div>
         <h1 data-lang-key="title" class="text-3xl font-bold mb-3">Support Independent Organizations</h1>
         <p data-lang-key="description" class="text-lg text-gray-600">
-            Donate to verified Russian independent projects using stablecoins and receive <strong>NRT</strong> tokens in return. The exchange rate is fixed at <strong>1 stablecoin = 1 NRT</strong>.
+            Donate to verified Russian independent projects using stablecoins and receive <strong>NRT</strong> tokens.
         </p>
     </header>
 
     <div class="grid grid-cols-1 md:grid-cols-5 gap-6 max-w-screen-xl mx-auto">
         
-        <aside class="hidden md:block md:col-span-1 space-y-6 text-sm text-gray-800">
+        <aside class="hidden md:block md:col-span-1 space-y-6 text-sm">
             <section class="bg-white p-4 rounded-lg shadow-md">
                 <h2 data-lang-key="about_title" class="text-lg font-semibold mb-2">About NRT Project</h2>
                 <div id="about-content"></div>
@@ -110,11 +85,14 @@
                 <h2 data-lang-key="wallet_title" class="text-2xl font-semibold mb-3">Wallet Connection</h2>
                 <div id="walletActions" class="flex flex-row gap-4 justify-center items-center">
                     <div id="connectButtons">
-                        <button id="connectBrowserBtn" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition">
+                        <button id="connectBrowserBtn" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 shadow-md">
                             🔗 <span data-lang-key="connect_browser_button">Connect Wallet (Browser)</span>
                         </button>
+                        <button id="connectMobileBtn" class="bg-blue-300 text-white font-bold py-3 px-6 rounded-lg cursor-not-allowed shadow-md">
+                            🔗 <span data-lang-key="connect_mobile_button">Connect Wallet (Mobile, WIP)</span>
+                        </button>
                     </div>
-                    <button id="disconnectBtn" class="bg-green-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-900 transition hidden">
+                    <button id="disconnectBtn" class="bg-green-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-900 transition duration-300 shadow-md hidden">
                         <span data-lang-key="disconnect_button">Disconnect Wallet</span>
                     </button>
                 </div>
@@ -123,44 +101,68 @@
             
             <section class="bg-gray-100 p-4 rounded-lg">
                 <h2 data-lang-key="token_selection_title" class="text-2xl font-semibold mb-3">Select Donation Token</h2>
-                <div class="flex gap-4 justify-center">
-                    <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition">
+                <div class="flex gap-4 justify-center flex-wrap">
+                    <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
                         <input type="radio" name="token" id="radio-usdt" value="usdt" class="h-4 w-4 text-blue-600" checked />
                         <span class="text-lg">USDT</span>
                     </label>
-                    <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition">
+                    <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
                         <input type="radio" name="token" id="radio-usdc" value="usdc" class="h-4 w-4 text-blue-600" />
                         <span class="text-lg">USDC (Bridget)</span>
                     </label>
-                    <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition">
+                    <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
                         <input type="radio" name="token" id="radio-dai" value="dai" class="h-4 w-4 text-blue-600" />
                         <span class="text-lg">DAI</span>
                     </label>
                 </div>
             </section>
 
+            <section class="bg-gray-100 p-4 rounded-lg">
+                <h2 data-lang-key="donation_type_title" class="text-2xl font-semibold mb-3">Donation Type</h2>
+                <div class="flex gap-4 justify-center flex-wrap">
+                    <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
+                        <input type="radio" name="donation-type" value="custom" class="h-4 w-4 text-blue-600" checked />
+                        <span data-lang-key="custom_button" class="text-lg">Custom Distribution</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
+                        <input type="radio" name="donation-type" value="preset" class="h-4 w-4 text-blue-600" />
+                        <span data-lang-key="preset_button" class="text-lg">Donate Equally</span>
+                    </label>
+                </div>
+            </section>
+
+            <div id="presetDonation" class="bg-gray-100 p-4 rounded-lg hidden">
+                <h2 data-lang-key="preset_donations_title" class="text-2xl font-semibold mb-3">Donate by Preset</h2>
+                <p data-lang-key="preset_description" class="mb-4" id="presetDescription"></p>
+                <div class="flex items-center gap-4">
+                    <input type="number" min="0.01" step="0.01" value="0.00" id="presetAmountInput" class="w-full p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"/>
+                    <span id="presetTokenSymbol" class="text-lg">USDT</span>
+                </div>
+            </div>
+
             <div id="customDonation" class="bg-gray-100 p-4 rounded-lg">
                 <h2 data-lang-key="donations_title" class="text-2xl font-semibold mb-3">Your Donations (<span id="tokenSymbolHeader">USDT</span>)</h2>
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th data-lang-key="org_header" class="p-3 border border-gray-300">Organization</th>
-                            <th data-lang-key="wallet_header" class="p-3 border border-gray-300 hidden md:table-cell">Wallet</th>
-                            <th data-lang-key="amount_header" class="p-3 border border-gray-300">Amount (<span id="tokenSymbolAmount">USDT</span>)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="donationTable">
-                        </tbody>
-                    <tfoot>
-                        <tr class="bg-gray-200 font-bold">
-                            <td colspan="2" data-lang-key="total_amount_text" class="p-3 border border-gray-300">Total Amount</td>
-                            <td id="totalAmount" class="p-3 border border-gray-300 text-right">0.00 USDT</td>
-                        </tr>
-                    </tfoot>
-                </table>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-200">
+                                <th data-lang-key="org_header" class="p-3 border border-gray-300">Organization</th>
+                                <th data-lang-key="wallet_header" class="p-3 border border-gray-300 hidden md:table-cell">Wallet</th>
+                                <th data-lang-key="amount_header" class="p-3 border border-gray-300">Amount (<span id="tokenSymbolAmount">USDT</span>)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="donationTable"></tbody>
+                        <tfoot>
+                            <tr class="bg-gray-200 font-bold">
+                                <td colspan="2" data-lang-key="total_amount_text" class="p-3 border border-gray-300">Total Amount</td>
+                                <td id="totalAmount" class="p-3 border border-gray-300 text-right">0.00 USDT</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
             
-            <section class="bg-gray-100 p-4 rounded-lg">
+            <section class="bg-gray-100 p-4 rounded-lg text-center">
                 <h2 data-lang-key="nrt_title" class="text-2xl font-semibold mb-3">You will receive</h2>
                 <p class="text-lg font-bold text-gray-700">
                     <span id="nrtAmount" class="text-2xl font-extrabold text-blue-600">0.00</span> NRT
@@ -168,14 +170,14 @@
             </section>
 
             <div class="flex justify-center">
-                <button id="donateBtn" class="bg-green-600 text-white font-bold text-xl py-4 px-8 rounded-lg hover:bg-green-700 transition shadow-xl">
+                <button id="donateBtn" class="bg-green-600 text-white font-bold text-xl py-4 px-8 rounded-lg hover:bg-green-700 transition duration-300 shadow-xl">
                     💸 <span data-lang-key="donate_button">Send Donation</span>
                 </button>
             </div>
             <p id="status" class="mt-4 text-center font-bold text-lg"></p>
         </main>
 
-        <aside class="hidden md:block md:col-span-1 space-y-6 text-sm text-gray-800">
+        <aside class="hidden md:block md:col-span-1 space-y-6 text-sm">
             <section class="bg-white p-4 rounded-lg shadow-md">
                 <h2 data-lang-key="plans_title" class="text-lg font-semibold mb-2">Our Plans</h2>
                 <div id="plans-content"></div>
@@ -183,8 +185,8 @@
             <section class="bg-white p-4 rounded-lg shadow-md">
                 <h2 data-lang-key="contact_title" class="text-lg font-semibold mb-2">Contact Us</h2>
                 <form id="contactForm" action="https://formspree.io/f/xrblykve" method="POST" class="space-y-2">
-                    <input type="email" name="_replyto" placeholder="Your Email" class="w-full p-2 border rounded" />
-                    <textarea name="message" rows="3" placeholder="Your Message" class="w-full p-2 border rounded"></textarea>
+                    <input type="email" name="_replyto" placeholder="Email" class="w-full p-2 border rounded" />
+                    <textarea name="message" rows="3" placeholder="Message" class="w-full p-2 border rounded"></textarea>
                     <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700">Send</button>
                     <p id="contactStatus" class="text-xs text-center"></p>
                 </form>
@@ -193,16 +195,15 @@
     </div>
 
     <footer class="mt-8 pt-6 border-t border-gray-300 text-sm text-gray-500 max-w-4xl mx-auto text-center">
-        <h2 data-lang-key="technical_details_title" class="text-xl font-semibold mb-2">Technical Details</h2>
-        <ul class="space-y-1">
-            <li data-lang-key="technical_details_network">Network: Polygon</li>
-            <li><span data-lang-key="technical_details_contract">NRT Contract</span>: <a href="https://polygonscan.com/address/0xf6aebf37db416597c73d7e25876343c0d92f416a" target="_blank" class="text-blue-500 hover:underline">
-                <code class="address-display">0xF6AEbf37dB416597c73D7e25876343C0d92F416A</code>
-                </a>
-            </li>
-            <li data-lang-key="technical_details_token">Tokens: USDT (6), USDC (Bridget) (6), DAI (18)</li>
-            <li><span data-lang-key="technical_details_source_code">Source Code</span>: <a href="https://github.com/NRT314/assets/blob/main/contract.sol" target="_blank" class="text-blue-500 hover:underline">github.com/NRT314/assets</a></li>
-        </ul>
+         <h2 data-lang-key="technical_details_title" class="text-xl font-semibold mb-2">Technical Details</h2>
+         <ul class="space-y-1">
+             <li data-lang-key="technical_details_network">Network: Polygon</li>
+             <li><span data-lang-key="technical_details_contract">NRT Contract</span>: <a href="https://polygonscan.com/address/0xf6aebf37db416597c73d7e25876343c0d92f416a" target="_blank" class="text-blue-500 hover:underline">
+                <code class="address-display">0xF6AEbf37dB416597c73D7e25876343C0d92F416A</code></a>
+             </li>
+             <li data-lang-key="technical_details_token">Tokens: USDT (6), USDC (Bridget) (6), DAI (18)</li>
+             <li><span data-lang-key="technical_details_source_code">Source Code</span>: <a href="https://github.com/NRT314/assets/blob/main/contract.sol" target="_blank" class="text-blue-500 hover:underline">github.com/NRT314/assets</a></li>
+         </ul>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
