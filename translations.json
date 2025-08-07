@@ -43,7 +43,7 @@
         "about_section_what_is_nrt_text": "The NRT token is a non-transferable token issued as a proof of your donation. It is not a security and has no market value. NRT is designed to record your contribution on the blockchain, ensuring the transparency and immutability of your support data.",
         "plans_title": "Our Plans",
         "plans_section_short_term_title": "Short-Term Plans",
-        "plans_section_short_term_text": "We are committed to creating a user-friendly and intuitive website with an improved donation interface. Our immediate plans also include launching Snapshot-based voting for decentralized project governance, allowing the community to participate in key decisions.",
+        "plans_section_short_term_text": "We are committed to creating a user-friendly and intuitive website with an improved donation interface.",
         "plans_section_global_title": "Global Vision",
         "plans_section_global_text": "Our global goal is to build a full-fledged DAO community where project governance, the listing of new recipients, and other crucial matters are decided collectively through voting by NRT token holders.",
         "faq_title": "Frequently Asked Questions",
@@ -51,7 +51,7 @@
             { "q": "How does the donation process work?", "a": "You select one or more organizations, specify your desired token (USDT, USDC, DAI), and send the donation through your crypto wallet." },
             { "q": "What do I get in return?", "a": "You receive a non-transferable NRT token at a 1:1 ratio, which serves as an on-chain proof of your contribution." },
             { "q": "Why can't I sell NRT?", "a": "NRT is not a financial asset. Its sole purpose is to serve as proof of donation and participation in the future DAO community." },
-            { "q": "Is it safe?", "a": "Yes, all donations are processed through a verified smart contract on the public Polygon blockchain, ensuring transaction transparency and security." }
+            { "q": "Is it safe?", "a": "Yes, all donations are processed through a verified smart contract on the public Polygon blockchain, ensuring transaction transparency and security.<br><span style='color: #dc2626;'>However, if you are in or plan to visit Russia, we recommend buying cryptocurrency in a safe way.</span>" }
         ],
         "contact_title": "Contact Us",
         "contact_status_sending": "Sending...",
@@ -65,6 +65,8 @@
         "how_to_buy_crypto_content": "The guide will be available here soon.",
         "how_contract_works_title": "How the smart contract works",
         "how_contract_works_content": "A detailed explanation will be available here soon.",
+        "voting_title": "Use NRT in Votings",
+        "voting_content": "<p>You can vote on project proposals <a href='https://snapshot.box/#/s:newrussia.eth' target='_blank' class='text-blue-500 hover:underline'>here</a>.</p><p><b>Active Votings:</b> <a href='https://snapshot.box/#/s:newrussia.eth/proposal/0x3f5c1b7bb21d4dba1936348149ca94d7dd842e73d1022812c733292c4518694a' target='_blank' class='text-blue-500 hover:underline'>view current proposal</a>.</p><p>Voting takes place on the Snapshot platform—a transparent, free, and secure decision-making space that does not require participants to pay any fees.</p>",
         "org_names": {
             "thisproject": "NRT project",
             "ovdinfo": "OVD-Info",
@@ -121,22 +123,22 @@
         "status_error": "❌ Ошибка: ",
         "about_title": "О проекте NRT",
         "about_section_idea_title": "Идея и Миссия",
-        "about_section_idea_text": "NewRussiaToken (NRT) — это блокчейн-платформа, созданная для прозрачной и безопасной поддержки независимых российских организаций с помощью пожертвований в криптовалюте. Наша миссия — создать открытую, безопасную и прозрачную инфраструктуру для гражданской поддержки через криптоинструменты, позволяя каждому пользователю принять участие и получить токен NRT как подтверждение своего вклада.",
+        "about_section_idea_text": "NewRussiaToken (NRT) — это блокчейн-платформа, созданная для прозрачной и безопасной поддержки независимых российских организаций с помощью пожертвоний в криптовалюте. Наша миссия — создать открытую, безопасную и прозрачную инфраструктуру для гражданской поддержки через криптоинструменты, позволяя каждому пользователю принять участие и получить токен NRT как подтверждение своего вклада.",
         "about_section_why_polygon_title": "Почему Polygon?",
         "about_section_why_polygon_text": "Мы выбрали сеть Polygon для нашего проекта, так как она совместима с Ethereum, но при этом предлагает более высокую скорость транзакций и значительно меньшие комиссии. Это делает процесс пожертвований доступным и удобным для каждого, независимо от размера суммы.",
         "about_section_what_is_nrt_title": "Что такое токен NRT?",
         "about_section_what_is_nrt_text": "Токен NRT — это непередаваемый (non-transferable) токен, который выдается в качестве подтверждения вашего пожертвования. Он не является ценной бумагой и не имеет рыночной стоимости. NRT создан для того, чтобы зафиксировать ваш вклад в блокчейне, обеспечивая прозрачность и неизменность данных о поддержке.",
         "plans_title": "Наши планы",
         "plans_section_short_term_title": "Планы на ближайшее будущее",
-        "plans_section_short_term_text": "Мы стремимся создать удобный и интуитивно понятный сайт с улучшенным интерфейсом для пожертвований. Также в ближайших планах — запуск голосования на основе Snapshot для децентрализованного управления проектом, что позволит сообществу участвовать в принятии ключевых решений.",
+        "plans_section_short_term_text": "Мы стремимся создать удобный и интуитивно понятный сайт с улучшенным интерфейсом для пожертвований.",
         "plans_section_global_title": "Глобальные планы",
         "plans_section_global_text": "Наша глобальная цель — построить полноценное DAO-сообщество, где управление проектом, листинг новых получателей и другие важные вопросы будут решаться коллективно, через голосование держателей NRT.",
         "faq_title": "Часто задаваемые вопросы (FAQ)",
         "faq_questions": [
-            { "q": "Как работает пожертвование?", "a": "Вы выбираете организацию или распределяете сумму между несколькими, указываете желаемый токен (USDT, USDC, DAI) и отправляете пожертвование через ваш криптокошелёк." },
+            { "q": "Как работает пожертвование?", "a": "Вы выбираете организацию или распределяете сумму между несколькими, указываете желаемый токен (USDT, USDC, DAI) и отправляете пожертвоanie через ваш криптокошелёк." },
             { "q": "Что я получаю взамен?", "a": "Вы получаете непередаваемый токен NRT в соотношении 1:1, который подтверждает ваш вклад в блокчейне." },
             { "q": "Почему я не могу продать NRT?", "a": "NRT не является финансовым активом. Он служит исключительно для подтверждения пожертвования и участия в будущем DAO-сообществе." },
-            { "q": "Безопасно ли это?", "a": "Да, все пожертвования проводятся через верифицированный смарт-контракт на публичном блокчейне Polygon, что гарантирует прозрачность и безопасность транзакций." }
+            { "q": "Безопасно ли это?", "a": "Да, все пожертвования проводятся через верифицированный смарт-контракт на публичном блокчейне Polygon, что гарантирует прозрачность и безопасность транзакций.<br><span style='color: #dc2626;'>Но если вы находитесь или собираетесь посещать Россию, то рекомендуем покупать криптовалюту безопасным образом.</span>" }
         ],
         "contact_title": "Связаться с нами",
         "contact_status_sending": "Отправка...",
@@ -150,6 +152,8 @@
         "how_to_buy_crypto_content": "Инструкция скоро появится здесь.",
         "how_contract_works_title": "Как устроен смарт-контракт",
         "how_contract_works_content": "Подробное объяснение скоро появится здесь.",
+        "voting_title": "Используйте NRT в голосованиях",
+        "voting_content": "<p><a href='https://snapshot.box/#/s:newrussia.eth' target='_blank' class='text-blue-500 hover:underline'>Здесь</a> можно голосовать за предложения по проекту.</p><p><b>Активные голосования:</b> <a href='https://snapshot.box/#/s:newrussia.eth/proposal/0x3f5c1b7bb21d4dba1936348149ca94d7dd842e73d1022812c733292c4518694a' target='_blank' class='text-blue-500 hover:underline'>посмотреть текущее предложение</a>.</p><p>Голосования проходят на платформе Snapshot — прозрачной, бесплатной и безопасной площадке для принятия решений, которая не требует от участников оплаты комиссий.</p>",
         "org_names": {
             "thisproject": "Проект NRT",
             "ovdinfo": "ОВД-Инфо",
