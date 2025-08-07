@@ -1,5 +1,7 @@
-// --- КОНСТАНТЫ И НАСТРОЙКИ ПРОЕКТА ---
+// CONTRACT DETAILS
 const CONTRACT_ADDRESS = "0xF6AEbf37dB416597c73D7e25876343C0d92F416A";
+// УДАЛЕНО: Неиспользуемый ключ ALCHEMY_API_KEY
+// const ALCHEMY_API_KEY = "JdPCO0ShPVRm3qtHGVfBU";
 
 const TOKENS = {
     usdt: {
@@ -50,6 +52,7 @@ const ORGS = [
     { key: "insider", address: "0xad8221D4A4feb023156b9E09917Baa4ff81A65F8", link: "https://theins.ru" },
     { key: "rain", address: "0x552dAfED221689e44676477881B6947074a5C342", link: "https://tvrain.tv/" }
 ];
+
 
 const PRESET_NAME = "equal";
 const presetRecipients = ORGS.map(org => org.address);
@@ -170,10 +173,9 @@ function updateContent() {
 function setLanguage(lang) {
     currentLang = lang;
     updateContent();
-    renderDonationTable(); 
+    renderDonationTable();
 
-    // --- ИСПРАВЛЕНИЕ ДОБАВЛЕНО СЮДА ---
-    // Обновляем ссылку на описание контракта в зависимости от языка
+    // --- ИСПРАВЛЕНИЕ ДЛЯ ДИНАМИЧЕСКОЙ ССЫЛКИ ---
     const contractLink = document.getElementById('contract-link');
     if (contractLink) {
         const newHref = lang === 'ru' ? 'contract-details-ru.html' : 'contract-details-en.html';
