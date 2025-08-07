@@ -64,7 +64,25 @@
         "how_to_buy_crypto_title": "How to safely buy crypto",
         "how_to_buy_crypto_content": "The guide will be available here soon.",
         "how_contract_works_title": "How the smart contract works",
-        "how_contract_works_content": "A detailed explanation will be available here soon."
+        "how_contract_works_content": "A detailed explanation will be available here soon.",
+        "org_names": {
+            "thisproject": "NRT project",
+            "ovdinfo": "OVD-Info",
+            "mediazona": "Mediazona",
+            "zhuk": "Zhuk",
+            "breakfastshow": "Breakfast Show",
+            "kovcheg": "Kovcheg (ark)",
+            "findexit": "Ishemvihod",
+            "gulagunet": "Gulagu.net",
+            "meduza": "Meduza",
+            "cit": "Conflict Intelligence Team",
+            "importantstories": "Important Stories",
+            "fbk": "FBK",
+            "iditelesom": "Iditelesom",
+            "memorial": "Memorial",
+            "insider": "Insider",
+            "rain": "Rain"
+        }
     },
     "ru": {
         "meta_description": "NRT - блокчейн-платформа для прозрачной и безопасной поддержки независимых организаций с помощью криптопожертвований.",
@@ -131,6 +149,24 @@
         "how_to_buy_crypto_title": "Как безопасно купить крипту",
         "how_to_buy_crypto_content": "Инструкция скоро появится здесь.",
         "how_contract_works_title": "Как устроен смарт-контракт",
-        "how_contract_works_content": "Подробное объяснение скоро появится здесь."
+        "how_contract_works_content": "Подробное объяснение скоро появится здесь.",
+        "org_names": {
+            "thisproject": "Проект NRT",
+            "ovdinfo": "ОВД-Инфо",
+            "mediazona": "Медиазона",
+            "zhuk": "Вывожук",
+            "breakfastshow": "Breakfast Show",
+            "kovcheg": "Ковчег",
+            "findexit": "Ищем Выход",
+            "gulagunet": "Гулагу - нет",
+            "meduza": "Медуза",
+            "cit": "Conflict Intelligence Team",
+            "importantstories": "Важные истории",
+            "fbk": "ФБК",
+            "iditelesom": "Идите лесом",
+            "memorial": "Мемориал",
+            "insider": "Insider",
+            "rain": "Дождь"
+        }
     }
 }
