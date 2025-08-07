@@ -54,14 +54,17 @@
             { "q": "Is it safe?", "a": "Yes, all donations are processed through a verified smart contract on the public Polygon blockchain, ensuring transaction transparency and security." }
         ],
         "contact_title": "Contact Us",
-        "contact_label_email": "Your Email (optional)",
-        "contact_placeholder_email": "you@example.com",
-        "contact_label_message": "Your Message",
-        "contact_placeholder_message": "Type your message here...",
-        "contact_submit_button": "Send Message",
         "contact_status_sending": "Sending...",
         "contact_status_success": "Message sent!",
-        "contact_status_error": "Error sending message."
+        "contact_status_error": "Error sending message.",
+        "discussions_title": "Our Discussions",
+        "discussions_content": "Join the community and project discussions on our <a href='https://github.com/NRT314/donate-site/discussions' target='_blank' class='text-blue-500 hover:underline'>GitHub Discussions page</a>.",
+        "how_to_get_nrt_title": "How to get NRT without MetaMask/Rabby",
+        "how_to_get_nrt_content": "The guide will be available here soon.",
+        "how_to_buy_crypto_title": "How to safely buy crypto",
+        "how_to_buy_crypto_content": "The guide will be available here soon.",
+        "how_contract_works_title": "How the smart contract works",
+        "how_contract_works_content": "A detailed explanation will be available here soon."
     },
     "ru": {
         "meta_description": "NRT - блокчейн-платформа для прозрачной и безопасной поддержки независимых организаций с помощью криптопожертвований.",
@@ -118,13 +121,16 @@
             { "q": "Безопасно ли это?", "a": "Да, все пожертвования проводятся через верифицированный смарт-контракт на публичном блокчейне Polygon, что гарантирует прозрачность и безопасность транзакций." }
         ],
         "contact_title": "Связаться с нами",
-        "contact_label_email": "Ваш email (необязательно)",
-        "contact_placeholder_email": "you@example.com",
-        "contact_label_message": "Ваше сообщение",
-        "contact_placeholder_message": "Напишите ваше сообщение здесь...",
-        "contact_submit_button": "Отправить сообщение",
         "contact_status_sending": "Отправка...",
         "contact_status_success": "Сообщение отправлено!",
-        "contact_status_error": "Ошибка при отправке сообщения."
+        "contact_status_error": "Ошибка при отправке сообщения.",
+        "discussions_title": "Наши дискуссии",
+        "discussions_content": "Присоединяйтесь к обсуждению проекта и сообщества на нашей странице <a href='https://github.com/NRT314/donate-site/discussions' target='_blank' class='text-blue-500 hover:underline'>GitHub Discussions</a>.",
+        "how_to_get_nrt_title": "Как получить NRT без Metamask/Rabby",
+        "how_to_get_nrt_content": "Инструкция скоро появится здесь.",
+        "how_to_buy_crypto_title": "Как безопасно купить крипту",
+        "how_to_buy_crypto_content": "Инструкция скоро появится здесь.",
+        "how_contract_works_title": "Как устроен смарт-контракт",
+        "how_contract_works_content": "Подробное объяснение скоро появится здесь."
     }
 }
