@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>How the NRT Smart Contract Works</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 p-4 md:p-8">
+    <div class="max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-xl shadow-lg">
+        <h1 class="text-3xl font-bold mb-6 border-b pb-4">How the Smart Contract Works</h1>
+
+        <div class="space-y-6 text-lg leading-relaxed">
+            <p>This is a smart contract for a donation platform. Its main purpose is to allow users to donate various cryptocurrencies (stablecoins like USDT, USDC, DAI, and other permitted tokens) to pre-approved recipients (a "whitelist").</p>
+            <p>In exchange for a donation, the donor receives a non-transferable NewRussiaToken (NRT). This token is essentially a reputational or "commemorative" asset, confirming the act of support. It cannot be sold or transferred to another person.</p>
+
+            <h2 class="text-2xl font-bold pt-4 border-t mt-6">Core Components and Mechanics</h2>
+
+            <h3 class="text-xl font-semibold">The NRT (NewRussiaToken) Token</h3>
+            <ul class="list-disc list-inside space-y-2 pl-4">
+                <li><b>Non-Transferable:</b> This is a key feature. The `transfer` and `transferFrom` functions are intentionally disabled. This means NRT is not a trading asset but serves exclusively as proof of donation.</li>
+                <li><b>Burnable:</b> NRT holders can "burn" (destroy) their tokens if they wish.</li>
+                <li><b>Minting:</b> NRT is minted (`_mint`) and credited to the donor at the moment of the donation. The amount of NRT minted is equivalent to the donation amount in U.S. dollars (USDT).</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold">The Donation Process (donate and donatePreset)</h3>
+             <ul class="list-disc list-inside space-y-2 pl-4">
+                <li>A user calls the `donate` or `donatePreset` function, specifying the donation token and amount.</li>
+                <li><b>Two Modes:</b>
+                    <ul class="list-inside list-[circle] mt-2 pl-6">
+                        <li><b>donate:</b> Allows manually distributing the amount among several recipients from the whitelist.</li>
+                        <li><b>donatePreset:</b> Uses "presets" created by the administrator—templates for fund distribution (e.g., "Preset A": 50% to recipient X, 50% to recipient Y).</li>
+                    </ul>
+                </li>
+                 <li><b>Conversion:</b> The contract calculates the USDT equivalent of the donation using exchange rates set by the administrator.</li>
+                 <li><b>NRT Minting:</b> The donor receives NRT for the full amount of the donation.</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold">Whitelists</h3>
+             <ul class="list-disc list-inside space-y-2 pl-4">
+                <li><b>Tokens:</b> Only tokens from the token whitelist (`whitelistToken`) are accepted for donations. Initially, this includes USDT, USDC, and DAI.</li>
+                <li><b>Recipients:</b> Funds can only be sent to addresses on the recipient whitelist (`whitelistRecipient`).</li>
+                <li>Any address interacting with the contract.</li>
+                <li><b>Permissions:</b>
+                    <ul class="list-inside list-[circle] mt-2 pl-6">
+                        <li>Make donations (`donate`, `donatePreset`).</li>
+                        <li>Burn their NRT tokens (`burn`).</li>
+                        <li>View public data (e.g., recipient lists, presets).</li>
+                    </ul>
+                </li>
+             </ul>
+
+            <h2 class="text-2xl font-bold pt-4 border-t mt-6">Security Analysis and Potential Risks</h2>
+            <p>The contract is well-written and uses standard security practices.</p>
+             <ul class="list-disc list-inside space-y-2 pl-4">
+                <li><span class="text-green-600 font-bold">✅ Re-entrancy Protection:</span> The donation functions are protected by the `nonReentrant` modifier, which prevents one of the most common attack vectors.</li>
+                <li><span class="text-green-600 font-bold">✅ Overflow Protection:</span> It uses Solidity version 0.8.x, which provides default protection against integer overflows and underflows. The use of `unchecked` is safe as it is applied after balance checks.</li>
+                <li><span class="text-green-600 font-bold">✅ Safe Token Transfers:</span> The `safeTransferCompatible` and `safeTransferFromCompatible` functions correctly handle ERC20 token transfers, including those that do not return a boolean (like USDT).</li>
+             </ul>
+        </div>
+        <div class="mt-8 pt-4 border-t text-center">
+             <a href="index.html" class="text-blue-600 hover:underline">&larr; Back to main page</a>
+        </div>
+    </div>
+</body>
+</html>
