@@ -53,20 +53,20 @@
         </div>
     </div>
 
-    <header class="mb-8 max-w-3xl mx-auto">
-        <div class="relative h-20 mb-4">
-            <div class="absolute inset-0 flex justify-center items-center">
-                <img src="logo.png" alt="NRT Logo" class="h-full"/>
+    <header class="mb-8 max-w-screen-xl mx-auto">
+        <div class="flex justify-between items-center h-20">
+            <div class="flex items-center gap-4">
+                <img src="logo.png" alt="NRT Logo" class="h-12"/>
+                <h1 data-lang-key="title" class="text-xl md:text-2xl font-bold">Support Independent Organizations</h1>
             </div>
-            <div class="absolute top-1/2 right-0 -translate-y-1/2 flex gap-2">
+            <div class="flex gap-2">
                  <button id="lang-en" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-blue-600 transition">EN</button>
                  <button id="lang-ru" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-transparent transition">RU</button>
             </div>
         </div>
-        <div class="text-center">
-            <h1 data-lang-key="title" class="text-3xl font-bold mb-3">Support Independent Organizations</h1>
+        <div class="text-center mt-4">
             <p data-lang-key="description" class="text-lg text-gray-600">
-                Donate to verified Russian independent projects using stablecoins and receive <strong>NRT</strong> tokens.
+                Donate to verified Russian independent projects using Polygon stablecoins and receive <strong>NRT</strong> tokens in return. The exchange rate is fixed at <strong>1 stablecoin = 1 NRT</strong>.
             </p>
         </div>
     </header>
@@ -92,7 +92,7 @@
         </aside>
 
         <main class="md:col-span-3 bg-white p-6 rounded-xl shadow-lg space-y-6">
-            <section class="bg-gray-100 p-4 rounded-lg">
+             <section class="bg-gray-100 p-4 rounded-lg">
                 <h2 data-lang-key="wallet_title" class="text-2xl font-semibold mb-3">Wallet Connection</h2>
                 <div id="walletActions" class="flex flex-row gap-4 justify-center items-center">
                     <div id="connectButtons">
@@ -184,20 +184,22 @@
 
         <aside class="hidden md:block md:col-span-1 space-y-6 text-sm">
             <section class="bg-white p-4 rounded-lg shadow-md">
-                <h2 data-lang-key="voting_title" class="text-lg font-semibold mb-2">Используйте NRT в голосованиях</h2>
+                <h2 data-lang-key="voting_title" class="text-lg font-semibold mb-2">Use NRT in Votings</h2>
                 <div id="voting-content" class="space-y-3">
-                    <p data-lang-key="voting_p1">
-                        <a href="https://snapshot.box/#/s:newrussia.eth" target="_blank" class="text-blue-500 hover:underline" data-lang-key="voting_p1_link">Здесь</a> можно голосовать за предложения по проекту.
+                    <p>
+                        <a href="https://snapshot.box/#/s:newrussia.eth" target="_blank" class="text-blue-500 hover:underline" data-lang-key="voting_p1_link">Here</a>
+                        <span data-lang-key="voting_p1"> you can vote on project proposals.</span>
                     </p>
                     <p>
-                        <b data-lang-key="voting_active_title">Активные голосования:</b>
-                        <a href="https://snapshot.box/#/s:newrussia.eth/proposal/0x3f5c1b7bb21d4dba1936348149ca94d7dd842e73d1022812c733292c4518694a" target="_blank" class="text-blue-500 hover:underline" data-lang-key="voting_active_link_text">посмотреть</a>
+                        <b data-lang-key="voting_active_title">Active Votings:</b>
+                        <a href="https://snapshot.box/#/s:newrussia.eth/proposal/0x3f5c1b7bb21d4dba1936348149ca94d7dd842e73d1022812c733292c4518694a" target="_blank" class="text-blue-500 hover:underline" data-lang-key="voting_active_link_text">view</a>
                     </p>
                     <p data-lang-key="voting_p3">
-                        Голосования проходят на платформе Snapshot — прозрачной, бесплатной и безопасной площадке для принятия решений, которая не требует от участников оплаты комиссий.
+                        Voting takes place on the Snapshot platform—a transparent, free, and secure decision-making space that does not require participants to pay any fees.
                     </p>
                 </div>
             </section>
+
             <section class="bg-white p-4 rounded-lg shadow-md">
                 <h2 data-lang-key="plans_title" class="text-lg font-semibold mb-2">Our Plans</h2>
                 <div id="plans-content"></div>
@@ -222,16 +224,13 @@
         </aside>
     </div>
 
-    <footer class="mt-8 pt-6 border-t border-gray-300 text-sm text-gray-500 max-w-4xl mx-auto text-center">
-         <h2 data-lang-key="technical_details_title" class="text-xl font-semibold mb-2">Technical Details</h2>
-         <ul class="space-y-1">
-             <li data-lang-key="technical_details_network">Network: Polygon</li>
-             <li><span data-lang-key="technical_details_contract">NRT Contract</span>: <a href="https://polygonscan.com/address/0xf6aebf37db416597c73d7e25876343c0d92f416a" target="_blank" class="text-blue-500 hover:underline">
-                <code class="address-display">0xF6AEbf37dB416597c73D7e25876343C0d92F416A</code></a>
-             </li>
-             <li data-lang-key="technical_details_token">Tokens: USDT (6), USDC (Bridget) (6), DAI (18)</li>
-             <li><span data-lang-key="technical_details_source_code">Source Code</span>: <a href="https://github.com/NRT314/assets/blob/main/contract.sol" target="_blank" class="text-blue-500 hover:underline">github.com/NRT314/assets</a></li>
-         </ul>
+    <footer class="mt-8 pt-6 border-t border-gray-300 text-sm text-gray-500 max-w-screen-xl mx-auto text-center">
+         <p>
+             <b data-lang-key="technical_details_title">Technical Details</b>:
+             <span data-lang-key="technical_details_network">Network: Polygon</span>,
+             <span data-lang-key="technical_details_contract">NRT Contract</span>: <a href="https://polygonscan.com/address/0xf6aebf37db416597c73d7e25876343c0d92f416a" target="_blank" class="text-blue-500 hover:underline"><code class="address-display">0xF6AEbf37dB416597c73D7e25876343C0d92F416A</code></a>,
+             <span data-lang-key="technical_details_source_code">Source Code</span>: <a href="https://github.com/NRT314/assets/blob/main/contract.sol" target="_blank" class="text-blue-500 hover:underline">github.com/NRT314/assets</a>
+         </p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
