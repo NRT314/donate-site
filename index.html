@@ -53,22 +53,17 @@
         </div>
     </div>
 
-    <header class="mb-8 max-w-screen-xl mx-auto">
-        <div class="flex justify-between items-center h-20">
-            <div class="flex items-center gap-4">
-                <img src="logo.png" alt="NRT Logo" class="h-12"/>
-                <h1 data-lang-key="title" class="text-xl md:text-2xl font-bold">Support Independent Organizations</h1>
-            </div>
+    <header class="mb-8 max-w-screen-xl mx-auto text-center">
+        <div class="flex justify-center items-center gap-4 h-20">
+            <img src="logo.png" alt="NRT Logo" class="h-12"/>
+            <h1 data-lang-key="title" class="text-xl md:text-2xl font-bold">Support Independent Organizations</h1>
             <div class="flex gap-2">
                  <button id="lang-en" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-blue-600 transition">EN</button>
                  <button id="lang-ru" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-transparent transition">RU</button>
             </div>
         </div>
-        <div class="text-center mt-4">
-            <p data-lang-key="description" class="text-lg text-gray-600">
-                Donate to verified Russian independent projects using Polygon stablecoins and receive <strong>NRT</strong> tokens in return. The exchange rate is fixed at <strong>1 stablecoin = 1 NRT</strong>.
-            </p>
-        </div>
+        <p data-lang-key="description" class="text-lg text-gray-600"></p>
+        <p data-lang-key="exchange_rate_text" class="text-lg text-gray-600"></p>
     </header>
 
     <div class="grid grid-cols-1 md:grid-cols-5 gap-6 max-w-screen-xl mx-auto">
@@ -110,7 +105,7 @@
                 <p id="walletAddress" class="mt-3 text-center text-gray-700 font-mono address-display"></p>
             </section>
             <section class="bg-gray-100 p-4 rounded-lg">
-                <h2 data-lang-key="token_selection_title" class="text-2xl font-semibold mb-3">Select Donation Token</h2>
+                <h2 data-lang-key="token_selection_title" class="text-2xl font-semibold mb-3">Select Donation Token (polygon)</h2>
                 <div class="flex gap-4 justify-center flex-wrap">
                     <label class="flex items-center space-x-2 cursor-pointer bg-white py-2 px-4 rounded-lg shadow-sm hover:ring-2 ring-blue-500 transition duration-200">
                         <input type="radio" name="token" id="radio-usdt" value="usdt" class="h-4 w-4 text-blue-600" checked />
