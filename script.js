@@ -33,27 +33,29 @@ const ERC20_ABI = [
     "function approve(address spender, uint256 amount) public returns (bool)"
 ];
 
+// ОБНОВЛЕННАЯ СТРУКТУРА ORGS
 const ORGS = [
-    ["thisproject", "0xc0F467567570AADa929fFA115E65bB39066e3E42"],
-    ["ovdinfo", "0x421896bb0Dcf271a294bC7019014EE90503656Fd"],
-    ["mediazona", "0xE86D7D922DeF8a8FEB21f1702C9AaEEDBec32DDC"],
-    ["zhuk", "0x1913A02BB3836AF224aEF136461F43189A0cEcd0"],
-    ["breakfastshow", "0xdB4BB555a15bC8bB3b07E57452a8E6E24b358e7F"],
-    ["kovcheg", "0xBf178F99b8790db1BD2194D80c3a268AE4AcE804"],
-    ["findexit", "0xADb524cE8c2009e727f6dF4b6a443D455c700244"],
-    ["gulagunet", "0x6051F40d4eF5d5E5BC2B6F4155AcCF57Be6B8F58"],
-    ["meduza", "0x00B9d7Fe4a2d3aCdd4102Cfb55b98d193B94C0fa"],
-    ["cit", "0xfBcc8904ce75fF90CC741DA80703202faf5b2FcF"],
-    ["importantstories", "0x5433CE0E05D117C54f814cc6697244eA0b902DBF"],
-    ["fbk", "0x314aC71aEB2feC4D60Cc50Eb46e64980a27F2680"],
-    ["iditelesom", "0x387C5300586336d145A87C245DD30f9724C6eC01"],
-    ["memorial", "0x0a4aB5D641f63cd7a2d44d0a643424f5d0df376b"],
-    ["insider", "0xad8221D4A4feb023156b9E09917Baa4ff81A65F8"],
-    ["rain", "0x552dAfED221689e44676477881B6947074a5C342"]
+    { key: "thisproject", address: "0xc0F467567570AADa929fFA115E65bB39066e3E42", link: "https://nrt314.github.io/donate-site" },
+    { key: "ovdinfo", address: "0x421896bb0Dcf271a294bC7019014EE90503656Fd", link: "https://ovd.info" },
+    { key: "mediazona", address: "0xE86D7D922DeF8a8FEB21f1702C9AaEEDBec32DDC", link: "https://zona.media" },
+    { key: "zhuk", address: "0x1913A02BB3836AF224aEF136461F43189A0cEcd0", link: "https://www.zhuk.world/" },
+    { key: "breakfastshow", address: "0xdB4BB555a15bC8bB3b07E57452a8E6E24b358e7F", link: "https://www.youtube.com/@The_Breakfast_Show" },
+    { key: "kovcheg", address: "0xBf178F99b8790db1BD2194D80c3a268AE4AcE804", link: "https://kovcheg.live" },
+    { key: "findexit", address: "0xADb524cE8c2009e727f6dF4b6a443D455c700244", link: "https://www.youtube.com/@ishemvihod" },
+    { key: "gulagunet", address: "0x6051F40d4eF5d5E5BC2B6F4155AcCF57Be6B8F58", link: "https://www.youtube.com/channel/UCbanC4P0NmnzNYXQIrjvoSA" },
+    { key: "meduza", address: "0x00B9d7Fe4a2d3aCdd4102Cfb55b98d193B94C0fa", link: "https://meduza.io/" },
+    { key: "cit", address: "0xfBcc8904ce75fF90CC741DA80703202faf5b2FcF", link: "https://www.youtube.com/@CITonWar" },
+    { key: "importantstories", address: "0x5433CE0E05D117C54f814cc6697244eA0b902DBF", link: "https://istories.media" },
+    { key: "fbk", address: "0x314aC71aEB2feC4D60Cc50Eb46e64980a27F2680", link: "https://fbk.info" },
+    { key: "iditelesom", address: "0x387C5300586336d145A87C245DD30f9724C6eC01", link: "https://iditelesom.org/ru" },
+    { key: "memorial", address: "0x0a4aB5D641f63cd7a2d44d0a643424f5d0df376b", link: "https://memopzk.org/" },
+    { key: "insider", address: "0xad8221D4A4feb023156b9E09917Baa4ff81A65F8", link: "https://theins.ru" },
+    { key: "rain", address: "0x552dAfED221689e44676477881B6947074a5C342", link: "https://tvrain.tv/" }
 ];
 
+
 const PRESET_NAME = "equal";
-const presetRecipients = ORGS.map(org => org[1]);
+const presetRecipients = ORGS.map(org => org.address);
 
 const ELEMENTS = {
     donationTable: document.getElementById("donationTable"),
@@ -182,6 +184,7 @@ function updateContent() {
 function setLanguage(lang) {
     currentLang = lang;
     updateContent();
+    renderDonationTable(); // <-- ОБНОВЛЕНИЕ ТАБЛИЦЫ ПРИ СМЕНЕ ЯЗЫКА
     ELEMENTS.langEnBtn.classList.toggle('border-blue-600', lang === 'en');
     ELEMENTS.langEnBtn.classList.toggle('border-transparent', lang !== 'en');
     ELEMENTS.langRuBtn.classList.toggle('border-blue-600', lang === 'ru');
@@ -190,22 +193,27 @@ function setLanguage(lang) {
 }
 
 // --- Donation Logic ---
+// ОБНОВЛЕННАЯ ФУНКЦИЯ РЕНДЕРИНГА ТАБЛИЦЫ
 function renderDonationTable() {
     ELEMENTS.donationTable.innerHTML = '';
-    ORGS.forEach(([name, addr]) => {
+    const orgNames = translations[currentLang]?.org_names || {};
+
+    ORGS.forEach(({ key, address, link }) => {
+        const name = orgNames[key] || key;
         const row = document.createElement("tr");
         row.className = "hover:bg-gray-50 transition-colors duration-200";
-        row.innerHTML = `<td class="p-3 border border-gray-300">${name}</td>
-            <td class="p-3 border border-gray-300 font-mono text-xs hidden md:table-cell"><code>${addr}</code></td>
+        row.innerHTML = `<td class="p-3 border border-gray-300"><a href="${link}" target="_blank" class="text-blue-600 hover:underline">${name}</a></td>
+            <td class="p-3 border border-gray-300 font-mono text-xs hidden md:table-cell"><code>${address}</code></td>
             <td class="p-3 border border-gray-300">
                 <input type="number" min="0" step="0.01" value="0" class="w-full md:w-32 p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
             </td>`;
         const input = row.querySelector("input");
         input.addEventListener("input", recalc);
-        inputMap.set(addr, input);
+        inputMap.set(address, input);
         ELEMENTS.donationTable.appendChild(row);
     });
 }
+
 
 function recalc() {
     let totalInTokens = 0;
@@ -398,9 +406,5 @@ ELEMENTS.contactForm.addEventListener("submit", async function(event) {
 // --- Initialization ---
 window.onload = function() {
     fetchTranslations();
-    renderDonationTable();
-    const customRadio = document.querySelector('input[name="donation-type"][value="custom"]');
-    customRadio.checked = true;
-    ELEMENTS.presetDonationEl.classList.add('hidden');
-    ELEMENTS.customDonationEl.classList.remove('hidden');
+    // renderDonationTable() будет вызван внутри fetchTranslations -> setLanguage
 };
