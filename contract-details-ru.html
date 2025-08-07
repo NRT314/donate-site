@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>Как устроен смарт-контракт NRT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 p-4 md:p-8">
+    <div class="max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-xl shadow-lg">
+        <h1 class="text-3xl font-bold mb-6 border-b pb-4">Как устроен смарт-контракт</h1>
+
+        <div class="space-y-6 text-lg leading-relaxed">
+            <p>Это смарт-контракт для платформы пожертвований. Его основная цель — позволить пользователям жертвовать различные криптовалюты (стейблкоины, такие как USDT, USDC, DAI, и другие разрешенные токены) в пользу заранее утвержденных получателей («белый список»).</p>
+            <p>В обмен на пожертвование донор получает непередаваемый токен NewRussiaToken (NRT). Этот токен, по сути, является репутационным или «памятным» активом, подтверждающим факт поддержки. Его нельзя продать или передать другому лицу.</p>
+
+            <h2 class="text-2xl font-bold pt-4 border-t mt-6">Основные компоненты и механики</h2>
+
+            <h3 class="text-xl font-semibold">Токен NRT (NewRussiaToken)</h3>
+            <ul class="list-disc list-inside space-y-2 pl-4">
+                <li><b>Непередаваемый:</b> Ключевая особенность. Функции transfer и transferFrom намеренно отключены. Это означает, что NRT не является торговым активом, а служит исключительно как доказательство пожертвования.</li>
+                <li><b>Сжигаемый (Burnable):</b> Владельцы NRT могут «сжечь» (уничтожить) свои токены, если захотят.</li>
+                <li><b>Минтинг (Выпуск):</b> NRT выпускается (_mint) и начисляется донору в момент совершения пожертвования. Количество выпускаемых NRT эквивалентно сумме пожертвования в долларах США (USDT).</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold">Процесс пожертвования (donate и donatePreset)</h3>
+             <ul class="list-disc list-inside space-y-2 pl-4">
+                <li>Пользователь вызывает функцию donate или donatePreset, указывая токен для пожертвования и сумму.</li>
+                <li><b>Два режима:</b>
+                    <ul class="list-inside list-[circle] mt-2 pl-6">
+                        <li><b>donate:</b> Позволяет распределить сумму между несколькими получателями из белого списка вручную.</li>
+                        <li><b>donatePreset:</b> Использует заранее созданные администратором «пресеты» — шаблоны распределения средств (например, "Пресет А": 50% получателю X, 50% получателю Y).</li>
+                    </ul>
+                </li>
+                 <li><b>Конвертация:</b> Контракт рассчитывает эквивалент пожертвования в USDT, используя курсы, установленные администратором.</li>
+                 <li><b>Начисление NRT:</b> Донор получает NRT на полную сумму пожертвования.</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold">Белые списки (Whitelists)</h3>
+             <ul class="list-disc list-inside space-y-2 pl-4">
+                <li><b>Токены:</b> Только токены из белого списка (whitelistToken) принимаются для пожертвований. Изначально в него добавлены USDT, USDC и DAI.</li>
+                <li><b>Получатели:</b> Средства могут быть отправлены только на адреса из белого списка получателей (whitelistRecipient).</li>
+                <li>Любой адрес, взаимодействующий с контрактом.</li>
+                <li><b>Права:</b>
+                    <ul class="list-inside list-[circle] mt-2 pl-6">
+                        <li>Совершать пожертвования (donate, donatePreset).</li>
+                        <li>Сжигать свои токены NRT (burn).</li>
+                        <li>Просматривать публичные данные (например, списки получателей, пресеты).</li>
+                    </ul>
+                </li>
+             </ul>
+
+            <h2 class="text-2xl font-bold pt-4 border-t mt-6">Анализ безопасности и потенциальные риски</h2>
+            <p>Контракт написан грамотно и использует стандартные практики безопасности.</p>
+             <ul class="list-disc list-inside space-y-2 pl-4">
+                <li><span class="text-green-600 font-bold">✅ Защита от Re-entrancy:</span> Функции пожертвований защищены модификатором nonReentrant, что предотвращает один из самых распространенных векторов атак.</li>
+                <li><span class="text-green-600 font-bold">✅ Защита от переполнения:</span> Используется версия Solidity 0.8.x, которая по умолчанию защищает от целочисленных переполнений и опустошений. Использование unchecked является безопасным, так как оно применяется после проверок балансов.</li>
+                <li><span class="text-green-600 font-bold">✅ Безопасные переводы токенов:</span> Функции safeTransferCompatible и safeTransferFromCompatible корректно обрабатывают переводы токенов ERC20, в том числе тех, которые не возвращают bool (как, например, USDT).</li>
+             </ul>
+        </div>
+        <div class="mt-8 pt-4 border-t text-center">
+             <a href="index.html" class="text-blue-600 hover:underline">&larr; Вернуться на главную</a>
+        </div>
+    </div>
+</body>
+</html>
