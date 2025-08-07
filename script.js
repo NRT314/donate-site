@@ -1,7 +1,5 @@
-// CONTRACT DETAILS
+// CONTRACT DETAILS & CONSTANTS
 const CONTRACT_ADDRESS = "0xF6AEbf37dB416597c73D7e25876343C0d92F416A";
-// УДАЛЕНО: Неиспользуемый ключ ALCHEMY_API_KEY
-// const ALCHEMY_API_KEY = "JdPCO0ShPVRm3qtHGVfBU";
 
 const TOKENS = {
     usdt: {
@@ -53,10 +51,10 @@ const ORGS = [
     { key: "rain", address: "0x552dAfED221689e44676477881B6947074a5C342", link: "https://tvrain.tv/" }
 ];
 
-
 const PRESET_NAME = "equal";
 const presetRecipients = ORGS.map(org => org.address);
 
+// DOM ELEMENTS
 const ELEMENTS = {
     donationTable: document.getElementById("donationTable"),
     totalAmountEl: document.getElementById("totalAmount"),
@@ -89,6 +87,7 @@ const ELEMENTS = {
     howToBuyCryptoContentEl: document.getElementById("how-to-buy-crypto-content")
 };
 
+// STATE
 let translations = {};
 let currentLang = 'en';
 let provider, signer;
@@ -108,7 +107,7 @@ async function fetchTranslations() {
 }
 
 function showModal(message) {
-    document.getElementById("modalMessage").innerText = message;
+    document.getElementById("modalMessage").innerHTML = message;
     document.getElementById("myModal").style.display = "block";
 }
 
@@ -124,10 +123,12 @@ window.onclick = function(event) {
 
 function updateContent() {
     const texts = translations[currentLang];
+    if (!texts) return;
+
     const langKeys = document.querySelectorAll('[data-lang-key]');
     langKeys.forEach(element => {
         const key = element.getAttribute('data-lang-key');
-        if (texts[key]) {
+        if (texts[key] !== undefined) {
             element.innerHTML = texts[key];
         }
     });
@@ -151,20 +152,15 @@ function updateContent() {
         <p class="mb-4">${texts.plans_section_global_text}</p>
     `;
     }
-    
-    if (ELEMENTS.faqContentEl) {
-        ELEMENTS.faqContentEl.innerHTML = texts.faq_questions.map((item, index) => `
+
+    if (ELEMENTS.faqContentEl && texts.faq_questions) {
+        ELEMENTS.faqContentEl.innerHTML = texts.faq_questions.map((item) => `
         <details class="faq-item bg-gray-50 border border-gray-200 rounded-lg mb-2">
             <summary class="font-medium text-gray-700">${item.q}</summary>
             <div class="px-4 py-3 text-gray-600">${item.a}</div>
         </details>
     `).join('');
     }
-
-    if (ELEMENTS.discussionsContentEl) ELEMENTS.discussionsContentEl.innerHTML = texts.discussions_content;
-    if (ELEMENTS.howToGetNrtContentEl) ELEMENTS.howToGetNrtContentEl.innerHTML = texts.how_to_get_nrt_content;
-    if (ELEMENTS.howToBuyCryptoContentEl) ELEMENTS.howToBuyCryptoContentEl.innerHTML = texts.how_to_buy_crypto_content;
-    if (ELEMENTS.howContractWorksContentEl) ELEMENTS.howContractWorksContentEl.innerHTML = texts.how_contract_works_content;
 
     const presetRecipientsCount = presetRecipients.length;
     ELEMENTS.presetDescriptionEl.textContent = texts.preset_description.replace('{count}', presetRecipientsCount);
@@ -218,17 +214,17 @@ function recalc() {
 
     if (donationType === 'preset') {
         totalInTokens = parseFloat(ELEMENTS.presetAmountInputEl.value) || 0;
-        ELEMENTS.presetTokenSymbolEl.textContent = tokenSymbol;
-        ELEMENTS.nrtAmountEl.textContent = `${totalInTokens.toFixed(2)}`;
     } else {
         for (const input of inputMap.values()) {
             totalInTokens += parseFloat(input.value) || 0;
         }
-        ELEMENTS.tokenSymbolHeader.textContent = tokenSymbol;
-        ELEMENTS.tokenSymbolAmount.textContent = tokenSymbol;
-        ELEMENTS.totalAmountEl.textContent = `${totalInTokens.toFixed(2)} ${tokenSymbol}`;
-        ELEMENTS.nrtAmountEl.textContent = `${totalInTokens.toFixed(2)}`;
     }
+    
+    ELEMENTS.presetTokenSymbolEl.textContent = tokenSymbol;
+    ELEMENTS.tokenSymbolHeader.textContent = tokenSymbol;
+    ELEMENTS.tokenSymbolAmount.textContent = tokenSymbol;
+    ELEMENTS.totalAmountEl.textContent = `${totalInTokens.toFixed(2)} ${tokenSymbol}`;
+    ELEMENTS.nrtAmountEl.textContent = `${totalInTokens.toFixed(2)}`;
 }
 
 // --- Wallet & Connection Logic ---
@@ -248,8 +244,7 @@ function setupWalletListeners() {
                 resetWalletState();
             } else {
                 console.log('Account changed to:', accounts[0]);
-                signer = (new ethers.BrowserProvider(window.ethereum)).getSigner(accounts[0]);
-                ELEMENTS.walletAddressEl.innerText = `Wallet: ${accounts[0]}`;
+                connectWallet();
             }
         });
         window.ethereum.on('chainChanged', () => {
@@ -258,6 +253,26 @@ function setupWalletListeners() {
         });
     }
 }
+
+async function connectWallet() {
+     if (!window.ethereum) {
+        showModal(translations[currentLang].modal_metamask);
+        return;
+    }
+    try {
+        provider = new ethers.BrowserProvider(window.ethereum);
+        const accounts = await provider.send("eth_requestAccounts", []);
+        signer = await provider.getSigner();
+        const address = accounts[0];
+        ELEMENTS.walletAddressEl.innerText = `Wallet: ${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+        ELEMENTS.connectButtons.classList.add('hidden');
+        ELEMENTS.disconnectBtn.classList.remove('hidden');
+        setupWalletListeners();
+    } catch (e) {
+        showModal(`${translations[currentLang].modal_error} ${e.message}`);
+    }
+}
+
 
 // --- Event Listeners ---
 ELEMENTS.langEnBtn.addEventListener('click', () => setLanguage('en'));
@@ -285,40 +300,16 @@ ELEMENTS.donationTypeRadios.forEach(radio => {
 });
 
 ELEMENTS.presetAmountInputEl.addEventListener('input', recalc);
-
-ELEMENTS.connectBrowserBtn.onclick = async () => {
-    if (!window.ethereum) {
-        showModal(translations[currentLang].modal_metamask);
-        return;
-    }
-    try {
-        provider = new ethers.BrowserProvider(window.ethereum);
-        const accounts = await provider.send("eth_requestAccounts", []);
-        signer = await provider.getSigner();
-        ELEMENTS.walletAddressEl.innerText = `Wallet: ${accounts[0].substring(0, 6)}...${accounts[0].substring(accounts[0].length - 4)}`;
-        ELEMENTS.connectButtons.classList.add('hidden');
-        ELEMENTS.disconnectBtn.classList.remove('hidden');
-        setupWalletListeners();
-    } catch (e) {
-        showModal(`${translations[currentLang].modal_error} ${e.message}`);
-    }
-};
-
-ELEMENTS.connectMobileBtn.onclick = () => {
-    showModal(translations[currentLang].modal_wip);
-};
-
-
-ELEMENTS.disconnectBtn.onclick = () => {
-    resetWalletState();
-};
+ELEMENTS.connectBrowserBtn.onclick = connectWallet;
+ELEMENTS.connectMobileBtn.onclick = () => showModal(translations[currentLang].modal_wip);
+ELEMENTS.disconnectBtn.onclick = resetWalletState;
 
 document.getElementById("donateBtn").onclick = async () => {
     if (!signer) {
         showModal(translations[currentLang].modal_connect);
         return;
     }
-    
+
     let total = 0;
     if (donationType === 'preset') {
         total = parseFloat(ELEMENTS.presetAmountInputEl.value) || 0;
@@ -328,26 +319,28 @@ document.getElementById("donateBtn").onclick = async () => {
         }
     }
 
-    if (total === 0) {
+    if (total <= 0) {
         showModal(translations[currentLang].modal_no_amount);
         return;
     }
 
+    ELEMENTS.statusEl.textContent = '';
+
     try {
         const tokenContract = new ethers.Contract(selectedToken.address, ERC20_ABI, signer);
         const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-        
+
         const totalAmount = ethers.parseUnits(total.toString(), selectedToken.decimals);
-        
+
         ELEMENTS.statusEl.textContent = translations[currentLang].status_approve;
         const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, totalAmount);
         await approveTx.wait();
 
         ELEMENTS.statusEl.textContent = translations[currentLang].status_donate;
 
+        let donateTx;
         if (donationType === 'preset') {
-            const donateTx = await contract.donatePreset(PRESET_NAME, selectedToken.address, totalAmount);
-            await donateTx.wait();
+            donateTx = await contract.donatePreset(PRESET_NAME, selectedToken.address, totalAmount);
         } else {
             let recipients = [];
             let amounts = [];
@@ -358,50 +351,44 @@ document.getElementById("donateBtn").onclick = async () => {
                     amounts.push(ethers.parseUnits(value.toString(), selectedToken.decimals));
                 }
             }
-
             if (recipients.length === 0) {
                 showModal(translations[currentLang].modal_no_amount);
+                ELEMENTS.statusEl.textContent = '';
                 return;
             }
-
-            const donateTx = await contract.donate(selectedToken.address, recipients, amounts);
-            await donateTx.wait();
+            donateTx = await contract.donate(selectedToken.address, recipients, amounts);
         }
         
+        await donateTx.wait();
         ELEMENTS.statusEl.textContent = translations[currentLang].status_success;
 
     } catch (err) {
         console.error(err);
-        let errorMessage = err.message;
-        if (err.reason) {
-            errorMessage = err.reason;
-        }
+        let errorMessage = err.reason || err.message;
         ELEMENTS.statusEl.textContent = `${translations[currentLang].status_error} ${errorMessage}`;
     }
 };
 
 ELEMENTS.contactForm.addEventListener("submit", async function(event) {
     event.preventDefault();
-    ELEMENTS.contactStatus.textContent = translations[currentLang].contact_status_sending;
-    
+    const texts = translations[currentLang];
+    ELEMENTS.contactStatus.textContent = texts.contact_status_sending;
+
     const response = await fetch(this.action, {
         method: this.method,
         body: new FormData(this),
-        headers: {
-            'Accept': 'application/json'
-        }
+        headers: { 'Accept': 'application/json' }
     });
 
     if (response.ok) {
-        ELEMENTS.contactStatus.textContent = translations[currentLang].contact_status_success;
+        ELEMENTS.contactStatus.textContent = texts.contact_status_success;
         ELEMENTS.contactForm.reset();
     } else {
-        ELEMENTS.contactStatus.textContent = translations[currentLang].contact_status_error;
+        ELEMENTS.contactStatus.textContent = texts.contact_status_error;
     }
 });
 
 // --- Initialization ---
 window.onload = function() {
     fetchTranslations();
-    // renderDonationTable() будет вызван внутри fetchTranslations -> setLanguage
 };
