@@ -33,8 +33,6 @@
         .faq-item summary::-webkit-details-marker { display: none; }
         .faq-item summary::after { content: '►'; transition: transform 0.2s; }
         .faq-item[open] summary::after { transform: rotate(90deg); }
-
-        /* Стиль для уменьшения адресов */
         .address-display {
             font-size: 0.75rem; /* text-xs */
             word-break: break-all;
@@ -80,7 +78,6 @@
                 <h2 data-lang-key="about_title" class="text-lg font-semibold mb-2">About NRT Project</h2>
                 <div id="about-content"></div>
             </section>
-
             <section class="bg-white p-4 rounded-lg shadow-md">
                 <h2 data-lang-key="how_to_get_nrt_title" class="text-lg font-semibold mb-2"></h2>
                 <div id="how-to-get-nrt-content"></div>
@@ -89,7 +86,6 @@
                 <h2 data-lang-key="how_contract_works_title" class="text-lg font-semibold mb-2"></h2>
                 <div id="how-contract-works-content"></div>
             </section>
-
             <section class="bg-white p-4 rounded-lg shadow-md">
                 <h2 data-lang-key="faq_title" class="text-lg font-semibold mb-2">FAQ</h2>
                 <div id="faq-content"></div>
@@ -132,7 +128,6 @@
                     </label>
                 </div>
             </section>
-
             <section class="bg-gray-100 p-4 rounded-lg">
                 <h2 data-lang-key="donation_type_title" class="text-2xl font-semibold mb-3">Donation Type</h2>
                 <div class="flex gap-4 justify-center flex-wrap">
@@ -146,7 +141,6 @@
                     </label>
                 </div>
             </section>
-
             <div id="presetDonation" class="bg-gray-100 p-4 rounded-lg hidden">
                 <h2 data-lang-key="preset_donations_title" class="text-2xl font-semibold mb-3">Donate by Preset</h2>
                 <p data-lang-key="preset_description" class="mb-4" id="presetDescription"></p>
@@ -155,7 +149,6 @@
                     <span id="presetTokenSymbol" class="text-lg">USDT</span>
                 </div>
             </div>
-
             <div id="customDonation" class="bg-gray-100 p-4 rounded-lg">
                 <h2 data-lang-key="donations_title" class="text-2xl font-semibold mb-3">Your Donations (<span id="tokenSymbolHeader">USDT</span>)</h2>
                 <div class="overflow-x-auto">
@@ -184,7 +177,6 @@
                     <span id="nrtAmount" class="text-2xl font-extrabold text-blue-600">0.00</span> NRT
                 </p>
             </section>
-
             <div class="flex justify-center">
                 <button id="donateBtn" class="bg-green-600 text-white font-bold text-xl py-4 px-8 rounded-lg hover:bg-green-700 transition duration-300 shadow-xl">
                     💸 <span data-lang-key="donate_button">Send Donation</span>
@@ -195,10 +187,13 @@
 
         <aside class="hidden md:block md:col-span-1 space-y-6 text-sm">
             <section class="bg-white p-4 rounded-lg shadow-md">
+                <h2 data-lang-key="voting_title" class="text-lg font-semibold mb-2"></h2>
+                <div id="voting-content" class="space-y-2"></div>
+            </section>
+            <section class="bg-white p-4 rounded-lg shadow-md">
                 <h2 data-lang-key="plans_title" class="text-lg font-semibold mb-2">Our Plans</h2>
                 <div id="plans-content"></div>
             </section>
-
             <section class="bg-white p-4 rounded-lg shadow-md">
                 <h2 data-lang-key="discussions_title" class="text-lg font-semibold mb-2"></h2>
                 <div id="discussions-content"></div>
@@ -207,7 +202,6 @@
                 <h2 data-lang-key="how_to_buy_crypto_title" class="text-lg font-semibold mb-2"></h2>
                 <div id="how-to-buy-crypto-content"></div>
             </section>
-
             <section class="bg-white p-4 rounded-lg shadow-md">
                 <h2 data-lang-key="contact_title" class="text-lg font-semibold mb-2">Contact Us</h2>
                 <form id="contactForm" action="https://formspree.io/f/xrblykve" method="POST" class="space-y-2">
@@ -221,15 +215,15 @@
     </div>
 
     <footer class="mt-8 pt-6 border-t border-gray-300 text-sm text-gray-500 max-w-4xl mx-auto text-center">
-          <h2 data-lang-key="technical_details_title" class="text-xl font-semibold mb-2">Technical Details</h2>
-          <ul class="space-y-1">
-                <li data-lang-key="technical_details_network">Network: Polygon</li>
-                <li><span data-lang-key="technical_details_contract">NRT Contract</span>: <a href="https://polygonscan.com/address/0xf6aebf37db416597c73d7e25876343c0d92f416a" target="_blank" class="text-blue-500 hover:underline">
-                    <code class="address-display">0xF6AEbf37dB416597c73D7e25876343C0d92F416A</code></a>
-                </li>
-                <li data-lang-key="technical_details_token">Tokens: USDT (6), USDC (Bridget) (6), DAI (18)</li>
-                <li><span data-lang-key="technical_details_source_code">Source Code</span>: <a href="https://github.com/NRT314/assets/blob/main/contract.sol" target="_blank" class="text-blue-500 hover:underline">github.com/NRT314/assets</a></li>
-          </ul>
+         <h2 data-lang-key="technical_details_title" class="text-xl font-semibold mb-2">Technical Details</h2>
+         <ul class="space-y-1">
+             <li data-lang-key="technical_details_network">Network: Polygon</li>
+             <li><span data-lang-key="technical_details_contract">NRT Contract</span>: <a href="https://polygonscan.com/address/0xf6aebf37db416597c73d7e25876343c0d92f416a" target="_blank" class="text-blue-500 hover:underline">
+                <code class="address-display">0xF6AEbf37dB416597c73D7e25876343C0d92F416A</code></a>
+             </li>
+             <li data-lang-key="technical_details_token">Tokens: USDT (6), USDC (Bridget) (6), DAI (18)</li>
+             <li><span data-lang-key="technical_details_source_code">Source Code</span>: <a href="https://github.com/NRT314/assets/blob/main/contract.sol" target="_blank" class="text-blue-500 hover:underline">github.com/NRT314/assets</a></li>
+         </ul>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
