@@ -55,18 +55,24 @@
         </div>
     </div>
 
-    <header class="text-center mb-8 max-w-3xl mx-auto">
-        <img src="logo.png" alt="NRT Logo" class="mx-auto h-20 mb-4"/>
-        <div class="flex justify-center gap-2 mb-4">
-             <button id="lang-en" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-blue-600 transition">EN</button>
-             <button id="lang-ru" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-transparent transition">RU</button>
+    <header class="mb-8 max-w-3xl mx-auto">
+        <div class="relative h-20 mb-4">
+            <div class="absolute inset-0 flex justify-center items-center">
+                <img src="logo.png" alt="NRT Logo" class="h-full"/>
+            </div>
+            <div class="absolute top-1/2 right-0 -translate-y-1/2 flex gap-2">
+                 <button id="lang-en" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-blue-600 transition">EN</button>
+                 <button id="lang-ru" class="text-gray-800 font-bold py-1 px-3 rounded-lg border-2 border-transparent transition">RU</button>
+            </div>
         </div>
-        <h1 data-lang-key="title" class="text-3xl font-bold mb-3">Support Independent Organizations</h1>
-        <p data-lang-key="description" class="text-lg text-gray-600">
-            Donate to verified Russian independent projects using stablecoins and receive <strong>NRT</strong> tokens.
-        </p>
-    </header>
 
+        <div class="text-center">
+            <h1 data-lang-key="title" class="text-3xl font-bold mb-3">Support Independent Organizations</h1>
+            <p data-lang-key="description" class="text-lg text-gray-600">
+                Donate to verified Russian independent projects using stablecoins and receive <strong>NRT</strong> tokens.
+            </p>
+        </div>
+    </header>
     <div class="grid grid-cols-1 md:grid-cols-5 gap-6 max-w-screen-xl mx-auto">
         
         <aside class="hidden md:block md:col-span-1 space-y-6 text-sm">
