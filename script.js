@@ -13,7 +13,7 @@ const TOKENS = {
     usdc: {
         address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
         decimals: 6,
-        symbol: "USDC (Bridged)" // ИЗМЕНЕНО: Небольшое исправление в названии
+        symbol: "USDC (Bridged)"
     },
     dai: {
         address: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
@@ -63,7 +63,7 @@ const PRESET_NAME = "equal";
 // --- Глобальные переменные и состояние ---
 let provider, signer;
 let translations = {};
-let currentLang = 'ru'; // ИЗМЕНЕНО: Установлен русский как язык по умолчанию
+let currentLang = 'en'; // Язык по умолчанию
 let selectedToken = TOKENS.usdt;
 let donationType = 'custom';
 const inputMap = new Map();
@@ -79,7 +79,6 @@ const ELEMENTS = {
     presetTokenSymbolEl: document.getElementById("presetTokenSymbol"),
     presetAmountInputEl: document.getElementById("presetAmountInput"),
     connectBrowserBtn: document.getElementById("connectBrowserBtn"),
-    connectMobileBtn: document.getElementById("connectMobileBtn"),
     connectButtons: document.getElementById("connectButtons"),
     disconnectBtn: document.getElementById("disconnectBtn"),
     walletAddressEl: document.getElementById("walletAddress"),
@@ -98,7 +97,8 @@ const ELEMENTS = {
     howToGetNrtContentEl: document.getElementById("how-to-get-nrt-content"),
     howContractWorksContentEl: document.getElementById("how-contract-works-content"),
     discussionsContentEl: document.getElementById("discussions-content"),
-    howToBuyCryptoContentEl: document.getElementById("how-to-buy-crypto-content")
+    howToBuyCryptoContentEl: document.getElementById("how-to-buy-crypto-content"),
+    votingContentEl: document.getElementById("voting-content")
 };
 
 // --- Основные функции ---
@@ -114,7 +114,6 @@ async function fetchTranslations() {
         setLanguage(currentLang);
     } catch (error) {
         console.error("Ошибка при загрузке переводов:", error);
-        // Можно показать пользователю сообщение об ошибке
     }
 }
 
@@ -144,33 +143,34 @@ function updateContent() {
     document.querySelectorAll('[data-lang-key]').forEach(element => {
         const key = element.getAttribute('data-lang-key');
         if (texts[key]) {
+            // Используем innerText для безопасности, если не нужен HTML
+            // Если нужен HTML, то innerHTML, как и было
             element.innerHTML = texts[key];
         }
     });
-
-    if (ELEMENTS.aboutContentEl) {
-        ELEMENTS.aboutContentEl.innerHTML = `
-        <h3 class="font-semibold text-xl mb-2">${texts.about_section_idea_title}</h3>
-        <p class="mb-4">${texts.about_section_idea_text}</p>
-        <h3 class="font-semibold text-xl mb-2">${texts.about_section_why_polygon_title}</h3>
-        <p class="mb-4">${texts.about_section_why_polygon_text}</p>
-        <h3 class="font-semibold text-xl mb-2">${texts.about_section_what_is_nrt_title}</h3>
-        <p class="mb-4">${texts.about_section_what_is_nrt_text}</p>
-      `;
-    }
-    // ... и так далее для всех остальных динамических блоков ...
+    
+    // Динамические блоки, требующие HTML
+    if (ELEMENTS.aboutContentEl) ELEMENTS.aboutContentEl.innerHTML = texts.about_content || '';
+    if (ELEMENTS.plansContentEl) ELEMENTS.plansContentEl.innerHTML = texts.plans_content || '';
+    if (ELEMENTS.howToGetNrtContentEl) ELEMENTS.howToGetNrtContentEl.innerHTML = texts.how_to_get_nrt_content || '';
+    if (ELEMENTS.howContractWorksContentEl) ELEMENTS.howContractWorksContentEl.innerHTML = texts.how_contract_works_content || '';
+    if (ELEMENTS.discussionsContentEl) ELEMENTS.discussionsContentEl.innerHTML = texts.discussions_content || '';
+    if (ELEMENTS.howToBuyCryptoContentEl) ELEMENTS.howToBuyCryptoContentEl.innerHTML = texts.how_to_buy_crypto_content || '';
+    if (ELEMENTS.votingContentEl) ELEMENTS.votingContentEl.innerHTML = texts.voting_content || '';
 
     if (ELEMENTS.faqContentEl && texts.faq_questions) {
         ELEMENTS.faqContentEl.innerHTML = texts.faq_questions.map(item => `
         <details class="faq-item bg-gray-50 border border-gray-200 rounded-lg mb-2">
-            <summary class="font-medium text-gray-700 cursor-pointer p-3">${item.q}</summary>
-            <div class="px-4 py-3 text-gray-600 border-t border-gray-200">${item.a}</div>
+            <summary class="font-medium text-gray-700">${item.q}</summary>
+            <div class="px-4 py-3 text-gray-600">${item.a}</div>
         </details>
       `).join('');
     }
 
     const presetRecipientsCount = ORGS.length;
-    ELEMENTS.presetDescriptionEl.textContent = texts.preset_description.replace('{count}', presetRecipientsCount);
+    if(texts.preset_description) {
+        ELEMENTS.presetDescriptionEl.textContent = texts.preset_description.replace('{count}', presetRecipientsCount);
+    }
 }
 
 /**
@@ -182,6 +182,13 @@ function setLanguage(lang) {
     updateContent();
     renderDonationTable();
     recalc();
+
+    // Обновляем ссылку на описание контракта в зависимости от языка
+    const contractLink = document.getElementById('contract-link');
+    if (contractLink) {
+        const newHref = lang === 'ru' ? 'contract-details-ru.html' : 'contract-details-en.html';
+        contractLink.setAttribute('href', newHref);
+    }
 
     ELEMENTS.langEnBtn.classList.toggle('border-blue-600', lang === 'en');
     ELEMENTS.langEnBtn.classList.toggle('border-transparent', lang !== 'en');
@@ -206,7 +213,7 @@ function renderDonationTable() {
           <td class="p-3 border border-gray-300"><a href="${link}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">${name}</a></td>
           <td class="p-3 border border-gray-300 font-mono text-xs hidden md:table-cell"><code>${address}</code></td>
           <td class="p-3 border border-gray-300">
-              <input type="number" min="0" step="0.01" value="0" placeholder="0.00" class="w-full md:w-32 p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+              <input type="number" min="0" step="0.01" placeholder="0.00" class="w-full md:w-32 p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
           </td>`;
         const input = row.querySelector("input");
         input.addEventListener("input", recalc);
@@ -260,7 +267,6 @@ async function handleAccountsChanged(accounts) {
         resetWalletState();
     } else {
         console.log('Аккаунт изменен на:', accounts[0]);
-        // ИЗМЕНЕНО: Используем существующий provider и асинхронно получаем signer
         if (provider) {
             signer = await provider.getSigner(accounts[0]);
             updateWalletAddress(accounts[0]);
@@ -282,11 +288,9 @@ function updateWalletAddress(address) {
  */
 function setupWalletListeners() {
     if (window.ethereum) {
-        // Убираем старые слушатели, чтобы избежать дублирования
         window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
         window.ethereum.removeListener('chainChanged', () => window.location.reload());
         
-        // Добавляем новые
         window.ethereum.on('accountsChanged', handleAccountsChanged);
         window.ethereum.on('chainChanged', () => window.location.reload());
     }
@@ -334,7 +338,6 @@ ELEMENTS.connectBrowserBtn.onclick = async () => {
         ELEMENTS.connectButtons.classList.add('hidden');
         ELEMENTS.disconnectBtn.classList.remove('hidden');
 
-        // ИЗМЕНЕНО: Устанавливаем слушателей только после успешного подключения
         setupWalletListeners();
     } catch (e) {
         showModal(`${translations[currentLang].modal_error} ${e.message}`);
