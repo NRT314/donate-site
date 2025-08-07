@@ -80,7 +80,12 @@ const ELEMENTS = {
     langEnBtn: document.getElementById("lang-en"),
     langRuBtn: document.getElementById("lang-ru"),
     tokenRadios: document.querySelectorAll('input[name="token"]'),
-    donationTypeRadios: document.querySelectorAll('input[name="donation-type"]')
+    donationTypeRadios: document.querySelectorAll('input[name="donation-type"]'),
+    // Новые элементы
+    howToGetNrtContentEl: document.getElementById("how-to-get-nrt-content"),
+    howContractWorksContentEl: document.getElementById("how-contract-works-content"),
+    discussionsContentEl: document.getElementById("discussions-content"),
+    howToBuyCryptoContentEl: document.getElementById("how-to-buy-crypto-content")
 };
 
 let translations = {};
@@ -127,7 +132,8 @@ function updateContent() {
     });
 
     // Handle dynamic content
-    ELEMENTS.aboutContentEl.innerHTML = `
+    if (ELEMENTS.aboutContentEl) {
+        ELEMENTS.aboutContentEl.innerHTML = `
         <h3 class="font-semibold text-xl mb-2">${texts.about_section_idea_title}</h3>
         <p class="mb-4">${texts.about_section_idea_text}</p>
         <h3 class="font-semibold text-xl mb-2">${texts.about_section_why_polygon_title}</h3>
@@ -135,20 +141,39 @@ function updateContent() {
         <h3 class="font-semibold text-xl mb-2">${texts.about_section_what_is_nrt_title}</h3>
         <p class="mb-4">${texts.about_section_what_is_nrt_text}</p>
     `;
+    }
 
-    ELEMENTS.plansContentEl.innerHTML = `
+    if (ELEMENTS.plansContentEl) {
+        ELEMENTS.plansContentEl.innerHTML = `
         <h3 class="font-semibold text-xl mb-2">${texts.plans_section_short_term_title}</h3>
         <p class="mb-4">${texts.plans_section_short_term_text}</p>
         <h3 class="font-semibold text-xl mb-2">${texts.plans_section_global_title}</h3>
         <p class="mb-4">${texts.plans_section_global_text}</p>
     `;
-
-    ELEMENTS.faqContentEl.innerHTML = texts.faq_questions.map((item, index) => `
+    }
+    
+    if (ELEMENTS.faqContentEl) {
+        ELEMENTS.faqContentEl.innerHTML = texts.faq_questions.map((item, index) => `
         <details class="faq-item bg-gray-50 border border-gray-200 rounded-lg mb-2">
             <summary class="font-medium text-gray-700">${item.q}</summary>
             <div class="px-4 py-3 text-gray-600">${item.a}</div>
         </details>
     `).join('');
+    }
+
+    // Заполнение новых секций
+    if (ELEMENTS.discussionsContentEl) {
+        ELEMENTS.discussionsContentEl.innerHTML = texts.discussions_content;
+    }
+    if (ELEMENTS.howToGetNrtContentEl) {
+        ELEMENTS.howToGetNrtContentEl.innerHTML = texts.how_to_get_nrt_content;
+    }
+    if (ELEMENTS.howToBuyCryptoContentEl) {
+        ELEMENTS.howToBuyCryptoContentEl.innerHTML = texts.how_to_buy_crypto_content;
+    }
+    if (ELEMENTS.howContractWorksContentEl) {
+        ELEMENTS.howContractWorksContentEl.innerHTML = texts.how_contract_works_content;
+    }
 
     const presetRecipientsCount = presetRecipients.length;
     ELEMENTS.presetDescriptionEl.textContent = texts.preset_description.replace('{count}', presetRecipientsCount);
