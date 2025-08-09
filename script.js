@@ -1,7 +1,5 @@
-// --- КОНСТАНТЫ И НАСТРОЙКИ ПРОЕКТА ---
-
-// ИЗМЕНЕНО: Новый адрес вашего смарт-контракта
-const CONTRACT_ADDRESS = "0xB0cba8F2bE32bbeF954b9BFA0aeD267E296E5276"; 
+// CONTRACT DETAILS & CONSTANTS
+const CONTRACT_ADDRESS = "0x1957996eEd3d94e9EBE9F12829C6550Debc2fAd7";
 
 const TOKENS = {
     usdt: {
@@ -21,1412 +19,384 @@ const TOKENS = {
     }
 };
 
-// ИЗМЕНЕНО: Полностью обновленный ABI для нового контракта
 const ABI = [
-  {
-    "inputs": [],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
-    "inputs": [],
-    "name": "AtLeastTwoRecipientsRequired",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "CannotRecoverWhitelistedToken",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "DecimalsTooHigh",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "DonationTooSmall",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      }
-    ],
-    "name": "DuplicateRecipientInList",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "EnforcedPause",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "spender",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "allowance",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "needed",
-        "type": "uint256"
-      }
-    ],
-    "name": "ERC20InsufficientAllowance",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "balance",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "needed",
-        "type": "uint256"
-      }
-    ],
-    "name": "ERC20InsufficientBalance",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "approver",
-        "type": "address"
-      }
-    ],
-    "name": "ERC20InvalidApprover",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "receiver",
-        "type": "address"
-      }
-    ],
-    "name": "ERC20InvalidReceiver",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      }
-    ],
-    "name": "ERC20InvalidSender",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "spender",
-        "type": "address"
-      }
-    ],
-    "name": "ERC20InvalidSpender",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "ExpectedPause",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "LengthMismatch",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "MaxCommissionRateExceeded",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "MaxShareExceeded",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "NotAdmin",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "NrtIsNonTransferable",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      }
-    ],
-    "name": "OwnableInvalidOwner",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "OwnableUnauthorizedAccount",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "PercentagesNot100",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "PresetAlreadyExists",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "PresetNotFound",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "RecipientNotAllowed",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "RecipientNotInWhitelist",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "RecipientsEmpty",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "ReentrancyGuardReentrantCall",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "TokenNotAllowed",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "TokenNotInWhitelist",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "TokenTransferFailed",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "TokenTransferFromFailed",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "TokenTransferFromReturnFalse",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "TokenTransferReturnFalse",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "ZeroAddress",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "ZeroRate",
-    "type": "error"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "admin",
-        "type": "address"
-      }
-    ],
-    "name": "AdminAdded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "admin",
-        "type": "address"
-      }
-    ],
-    "name": "AdminRemoved",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "spender",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      }
-    ],
-    "name": "Approval",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newRate",
-        "type": "uint256"
-      }
-    ],
-    "name": "CommissionRateChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "enabled",
-        "type": "bool"
-      }
-    ],
-    "name": "CommissionStatusChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "newWallet",
-        "type": "address"
-      }
-    ],
-    "name": "CommissionWalletChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "donor",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "Donation",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "previousOwner",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "OwnershipTransferred",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "Paused",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      }
-    ],
-    "name": "PresetCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      }
-    ],
-    "name": "PresetRemoved",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      }
-    ],
-    "name": "PresetUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      }
-    ],
-    "name": "RecipientAdded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "enabled",
-        "type": "bool"
-      }
-    ],
-    "name": "StrictModeChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "rateIn1e18",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "decimals",
-        "type": "uint256"
-      }
-    ],
-    "name": "TokenInfoUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      }
-    ],
-    "name": "TokenRemoved",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      }
-    ],
-    "name": "TokenWhitelisted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      }
-    ],
-    "name": "Transfer",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "Unpaused",
-    "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "newAdmin",
-        "type": "address"
-      }
-    ],
-    "name": "addAdmin",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      }
-    ],
-    "name": "addRecipient",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address[]",
-        "name": "recipients",
-        "type": "address[]"
-      }
-    ],
-    "name": "addRecipients",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "admins",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "spender",
-        "type": "address"
-      }
-    ],
-    "name": "allowance",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "spender",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      }
-    ],
-    "name": "approve",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "balanceOf",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      }
-    ],
-    "name": "burn",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      }
-    ],
-    "name": "burnFrom",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "commissionEnabled",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "commissionRate",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "commissionWallet",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      },
-      {
-        "internalType": "address[]",
-        "name": "recipients",
-        "type": "address[]"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "percentages",
-        "type": "uint256[]"
-      }
-    ],
-    "name": "createPreset",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "decimals",
-    "outputs": [
-      {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "address[]",
-        "name": "recipients",
-        "type": "address[]"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "amounts",
-        "type": "uint256[]"
-      }
-    ],
-    "name": "donate",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      },
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "donatePreset",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      }
-    ],
-    "name": "getPreset",
-    "outputs": [
-      {
-        "internalType": "address[]",
-        "name": "",
-        "type": "address[]"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "",
-        "type": "uint256[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getWhitelistedRecipients",
-    "outputs": [
-      {
-        "internalType": "address[]",
-        "name": "",
-        "type": "address[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getWhitelistedTokens",
-    "outputs": [
-      {
-        "internalType": "address[]",
-        "name": "",
-        "type": "address[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "minDonationAmount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "name",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "owner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "pause",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "paused",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "recoverERC20",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "adminAddress",
-        "type": "address"
-      }
-    ],
-    "name": "removeAdmin",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      }
-    ],
-    "name": "removePreset",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      }
-    ],
-    "name": "removeRecipient",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      }
-    ],
-    "name": "removeToken",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "renounceOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bool",
-        "name": "enabled",
-        "type": "bool"
-      }
-    ],
-    "name": "setCommissionEnabled",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "rate",
-        "type": "uint256"
-      }
-    ],
-    "name": "setCommissionRate",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "wallet",
-        "type": "address"
-      }
-    ],
-    "name": "setCommissionWallet",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "setMinDonationAmount",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bool",
-        "name": "enabled",
-        "type": "bool"
-      }
-    ],
-    "name": "setStrictMode",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "strictDonationMode",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "symbol",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "usdtAmountIn6Decimals",
-        "type": "uint256"
-      }
-    ],
-    "name": "toNrt",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "nrtAmountIn18Decimals",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "tokenDecimals",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "tokenUsdtRatesIn1e18",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "totalDonatedByInUsdt",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "totalDonatedOverallInUsdt",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "totalReceivedInUsdt",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "totalSupply",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "transfer",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "transferFrom",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "transferOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "unpause",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      },
-      {
-        "internalType": "address[]",
-        "name": "newRecipients",
-        "type": "address[]"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "newPercentages",
-        "type": "uint256[]"
-      }
-    ],
-    "name": "updatePreset",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "rateIn1e18",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "decimals",
-        "type": "uint256"
-      }
-    ],
-    "name": "updateTokenInfo",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "usdt",
-    "outputs": [
-      {
-        "internalType": "contract IERC20",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "whitelistRecipient",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "whitelistToken",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  }
-]
+    "function donate(address token, address[] recipients, uint256[] amounts) external",
+    "function donatePreset(string calldata name, address token, uint256 amount) external",
+    "function getPreset(string calldata name) external view returns (address[] memory recipients, uint256[] memory percentages)",
+    "function getWhitelistedRecipients() external view returns (address[] memory)",
+    "function totalDonatedOverallInUsdt() external view returns (uint256)",
+    "event Donation(address indexed donor, address indexed token, address indexed recipient, uint256 amount)"
+];
+
+const ERC20_ABI = [
+    "function approve(address spender, uint256 amount) public returns (bool)"
+];
+
+const ORGS = [
+    { key: "thisproject", address: "0xc0F467567570AADa929fFA115E65bB39066e3E42", link: "https://nrt314.github.io/donate-site" },
+    { key: "ovdinfo", address: "0x421896bb0Dcf271a294bC7019014EE90503656Fd", link: "https://ovd.info" },
+    { key: "mediazona", address: "0xE86D7D922DeF8a8FEB21f1702C9AaEEDBec32DDC", link: "https://zona.media" },
+    { key: "zhuk", address: "0x1913A02BB3836AF224aEF136461F43189A0cEcd0", link: "https://www.zhuk.world/" },
+    { key: "breakfastshow", address: "0xdB4BB555a15bC8bB3b07E57452a8E6E24b358e7F", link: "https://www.youtube.com/@The_Breakfast_Show" },
+    { key: "kovcheg", address: "0xBf178F99b8790db1BD2194D80c3a268AE4AcE804", link: "https://kovcheg.live" },
+    { key: "findexit", address: "0xADb524cE8c2009e727f6dF4b6a443D455c700244", link: "https://www.youtube.com/@ishemvihod" },
+    { key: "gulagunet", address: "0x6051F40d4eF5d5E5BC2B6F4155AcCF57Be6B8F58", link: "https://www.youtube.com/channel/UCbanC4P0NmnzNYXQIrjvoSA" },
+    { key: "meduza", address: "0x00B9d7Fe4a2d3aCdd4102Cfb55b98d193B94C0fa", link: "https://meduza.io/" },
+    { key: "cit", address: "0xfBcc8904ce75fF90CC741DA80703202faf5b2FcF", link: "https://www.youtube.com/@CITonWar" },
+    { key: "importantstories", address: "0x5433CE0E05D117C54f814cc6697244eA0b902DBF", link: "https://istories.media" },
+    { key: "fbk", address: "0x314aC71aEB2feC4D60Cc50Eb46e64980a27F2680", link: "https://fbk.info" },
+    { key: "iditelesom", address: "0x387C5300586336d145A87C245DD30f9724C6eC01", link: "https://iditelesom.org/ru" },
+    { key: "memorial", address: "0x0a4aB5D641f63cd7a2d44d0a643424f5d0df376b", link: "https://memopzk.org/" },
+    { key: "insider", address: "0xad8221D4A4feb023156b9E09917Baa4ff81A65F8", link: "https://theins.ru" },
+    { key: "rain", address: "0x552dAfED221689e44676477881B6947074a5C342", link: "https://tvrain.tv/" }
+];
+
+const PRESET_NAME = "equal";
+const presetRecipients = ORGS.map(org => org.address);
+
+// DOM ELEMENTS
+const ELEMENTS = {
+    donationTable: document.getElementById("donationTable"),
+    totalAmountEl: document.getElementById("totalAmount"),
+    nrtAmountEl: document.getElementById("nrtAmount"),
+    statusEl: document.getElementById("status"),
+    tokenSymbolHeader: document.getElementById("tokenSymbolHeader"),
+    tokenSymbolAmount: document.getElementById("tokenSymbolAmount"),
+    presetTokenSymbolEl: document.getElementById("presetTokenSymbol"),
+    presetAmountInputEl: document.getElementById("presetAmountInput"),
+    connectBrowserBtn: document.getElementById("connectBrowserBtn"),
+    connectMobileBtn: document.getElementById("connectMobileBtn"),
+    connectButtons: document.getElementById("connectButtons"),
+    disconnectBtn: document.getElementById("disconnectBtn"),
+    walletAddressEl: document.getElementById("walletAddress"),
+    presetDonationEl: document.getElementById("presetDonation"),
+    customDonationEl: document.getElementById("customDonation"),
+    presetDescriptionEl: document.getElementById("presetDescription"),
+    aboutContentEl: document.getElementById("about-content"),
+    plansContentEl: document.getElementById("plans-content"),
+    faqContentEl: document.getElementById("faq-content"),
+    contactForm: document.getElementById("contactForm"),
+    contactStatus: document.getElementById("contactStatus"),
+    langEnBtn: document.getElementById("lang-en"),
+    langRuBtn: document.getElementById("lang-ru"),
+    tokenRadios: document.querySelectorAll('input[name="token"]'),
+    donationTypeRadios: document.querySelectorAll('input[name="donation-type"]'),
+    howToGetNrtContentEl: document.getElementById("how-to-get-nrt-content"),
+    howContractWorksContentEl: document.getElementById("how-contract-works-content"),
+    discussionsContentEl: document.getElementById("discussions-content"),
+    howToBuyCryptoContentEl: document.getElementById("how-to-buy-crypto-content")
+};
+
+// STATE
+let translations = {};
+let currentLang = 'en';
+let provider, signer;
+const inputMap = new Map();
+let selectedToken = TOKENS.usdt;
+let donationType = 'custom';
+
+// --- General Functions ---
+async function fetchTranslations() {
+    try {
+        const response = await fetch('translations.json');
+        translations = await response.json();
+        setLanguage(currentLang);
+    } catch (error) {
+        console.error("Error fetching translations:", error);
+    }
+}
+
+function showModal(message) {
+    document.getElementById("modalMessage").innerHTML = message;
+    document.getElementById("myModal").style.display = "block";
+}
+
+function closeModal() {
+    document.getElementById("myModal").style.display = "none";
+}
+
+window.onclick = function(event) {
+    if (event.target === document.getElementById("myModal")) {
+        closeModal();
+    }
+};
+
+function updateContent() {
+    const texts = translations[currentLang];
+    if (!texts) return;
+
+    const langKeys = document.querySelectorAll('[data-lang-key]');
+    langKeys.forEach(element => {
+        const key = element.getAttribute('data-lang-key');
+        if (texts[key] !== undefined) {
+            element.innerHTML = texts[key];
+        }
+    });
+
+    if (ELEMENTS.aboutContentEl) {
+        ELEMENTS.aboutContentEl.innerHTML = `
+        <h3 class="font-semibold text-xl mb-2">${texts.about_section_idea_title}</h3>
+        <p class="mb-4">${texts.about_section_idea_text}</p>
+        <h3 class="font-semibold text-xl mb-2">${texts.about_section_why_polygon_title}</h3>
+        <p class="mb-4">${texts.about_section_why_polygon_text}</p>
+        <h3 class="font-semibold text-xl mb-2">${texts.about_section_what_is_nrt_title}</h3>
+        <p class="mb-4">${texts.about_section_what_is_nrt_text}</p>
+    `;
+    }
+
+    if (ELEMENTS.plansContentEl) {
+        ELEMENTS.plansContentEl.innerHTML = `
+        <h3 class="font-semibold text-xl mb-2">${texts.plans_section_short_term_title}</h3>
+        <p class="mb-4">${texts.plans_section_short_term_text}</p>
+        <h3 class="font-semibold text-xl mb-2">${texts.plans_section_global_title}</h3>
+        <p class="mb-4">${texts.plans_section_global_text}</p>
+    `;
+    }
+
+    if (ELEMENTS.faqContentEl && texts.faq_questions) {
+        ELEMENTS.faqContentEl.innerHTML = texts.faq_questions.map((item) => `
+        <details class="faq-item bg-gray-50 border border-gray-200 rounded-lg mb-2">
+            <summary class="font-medium text-gray-700">${item.q}</summary>
+            <div class="px-4 py-3 text-gray-600">${item.a}</div>
+        </details>
+    `).join('');
+    }
+    
+    if (ELEMENTS.discussionsContentEl) {
+        ELEMENTS.discussionsContentEl.innerHTML = texts.discussions_content || '';
+    }
+    if (ELEMENTS.howToGetNrtContentEl) {
+        ELEMENTS.howToGetNrtContentEl.innerHTML = texts.how_to_get_nrt_content || '';
+    }
+    if (ELEMENTS.howToBuyCryptoContentEl) {
+        ELEMENTS.howToBuyCryptoContentEl.innerHTML = texts.how_to_buy_crypto_content || '';
+    }
+
+    const presetRecipientsCount = presetRecipients.length;
+    ELEMENTS.presetDescriptionEl.textContent = texts.preset_description.replace('{count}', presetRecipientsCount);
+}
+
+function setLanguage(lang) {
+    currentLang = lang;
+    updateContent();
+    renderDonationTable();
+
+    const contractLink = document.getElementById('contract-link');
+    if (contractLink) {
+        const newHref = lang === 'ru' ? 'contract-details-ru.html' : 'contract-details-en.html';
+        contractLink.setAttribute('href', newHref);
+    }
+
+    ELEMENTS.langEnBtn.classList.toggle('border-blue-600', lang === 'en');
+    ELEMENTS.langEnBtn.classList.toggle('border-transparent', lang !== 'en');
+    ELEMENTS.langRuBtn.classList.toggle('border-blue-600', lang === 'ru');
+    ELEMENTS.langRuBtn.classList.toggle('border-transparent', lang !== 'ru');
+    recalc();
+}
+
+// --- Donation Logic ---
+function renderDonationTable() {
+    ELEMENTS.donationTable.innerHTML = '';
+    const orgNames = translations[currentLang]?.org_names || {};
+
+    ORGS.forEach(({ key, address, link }) => {
+        const name = orgNames[key] || key;
+        const row = document.createElement("tr");
+        row.className = "hover:bg-gray-50 transition-colors duration-200";
+        row.innerHTML = `<td class="p-3 border border-gray-300"><a href="${link}" target="_blank" class="text-blue-600 hover:underline">${name}</a></td>
+            <td class="p-3 border border-gray-300 font-mono text-xs hidden md:table-cell"><code>${address}</code></td>
+            <td class="p-3 border border-gray-300">
+                <input type="number" min="0" step="0.01" value="0" class="w-full md:w-32 p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            </td>`;
+        const input = row.querySelector("input");
+        input.addEventListener("input", recalc);
+        inputMap.set(address, input);
+        ELEMENTS.donationTable.appendChild(row);
+    });
+}
+
+
+function recalc() {
+    let totalInTokens = 0;
+    const tokenSymbol = selectedToken.symbol;
+
+    if (donationType === 'preset') {
+        totalInTokens = parseFloat(ELEMENTS.presetAmountInputEl.value) || 0;
+    } else {
+        for (const input of inputMap.values()) {
+            totalInTokens += parseFloat(input.value) || 0;
+        }
+    }
+    
+    ELEMENTS.presetTokenSymbolEl.textContent = tokenSymbol;
+    ELEMENTS.tokenSymbolHeader.textContent = tokenSymbol;
+    ELEMENTS.tokenSymbolAmount.textContent = tokenSymbol;
+    ELEMENTS.totalAmountEl.textContent = `${totalInTokens.toFixed(2)} ${tokenSymbol}`;
+    ELEMENTS.nrtAmountEl.textContent = `${totalInTokens.toFixed(2)}`;
+}
+
+// --- Wallet & Connection Logic ---
+function resetWalletState() {
+    signer = null;
+    ELEMENTS.walletAddressEl.innerText = '';
+    ELEMENTS.connectButtons.classList.remove('hidden');
+    ELEMENTS.disconnectBtn.classList.add('hidden');
+    console.log("Wallet connection reset.");
+}
+
+function setupWalletListeners() {
+    if (window.ethereum) {
+        window.ethereum.on('accountsChanged', (accounts) => {
+            if (accounts.length === 0) {
+                console.log('Wallet disconnected.');
+                resetWalletState();
+            } else {
+                console.log('Account changed to:', accounts[0]);
+                connectWallet();
+            }
+        });
+        window.ethereum.on('chainChanged', () => {
+            console.log('Chain changed. Reloading page...');
+            window.location.reload();
+        });
+    }
+}
+
+async function connectWallet() {
+     if (!window.ethereum) {
+        showModal(translations[currentLang].modal_metamask);
+        return;
+    }
+    try {
+        provider = new ethers.BrowserProvider(window.ethereum);
+        const accounts = await provider.send("eth_requestAccounts", []);
+        signer = await provider.getSigner();
+        const address = accounts[0];
+        ELEMENTS.walletAddressEl.innerText = `Wallet: ${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+        ELEMENTS.connectButtons.classList.add('hidden');
+        ELEMENTS.disconnectBtn.classList.remove('hidden');
+        setupWalletListeners();
+    } catch (e) {
+        showModal(`${translations[currentLang].modal_error} ${e.message}`);
+    }
+}
+
+
+// --- Event Listeners ---
+ELEMENTS.langEnBtn.addEventListener('click', () => setLanguage('en'));
+ELEMENTS.langRuBtn.addEventListener('click', () => setLanguage('ru'));
+
+ELEMENTS.tokenRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        selectedToken = TOKENS[e.target.value];
+        recalc();
+    });
+});
+
+ELEMENTS.donationTypeRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        donationType = e.target.value;
+        if (donationType === 'preset') {
+            ELEMENTS.presetDonationEl.classList.remove('hidden');
+            ELEMENTS.customDonationEl.classList.add('hidden');
+        } else {
+            ELEMENTS.presetDonationEl.classList.add('hidden');
+            ELEMENTS.customDonationEl.classList.remove('hidden');
+        }
+        recalc();
+    });
+});
+
+ELEMENTS.presetAmountInputEl.addEventListener('input', recalc);
+ELEMENTS.connectBrowserBtn.onclick = connectWallet;
+ELEMENTS.connectMobileBtn.onclick = () => showModal(translations[currentLang].modal_wip);
+ELEMENTS.disconnectBtn.onclick = resetWalletState;
+
+document.getElementById("donateBtn").onclick = async () => {
+    if (!signer) {
+        showModal(translations[currentLang].modal_connect);
+        return;
+    }
+
+    let total = 0;
+    if (donationType === 'preset') {
+        total = parseFloat(ELEMENTS.presetAmountInputEl.value) || 0;
+    } else {
+        for (const input of inputMap.values()) {
+            total += parseFloat(input.value) || 0;
+        }
+    }
+
+    if (total <= 0) {
+        showModal(translations[currentLang].modal_no_amount);
+        return;
+    }
+
+    ELEMENTS.statusEl.textContent = '';
+
+    try {
+        const tokenContract = new ethers.Contract(selectedToken.address, ERC20_ABI, signer);
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+
+        const totalAmount = ethers.parseUnits(total.toString(), selectedToken.decimals);
+
+        ELEMENTS.statusEl.textContent = translations[currentLang].status_approve;
+        const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, totalAmount);
+        await approveTx.wait();
+
+        ELEMENTS.statusEl.textContent = translations[currentLang].status_donate;
+
+        let donateTx;
+        if (donationType === 'preset') {
+            donateTx = await contract.donatePreset(PRESET_NAME, selectedToken.address, totalAmount);
+        } else {
+            let recipients = [];
+            let amounts = [];
+            for (const [addr, input] of inputMap.entries()) {
+                const value = parseFloat(input.value) || 0;
+                if (value > 0) {
+                    recipients.push(ethers.getAddress(addr));
+                    amounts.push(ethers.parseUnits(value.toString(), selectedToken.decimals));
+                }
+            }
+            if (recipients.length === 0) {
+                showModal(translations[currentLang].modal_no_amount);
+                ELEMENTS.statusEl.textContent = '';
+                return;
+            }
+            donateTx = await contract.donate(selectedToken.address, recipients, amounts);
+        }
+        
+        await donateTx.wait();
+        ELEMENTS.statusEl.textContent = translations[currentLang].status_success;
+
+    } catch (err) {
+        console.error(err);
+        let errorMessage = err.reason || err.message;
+        ELEMENTS.statusEl.textContent = `${translations[currentLang].status_error} ${errorMessage}`;
+    }
+};
+
+ELEMENTS.contactForm.addEventListener("submit", async function(event) {
+    event.preventDefault();
+    const texts = translations[currentLang];
+    ELEMENTS.contactStatus.textContent = texts.contact_status_sending;
+
+    const response = await fetch(this.action, {
+        method: this.method,
+        body: new FormData(this),
+        headers: { 'Accept': 'application/json' }
+    });
+
+    if (response.ok) {
+        ELEMENTS.contactStatus.textContent = texts.contact_status_success;
+        ELEMENTS.contactForm.reset();
+    } else {
+        ELEMENTS.contactStatus.textContent = texts.contact_status_error;
+    }
+});
+
+// --- Initialization ---
+window.onload = function() {
+    fetchTranslations();
+};
