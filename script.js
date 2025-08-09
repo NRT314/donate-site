@@ -162,6 +162,18 @@ function updateContent() {
     `).join('');
     }
 
+    // --- ИСПРАВЛЕНИЕ: ДОБАВЛЕН БЛОК ДЛЯ ОСТАЛЬНЫХ СЕКЦИЙ ---
+    if (ELEMENTS.discussionsContentEl) {
+        ELEMENTS.discussionsContentEl.innerHTML = texts.discussions_content || '';
+    }
+    if (ELEMENTS.howToGetNrtContentEl) {
+        ELEMENTS.howToGetNrtContentEl.innerHTML = texts.how_to_get_nrt_content || '';
+    }
+    if (ELEMENTS.howToBuyCryptoContentEl) {
+        ELEMENTS.howToBuyCryptoContentEl.innerHTML = texts.how_to_buy_crypto_content || '';
+    }
+     // --- КОНЕЦ ИСПРАВЛЕНИЯ ---
+
     const presetRecipientsCount = presetRecipients.length;
     ELEMENTS.presetDescriptionEl.textContent = texts.preset_description.replace('{count}', presetRecipientsCount);
 }
@@ -171,13 +183,11 @@ function setLanguage(lang) {
     updateContent();
     renderDonationTable();
 
-    // --- ИСПРАВЛЕНИЕ ДЛЯ ДИНАМИЧЕСКОЙ ССЫЛКИ ---
     const contractLink = document.getElementById('contract-link');
     if (contractLink) {
         const newHref = lang === 'ru' ? 'contract-details-ru.html' : 'contract-details-en.html';
         contractLink.setAttribute('href', newHref);
     }
-    // --- КОНЕЦ ИСПРАВЛЕНИЯ ---
 
     ELEMENTS.langEnBtn.classList.toggle('border-blue-600', lang === 'en');
     ELEMENTS.langEnBtn.classList.toggle('border-transparent', lang !== 'en');
