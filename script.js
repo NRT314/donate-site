@@ -95,6 +95,52 @@ const inputMap = new Map();
 let selectedToken = TOKENS.usdt;
 let donationType = 'custom';
 
+// --- Polygon Network Logic ---
+const POLYGON_CHAIN_ID = '0x89'; // 137 в шестнадцатеричной системе
+
+async function switchToPolygon() {
+    if (!window.ethereum) throw new Error("Кошелек не найден");
+
+    try {
+        // Пытаемся переключить сеть
+        await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: POLYGON_CHAIN_ID }],
+        });
+        console.log("Успешно переключено на Polygon");
+    } catch (switchError) {
+        // Ошибка 4902 означает, что сеть не добавлена в MetaMask
+        if (switchError.code === 4902) {
+            console.log("Сеть Polygon не найдена в кошельке, попытка добавить...");
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [
+                        {
+                            chainId: POLYGON_CHAIN_ID,
+                            chainName: 'Polygon Mainnet',
+                            rpcUrls: ['https://polygon-rpc.com/'],
+                            nativeCurrency: {
+                                name: 'MATIC',
+                                symbol: 'MATIC',
+                                decimals: 18,
+                            },
+                            blockExplorerUrls: ['https://polygonscan.com/'],
+                        },
+                    ],
+                });
+            } catch (addError) {
+                console.error("Не удалось добавить сеть Polygon:", addError);
+                throw addError; // Пробрасываем ошибку дальше
+            }
+        } else {
+            console.error("Не удалось переключить сеть:", switchError);
+            throw switchError; // Пробрасываем ошибку дальше
+        }
+    }
+}
+
+
 // --- General Functions ---
 async function fetchTranslations() {
     try {
@@ -263,24 +309,30 @@ function setupWalletListeners() {
 }
 
 async function connectWallet() {
-     if (!window.ethereum) {
+    if (!window.ethereum) {
         showModal(translations[currentLang].modal_metamask);
         return;
     }
     try {
+        // Сначала принудительно переключаемся на Polygon
+        await switchToPolygon();
+
+        // Теперь, когда мы в нужной сети, продолжаем подключение
         provider = new ethers.BrowserProvider(window.ethereum);
         const accounts = await provider.send("eth_requestAccounts", []);
         signer = await provider.getSigner();
         const address = accounts[0];
+
         ELEMENTS.walletAddressEl.innerText = `Wallet: ${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
         ELEMENTS.connectButtons.classList.add('hidden');
         ELEMENTS.disconnectBtn.classList.remove('hidden');
+
         setupWalletListeners();
     } catch (e) {
+        // Отображаем осмысленное сообщение об ошибке, если пользователь отклонил переключение/добавление сети
         showModal(`${translations[currentLang].modal_error} ${e.message}`);
     }
 }
-
 
 // --- Event Listeners ---
 ELEMENTS.langEnBtn.addEventListener('click', () => setLanguage('en'));
@@ -318,26 +370,34 @@ document.getElementById("donateBtn").onclick = async () => {
         return;
     }
 
-    let total = 0;
-    if (donationType === 'preset') {
-        total = parseFloat(ELEMENTS.presetAmountInputEl.value) || 0;
-    } else {
-        for (const input of inputMap.values()) {
-            total += parseFloat(input.value) || 0;
-        }
-    }
-
-    if (total <= 0) {
-        showModal(translations[currentLang].modal_no_amount);
-        return;
-    }
-
-    ELEMENTS.statusEl.textContent = '';
-
     try {
+        // 1. Проверка сети ПЕРЕД транзакцией
+        const network = await provider.getNetwork();
+        if (network.chainId !== 137n) { // ВАЖНО: ethers.js v6 возвращает chainId как BigInt (137n)
+            // Желательно добавить перевод для этого сообщения в ваш translations.json
+            showModal(translations[currentLang].modal_switch_to_polygon || "Please switch to Polygon network to donate.");
+            return;
+        }
+
+        let total = 0;
+        if (donationType === 'preset') {
+            total = parseFloat(ELEMENTS.presetAmountInputEl.value) || 0;
+        } else {
+            for (const input of inputMap.values()) {
+                total += parseFloat(input.value) || 0;
+            }
+        }
+
+        if (total <= 0) {
+            showModal(translations[currentLang].modal_no_amount);
+            return;
+        }
+
+        ELEMENTS.statusEl.textContent = '';
+
+        // 2. Остальная логика транзакции
         const tokenContract = new ethers.Contract(selectedToken.address, ERC20_ABI, signer);
         const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-
         const totalAmount = ethers.parseUnits(total.toString(), selectedToken.decimals);
 
         ELEMENTS.statusEl.textContent = translations[currentLang].status_approve;
