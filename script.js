@@ -28,7 +28,6 @@ const ABI = [
     "event Donation(address indexed donor, address indexed token, address indexed recipient, uint256 amount)"
 ];
 
-// Обновленный ABI с функцией allowance
 const ERC20_ABI = [
     "function approve(address spender, uint256 amount) public returns (bool)",
     "function allowance(address owner, address spender) public view returns (uint256)"
@@ -366,40 +365,49 @@ document.getElementById("donateBtn").onclick = async () => {
         const totalAmount = ethers.parseUnits(total.toString(), selectedToken.decimals);
 
         const maticBalance = await provider.getBalance(userAddress);
-        if (maticBalance < ethers.parseUnits("0.0005", "ether")) {
+        if (maticBalance < ethers.parseUnits("0.01", "ether")) { // Немного увеличим порог на всякий случай
             showModal(translations[currentLang].modal_low_matic || "Not enough MATIC to pay for gas.");
             ELEMENTS.statusEl.textContent = '';
             return;
         }
+
+        const feeData = await provider.getFeeData();
 
         const allowance = await tokenContract.allowance(userAddress, CONTRACT_ADDRESS);
         console.log("Current allowance:", allowance.toString(), "Needed:", totalAmount.toString());
 
         if (allowance < totalAmount) {
             ELEMENTS.statusEl.textContent = translations[currentLang].status_approve || "Waiting for approval...";
-
-            // --- НАДЕЖНАЯ УСТАНОВКА ГАЗА ДЛЯ APPROVE ---
-            const feeData = await provider.getFeeData();
+            
             const approveGasLimit = await tokenContract.approve.estimateGas(CONTRACT_ADDRESS, totalAmount);
-            const gasOptions = {
+            const gasOptionsApprove = {
                 maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
                 maxFeePerGas: feeData.maxFeePerGas,
-                gasLimit: BigInt(Math.round(Number(approveGasLimit) * 1.3))
+                gasLimit: BigInt(Math.round(Number(approveGasLimit) * 1.5)) // Запас 50%
             };
-            console.log("Approve required. Using manual gas options:", gasOptions);
+            console.log("Approve required. Using manual gas options:", gasOptionsApprove);
 
-            const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, totalAmount, gasOptions);
+            const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, totalAmount, gasOptionsApprove);
             console.log("Approve tx hash:", approveTx.hash);
             await approveTx.wait();
+            console.log("Approve transaction confirmed.");
         } else {
             console.log("Allowance sufficient, skipping approve.");
         }
 
         ELEMENTS.statusEl.textContent = translations[currentLang].status_donate || "Processing donation...";
-
+        
+        // --- ПРИНУДИТЕЛЬНЫЙ ГАЗ ДЛЯ ВТОРОЙ ТРАНЗАКЦИИ (DONATE) ---
+        let donateTx;
         if (donationType === 'preset') {
-            const donateTx = await contract.donatePreset(PRESET_NAME, selectedToken.address, totalAmount);
-            await donateTx.wait();
+            const donateGasLimit = await contract.donatePreset.estimateGas(PRESET_NAME, selectedToken.address, totalAmount);
+            const gasOptionsDonate = {
+                maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
+                maxFeePerGas: feeData.maxFeePerGas,
+                gasLimit: BigInt(Math.round(Number(donateGasLimit) * 1.5))
+            };
+            console.log("Executing donatePreset with manual gas:", gasOptionsDonate);
+            donateTx = await contract.donatePreset(PRESET_NAME, selectedToken.address, totalAmount, gasOptionsDonate);
         } else {
             const recipients = [];
             const amounts = [];
@@ -415,16 +423,26 @@ document.getElementById("donateBtn").onclick = async () => {
                 ELEMENTS.statusEl.textContent = '';
                 return;
             }
-            const donateTx = await contract.donate(selectedToken.address, recipients, amounts);
-            await donateTx.wait();
+            const donateGasLimit = await contract.donate.estimateGas(selectedToken.address, recipients, amounts);
+            const gasOptionsDonate = {
+                maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
+                maxFeePerGas: feeData.maxFeePerGas,
+                gasLimit: BigInt(Math.round(Number(donateGasLimit) * 1.5))
+            };
+            console.log("Executing donate with manual gas:", gasOptionsDonate);
+            donateTx = await contract.donate(selectedToken.address, recipients, amounts, gasOptionsDonate);
         }
-
+        
+        console.log("Donate tx hash:", donateTx.hash);
+        await donateTx.wait();
+        console.log("Donate transaction confirmed.");
+        
         ELEMENTS.statusEl.textContent = translations[currentLang].status_success || "Donation successful! Thank you!";
 
     } catch (err) {
         console.error("Full Transaction Error:", JSON.stringify(err, null, 2));
         let errorMessage = err?.reason || err?.data?.message || err?.message || "An unknown error occurred.";
-        if (err?.code === 4001 || err?.code === 'ACTION_REJECTED') {
+        if (err?.code === 4001 || err?.code === 'ACTION_REJECTED' || err.message.includes('user rejected transaction')) {
             errorMessage = "Transaction rejected by user.";
         }
         ELEMENTS.statusEl.textContent = `${translations[currentLang].status_error || 'Error:'} ${errorMessage}`;
