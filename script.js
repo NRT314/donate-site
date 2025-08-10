@@ -96,45 +96,50 @@ let selectedToken = TOKENS.usdt;
 let donationType = 'custom';
 
 // --- Polygon Network Logic ---
-const POLYGON_CHAIN_ID = '0x89'; // 137
+const POLYGON_CHAIN_ID = '0x89'; // 137 в шестнадцатеричной системе
 
 async function switchToPolygon() {
     if (!window.ethereum) throw new Error("Кошелек не найден");
 
     try {
+        // Пытаемся переключить сеть
         await window.ethereum.request({
             method: 'wallet_switchEthereumChain',
             params: [{ chainId: POLYGON_CHAIN_ID }],
         });
         console.log("Успешно переключено на Polygon");
     } catch (switchError) {
+        // Ошибка 4902 означает, что сеть не добавлена в MetaMask
         if (switchError.code === 4902) {
-            console.log("Сеть Polygon не найдена, попытка добавить...");
+            console.log("Сеть Polygon не найдена в кошельке, попытка добавить...");
             try {
                 await window.ethereum.request({
                     method: 'wallet_addEthereumChain',
-                    params: [{
-                        chainId: POLYGON_CHAIN_ID,
-                        chainName: 'Polygon Mainnet',
-                        rpcUrls: ['https://polygon.llamarpc.com'], // Надежный RPC
-                        nativeCurrency: {
-                            name: 'MATIC',
-                            symbol: 'MATIC',
-                            decimals: 18,
+                    params: [
+                        {
+                            chainId: POLYGON_CHAIN_ID,
+                            chainName: 'Polygon Mainnet',
+                            rpcUrls: ['https://polygon-rpc.com/'],
+                            nativeCurrency: {
+                                name: 'MATIC',
+                                symbol: 'MATIC',
+                                decimals: 18,
+                            },
+                            blockExplorerUrls: ['https://polygonscan.com/'],
                         },
-                        blockExplorerUrls: ['https://polygonscan.com/'],
-                    }, ],
+                    ],
                 });
             } catch (addError) {
                 console.error("Не удалось добавить сеть Polygon:", addError);
-                throw addError;
+                throw addError; // Пробрасываем ошибку дальше
             }
         } else {
             console.error("Не удалось переключить сеть:", switchError);
-            throw switchError;
+            throw switchError; // Пробрасываем ошибку дальше
         }
     }
 }
+
 
 // --- General Functions ---
 async function fetchTranslations() {
@@ -202,7 +207,7 @@ function updateContent() {
         </details>
     `).join('');
     }
-
+    
     if (ELEMENTS.discussionsContentEl) {
         ELEMENTS.discussionsContentEl.innerHTML = texts.discussions_content || '';
     }
@@ -268,7 +273,7 @@ function recalc() {
             totalInTokens += parseFloat(input.value) || 0;
         }
     }
-
+    
     ELEMENTS.presetTokenSymbolEl.textContent = tokenSymbol;
     ELEMENTS.tokenSymbolHeader.textContent = tokenSymbol;
     ELEMENTS.tokenSymbolAmount.textContent = tokenSymbol;
@@ -324,10 +329,10 @@ async function connectWallet() {
 
         setupWalletListeners();
     } catch (e) {
+        // Отображаем осмысленное сообщение об ошибке, если пользователь отклонил переключение/добавление сети
         showModal(`${translations[currentLang].modal_error} ${e.message}`);
     }
 }
-
 
 // --- Event Listeners ---
 ELEMENTS.langEnBtn.addEventListener('click', () => setLanguage('en'));
@@ -356,24 +361,24 @@ ELEMENTS.donationTypeRadios.forEach(radio => {
 
 ELEMENTS.presetAmountInputEl.addEventListener('input', recalc);
 ELEMENTS.connectBrowserBtn.onclick = connectWallet;
-ELEMENTS.connectMobileBtn.onclick = () => showModal(translations[currentLang].modal_wip || "Mobile connection coming soon!");
+ELEMENTS.connectMobileBtn.onclick = () => showModal(translations[currentLang].modal_wip);
 ELEMENTS.disconnectBtn.onclick = resetWalletState;
 
 document.getElementById("donateBtn").onclick = async () => {
     if (!signer) {
-        showModal(translations[currentLang].modal_connect || "Please connect your wallet first.");
+        showModal(translations[currentLang].modal_connect);
         return;
     }
 
     try {
-        // 1. Проверка сети перед каждой транзакцией
+        // 1. Проверка сети ПЕРЕД транзакцией
         const network = await provider.getNetwork();
-        if (network.chainId !== 137n) { // ethers.js v6+ uses BigInt for chainId
+        if (network.chainId !== 137n) { // ВАЖНО: ethers.js v6 возвращает chainId как BigInt (137n)
+            // Желательно добавить перевод для этого сообщения в ваш translations.json
             showModal(translations[currentLang].modal_switch_to_polygon || "Please switch to Polygon network to donate.");
             return;
         }
 
-        // 2. Расчет общей суммы доната
         let total = 0;
         if (donationType === 'preset') {
             total = parseFloat(ELEMENTS.presetAmountInputEl.value) || 0;
@@ -384,37 +389,26 @@ document.getElementById("donateBtn").onclick = async () => {
         }
 
         if (total <= 0) {
-            showModal(translations[currentLang].modal_no_amount || "Please enter a donation amount.");
+            showModal(translations[currentLang].modal_no_amount);
             return;
         }
 
-        ELEMENTS.statusEl.textContent = 'Preparing transaction...';
+        ELEMENTS.statusEl.textContent = '';
 
-        // 3. НАДЕЖНАЯ ЛОГИКА ОБРАБОТКИ ГАЗА (для стабильности на мобильных)
-        const feeData = await provider.getFeeData();
-        const gasOptions = {
-            maxPriorityFeePerGas: feeData.maxPriorityFeePerGas ? BigInt(Math.round(Number(feeData.maxPriorityFeePerGas) * 1.2)) : undefined,
-            maxFeePerGas: feeData.maxFeePerGas ? BigInt(Math.round(Number(feeData.maxFeePerGas) * 1.2)) : undefined,
-        };
-        // Убираем undefined поля, если сеть не поддерживает EIP-1559 (хотя Polygon поддерживает)
-        Object.keys(gasOptions).forEach(key => gasOptions[key] === undefined && delete gasOptions[key]);
-        console.log("Using forced gas options:", gasOptions);
-
-
-        // 4. Проведение транзакций
+        // 2. Остальная логика транзакции
         const tokenContract = new ethers.Contract(selectedToken.address, ERC20_ABI, signer);
         const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
         const totalAmount = ethers.parseUnits(total.toString(), selectedToken.decimals);
 
-        ELEMENTS.statusEl.textContent = translations[currentLang].status_approve || "Waiting for approval...";
-        const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, totalAmount, gasOptions);
-        console.log("Approval TX hash:", approveTx.hash);
+        ELEMENTS.statusEl.textContent = translations[currentLang].status_approve;
+        const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, totalAmount);
         await approveTx.wait();
 
-        ELEMENTS.statusEl.textContent = translations[currentLang].status_donate || "Processing donation...";
+        ELEMENTS.statusEl.textContent = translations[currentLang].status_donate;
+
         let donateTx;
         if (donationType === 'preset') {
-            donateTx = await contract.donatePreset(PRESET_NAME, selectedToken.address, totalAmount, gasOptions);
+            donateTx = await contract.donatePreset(PRESET_NAME, selectedToken.address, totalAmount);
         } else {
             let recipients = [];
             let amounts = [];
@@ -426,46 +420,39 @@ document.getElementById("donateBtn").onclick = async () => {
                 }
             }
             if (recipients.length === 0) {
-                showModal(translations[currentLang].modal_no_amount || "Please enter a donation amount.");
+                showModal(translations[currentLang].modal_no_amount);
                 ELEMENTS.statusEl.textContent = '';
                 return;
             }
-            donateTx = await contract.donate(selectedToken.address, recipients, amounts, gasOptions);
+            donateTx = await contract.donate(selectedToken.address, recipients, amounts);
         }
-
-        console.log("Donate TX hash:", donateTx.hash);
+        
         await donateTx.wait();
-
-        ELEMENTS.statusEl.textContent = translations[currentLang].status_success || "Donation successful! Thank you!";
+        ELEMENTS.statusEl.textContent = translations[currentLang].status_success;
 
     } catch (err) {
-        console.error("Transaction Error:", err);
+        console.error(err);
         let errorMessage = err.reason || err.message;
-        if (err.code === 'ACTION_REJECTED') {
-            errorMessage = "Transaction rejected by user.";
-        }
-        ELEMENTS.statusEl.textContent = `${translations[currentLang].status_error || 'Error:'} ${errorMessage}`;
+        ELEMENTS.statusEl.textContent = `${translations[currentLang].status_error} ${errorMessage}`;
     }
 };
 
 ELEMENTS.contactForm.addEventListener("submit", async function(event) {
     event.preventDefault();
     const texts = translations[currentLang];
-    ELEMENTS.contactStatus.textContent = texts.contact_status_sending || "Sending...";
+    ELEMENTS.contactStatus.textContent = texts.contact_status_sending;
 
     const response = await fetch(this.action, {
         method: this.method,
         body: new FormData(this),
-        headers: {
-            'Accept': 'application/json'
-        }
+        headers: { 'Accept': 'application/json' }
     });
 
     if (response.ok) {
-        ELEMENTS.contactStatus.textContent = texts.contact_status_success || "Message sent!";
+        ELEMENTS.contactStatus.textContent = texts.contact_status_success;
         ELEMENTS.contactForm.reset();
     } else {
-        ELEMENTS.contactStatus.textContent = texts.contact_status_error || "Oops! There was a problem.";
+        ELEMENTS.contactStatus.textContent = texts.contact_status_error;
     }
 });
 
